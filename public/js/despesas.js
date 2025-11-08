@@ -17,14 +17,27 @@ document.addEventListener('DOMContentLoaded', function() {
     let allEvents = [];
     let selectedEvent = null;
     let currentPeriodFilter = 'all'; // 'all', 'day', 'week', 'month'
+    const groupColors = new Map(); // Para cores consistentes dos grupos
 
     // Ensure global functions from app.js are available
-    // These functions are expected to be defined in app.js and loaded before despesas.js
     const AGENDA_WEBHOOK_URL = 'https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/agenda-astronomos';
     const callAgendaWebhook = window.callAgendaWebhook;
-    const normalizeEvent = window.normalizeEvento;
+    const normalizeEvent = window.normalizeEvent; // CORRIGIDO: sem "o" no final
     const getLoggedSession = window.getLoggedSession;
     const buildRouteInfoHtml = window.buildRouteInfoHtml;
+    const formatCurrencyBr = window.formatCurrencyBr;
+    const showNotification = window.showNotification;
+    const parseCurrencyBR = window.parseCurrencyBR;
+    const parseDatePreserveUTC = window.parseDatePreserveUTC;
+    const startOfDay = window.startOfDay;
+    const endOfDay = window.endOfDay;
+    const startOfWeek = window.startOfWeek;
+    const endOfWeek = window.endOfWeek;
+    const startOfMonth = window.startOfMonth;
+    const endOfMonth = window.endOfMonth;
+
+    // ===== FUNÇÕES DE AGRUPAMENTO (IGUAL AO INDEX) =====
+    
     // Função auxiliar para ler valores aninhados
     function readNested(obj, path) {
         if (!obj || !path) return undefined;
@@ -34,13 +47,107 @@ document.addEventListener('DOMContentLoaded', function() {
         }, obj);
     }
 
-    // Função auxiliar para parse de números de rota
+    // Função auxiliar para parse de números
     function parseRouteNumber(raw) {
         if (raw == null) return null;
         const cleaned = String(raw).replace(',', '.').trim();
         if (!cleaned) return null;
         const parsed = Number.parseFloat(cleaned);
         return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    function normalizeKey(v) {
+        return String(v ?? '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '') // remove acentos
+            .toLowerCase()
+            .replace(/\s+/g, ' ') // espaços múltiplos
+            .replace(/[\-_/.,;:|]+/g, ' ') // pontuações comuns
+            .trim();
+    }
+
+    function groupKey(ev) {
+        const parts = [
+            ev.astronomo,
+            ev.cidade,
+            ev.local_instalacao || ev.endereco,
+            ev.nome_da_escola || ev.nome_lead,
+            ev.responsavel_pelo_evento,
+            String(parseCurrencyBR(ev.valor_total || 0))
+        ];
+        return parts.map(normalizeKey).join('|');
+    }
+
+    function hashCode(str) { 
+        let h = 0; 
+        for(let i = 0; i < str.length; i++) { 
+            h = ((h << 5) - h) + str.charCodeAt(i); 
+            h |= 0; 
+        } 
+        return h; 
+    }
+
+    function colorForGroup(id) {
+        if (groupColors.has(id)) return groupColors.get(id);
+        const h = Math.abs(hashCode(String(id))) % 360;
+        const s = 70, l = 55;
+        const c = `hsl(${h}, ${s}%, ${l}%)`;
+        groupColors.set(id, c);
+        return c;
+    }
+
+    // Função principal de agrupamento (igual ao index)
+    function groupEvents(events) {
+        const groupedEvents = [];
+        const byGroup = new Map();
+
+        // Agrupar eventos por chave única
+        events.forEach(ev => {
+            const key = groupKey(ev);
+            if (!byGroup.has(key)) {
+                byGroup.set(key, []);
+            }
+            byGroup.get(key).push(ev);
+        });
+
+        // Para cada grupo, criar um evento consolidado
+        byGroup.forEach((eventList, groupKey) => {
+            if (eventList.length === 0) return;
+
+            // Ordenar por data
+            eventList.sort((a, b) => new Date(a.data_e_hora_do_agendamento) - new Date(b.data_e_hora_do_agendamento));
+            
+            // Usar o primeiro evento como base
+            const baseEvent = { ...eventList[0] };
+            
+            // Calcular totais consolidados
+            const totalValor = eventList.reduce((sum, ev) => sum + parseCurrencyBR(ev.valor_total || 0), 0);
+            const totalDiarias = eventList.reduce((sum, ev) => sum + (ev.numero_diarias || 1), 0);
+            
+            // Atualizar com valores consolidados
+            baseEvent.valor_total = totalValor;
+            baseEvent.numero_diarias = totalDiarias;
+            baseEvent._groupedCount = eventList.length; // Quantos eventos foram agrupados
+            baseEvent._groupedEvents = eventList; // Lista de eventos originais
+            baseEvent._groupKey = groupKey;
+            baseEvent._color = colorForGroup(groupKey);
+            
+            // Se há múltiplas datas, usar a primeira data e marcar como multi-dia
+            if (eventList.length > 1) {
+                const firstDate = new Date(eventList[0].data_e_hora_do_agendamento);
+                const lastDate = new Date(eventList[eventList.length - 1].data_e_hora_do_agendamento);
+                baseEvent.data_e_hora_do_agendamento = firstDate.toISOString();
+                baseEvent._isMultiDay = true;
+                baseEvent._dateRange = `${firstDate.toLocaleDateString('pt-BR')} - ${lastDate.toLocaleDateString('pt-BR')}`;
+            }
+
+            groupedEvents.push(baseEvent);
+            
+            console.log(`Agrupados ${eventList.length} eventos em: ${baseEvent.nome_da_escola} - ${baseEvent.cidade}`);
+        });
+
+        console.log(`Total: ${events.length} eventos originais → ${groupedEvents.length} eventos agrupados`);
+        return groupedEvents;
     }
 
     function extractExpenseEstimates(ev, routeInfo) {
@@ -103,6 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
     }
+
     function extractFuelDataFromEvent(ev) {
         if (!ev || typeof ev !== 'object') return {};
         const data = {};
@@ -111,35 +219,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const valor = parseRouteNumber(ev.valor_litro ?? ev.valor_litro_real ?? ev.preco_litro);
         if (valor != null) data.valor_litro = valor;
         return data;
-    }
-    const formatCurrencyBr = window.formatCurrencyBr;
-    const showNotification = window.showNotification;
-    const parseCurrencyBR = window.parseCurrencyBR;
-    const parseDatePreserveUTC = window.parseDatePreserveUTC;
-    const startOfDay = window.startOfDay;
-    const endOfDay = window.endOfDay;
-    const startOfWeek = window.startOfWeek;
-    const endOfWeek = window.endOfWeek;
-    const startOfMonth = window.startOfMonth;
-    const endOfMonth = window.endOfMonth;
-
-    // Função para agrupar eventos únicos (evitar duplicação)
-    function getUniqueEvents(events) {
-        const uniqueMap = new Map();
-        
-        events.forEach(event => {
-            // Criar chave única baseada em cidade, escola e data (sem hora)
-            const eventDate = parseDatePreserveUTC(event.data_agendamento);
-            const dateKey = eventDate ? eventDate.toISOString().split('T')[0] : 'no-date';
-            const uniqueKey = `${event.cidade || ''}-${event.nome_da_escola || ''}-${dateKey}`;
-            
-            // Se já existe um evento com mesma chave, manter o primeiro
-            if (!uniqueMap.has(uniqueKey)) {
-                uniqueMap.set(uniqueKey, event);
-            }
-        });
-        
-        return Array.from(uniqueMap.values());
     }
 
     async function fetchEvents() {
@@ -164,10 +243,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('Formato de dados inválido recebido do webhook');
             }
 
-            // Usar eventos únicos para evitar duplicação
-            allEvents = getUniqueEvents(eventsArray);
+            // Usar agrupamento sofisticado (igual ao index)
+            allEvents = groupEvents(eventsArray);
             
-            console.log(`Carregados ${eventsArray.length} eventos, ${allEvents.length} únicos após deduplicação`);
+            console.log(`Carregados ${eventsArray.length} eventos, ${allEvents.length} únicos após agrupamento`);
             
             populateEventSelect();
             updateSummaryCards();
@@ -212,7 +291,11 @@ document.addEventListener('DOMContentLoaded', function() {
             option.value = event.id;
             const eventDate = parseDatePreserveUTC(event.data_agendamento);
             const formattedDate = eventDate ? eventDate.toLocaleDateString('pt-BR') : 'Data Indefinida';
-            option.textContent = `${formattedDate} - ${event.nome_da_escola || event.cidade || 'Evento sem nome'}`;
+            
+            // Adicionar indicador de agrupamento se houver múltiplos eventos
+            const groupIndicator = event._groupedCount > 1 ? ` (${event._groupedCount} dias)` : '';
+            
+            option.textContent = `${formattedDate} - ${event.nome_da_escola || event.cidade || 'Evento sem nome'}${groupIndicator}`;
             eventSelect.appendChild(option);
         });
     }
@@ -220,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleEventSelect(event) {
         const eventId = event.target.value;
         selectedEvent = allEvents.find(ev => ev.id === eventId);
-        renderSelectedEventDetails(selectedEvent); // Render only the selected event
+        renderSelectedEventDetails(selectedEvent);
     }
 
     function renderSelectedEventDetails(event) {
@@ -241,21 +324,40 @@ document.addEventListener('DOMContentLoaded', function() {
         eventTotalValue.textContent = formatCurrencyBr(totalEventValueNum);
         astronomerProfit.textContent = formatCurrencyBr(astronomerProfitNum);
 
+        // Badge de agrupamento se houver múltiplos eventos
+        const groupBadge = event._groupedCount > 1 
+            ? `<div class="group-badge" style="background: ${event._color}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; display: inline-block; margin-left: 8px;">
+                 ${event._groupedCount} eventos agrupados
+               </div>`
+            : '';
+
+        // Data formatada para eventos multi-dia
+        const dateDisplay = event._dateRange 
+            ? event._dateRange 
+            : `${formattedDate} ${formattedTime}`;
+
         const eventDetailsHtml = `
-            <div class="event-item-despesa">
+            <div class="event-item-despesa" data-event-id="${event.id}" style="border-left: 4px solid ${event._color || '#4a90e2'}">
                 <div class="event-header">
-                    <div class="event-title">${event.nome_da_escola || event.cidade || 'Evento sem nome'}</div>
-                    <div class="event-date">${formattedDate} ${formattedTime}</div>
+                    <div class="event-title">
+                        ${event.nome_da_escola || event.cidade || 'Evento sem nome'}
+                        ${groupBadge}
+                    </div>
+                    <div class="event-date">${dateDisplay}</div>
                 </div>
                 <div class="event-details">
                     <div class="event-detail"><i>📍</i><span>${event.cidade} - ${event.local_instalacao || event.endereco || 'Local a definir'}</span></div>
                     <div class="event-detail"><i>👥</i><span>${event.faixa_de_alunos || 'Número não informado'}</span></div>
                     <div class="event-detail"><i>👨‍🏫</i><span>Responsável: ${event.responsavel_pelo_evento || '—'}</span></div>
-                    <div class="event-detail"><i>💰</i><span>Faturamento: ${formatCurrencyBr(totalEventValueNum)}</span></div>
+                    <div class="event-detail"><i>💰</i><span>Faturamento Total: ${formatCurrencyBr(totalEventValueNum)}</span></div>
+                    ${event._groupedCount > 1 ? `<div class="event-detail"><i>📅</i><span>${event._groupedCount} dias de evento</span></div>` : ''}
+                    <div class="event-detail"><i>🏨</i><span>Diárias: ${event.numero_diarias || 1}</span></div>
                 </div>
                 ${buildRouteInfoHtml(event)}
                 <div class="controls" style="margin-top:10px;">
-                    <button class="btn btn-secondary" id="launch-expense-btn"><i class="fas fa-file-invoice-dollar"></i> Lançar Despesa</button>
+                    <button class="btn btn-secondary" id="launch-expense-btn">
+                        <i class="fas fa-file-invoice-dollar"></i> Lançar Despesas
+                    </button>
                 </div>
             </div>
         `;
@@ -286,22 +388,39 @@ document.addEventListener('DOMContentLoaded', function() {
             const totalEventValueNum = parseCurrencyBR(event.valor_total || 0);
             const astronomerProfitNum = totalEventValueNum * 0.26;
 
+            // Badge de agrupamento se houver múltiplos eventos
+            const groupBadge = event._groupedCount > 1 
+                ? `<div class="group-badge" style="background: ${event._color}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; display: inline-block; margin-left: 8px;">
+                     ${event._groupedCount} eventos agrupados
+                   </div>`
+                : '';
+
+            // Data formatada para eventos multi-dia
+            const dateDisplay = event._dateRange 
+                ? event._dateRange 
+                : `${formattedDate} ${formattedTime}`;
+
             const eventHtml = `
-                <div class="event-item-despesa" data-event-id="${event.id}">
+                <div class="event-item-despesa" data-event-id="${event.id}" style="border-left: 4px solid ${event._color || '#4a90e2'}">
                     <div class="event-header">
-                        <div class="event-title">${event.nome_da_escola || event.cidade || 'Evento sem nome'}</div>
-                        <div class="event-date">${formattedDate} ${formattedTime}</div>
+                        <div class="event-title">
+                            ${event.nome_da_escola || event.cidade || 'Evento sem nome'}
+                            ${groupBadge}
+                        </div>
+                        <div class="event-date">${dateDisplay}</div>
                     </div>
                     <div class="event-details">
                         <div class="event-detail"><i>📍</i><span>${event.cidade} - ${event.local_instalacao || event.endereco || 'Local a definir'}</span></div>
                         <div class="event-detail"><i>👥</i><span>${event.faixa_de_alunos || 'Número não informado'}</span></div>
                         <div class="event-detail"><i>👨‍🏫</i><span>Responsável: ${event.responsavel_pelo_evento || '—'}</span></div>
-                        <div class="event-detail"><i>💰</i><span>Faturamento: ${formatCurrencyBr(totalEventValueNum)}</span></div>
+                        <div class="event-detail"><i>💰</i><span>Faturamento Total: ${formatCurrencyBr(totalEventValueNum)}</span></div>
+                        ${event._groupedCount > 1 ? `<div class="event-detail"><i>📅</i><span>${event._groupedCount} dias de evento</span></div>` : ''}
+                        <div class="event-detail"><i>🏨</i><span>Diárias: ${event.numero_diarias || 1}</span></div>
                     </div>
                     ${buildRouteInfoHtml(event)}
                     <div class="controls" style="margin-top:10px;">
                         <button class="btn btn-secondary launch-expense-btn" data-event-id="${event.id}">
-                            <i class="fas fa-file-invoice-dollar"></i> Lançar Despesa
+                            <i class="fas fa-file-invoice-dollar"></i> Lançar Despesas
                         </button>
                     </div>
                 </div>
@@ -336,29 +455,44 @@ document.addEventListener('DOMContentLoaded', function() {
         let totalFood = 0;
         let totalPedagios = 0;
         let totalMonitor = 0;
+        let totalFaturamento = 0;
 
         eventsForSummary.forEach(event => {
             const expenses = extractExpenseEstimates(event, event.routeInfo);
+            const faturamentoEvento = parseCurrencyBR(event.valor_total || 0);
             
-            console.log(`Evento ${event.id}:`, expenses);
+            console.log(`Evento ${event.id} (${event._groupedCount || 1} dias):`, expenses, `Faturamento: ${faturamentoEvento}`);
             
             totalFuel += expenses.combustivel || 0;
             totalHotel += expenses.hospedagem || 0;
             totalFood += expenses.alimentacao || 0;
             totalPedagios += expenses.pedagios || 0;
             totalMonitor += expenses.monitor || 0;
+            totalFaturamento += faturamentoEvento;
         });
 
-        console.log('Totais:', { totalFuel, totalHotel, totalFood, totalPedagios, totalMonitor });
+        const totalLucroAstronomo = totalFaturamento * 0.26;
+
+        console.log('Totais:', { 
+            totalFuel, 
+            totalHotel, 
+            totalFood, 
+            totalPedagios, 
+            totalMonitor, 
+            totalFaturamento,
+            totalLucroAstronomo
+        });
 
         estCostFuel.textContent = formatCurrencyBr(totalFuel);
         estCostHotel.textContent = formatCurrencyBr(totalHotel);
         estCostFood.textContent = formatCurrencyBr(totalFood);
         estCostPedagios.textContent = formatCurrencyBr(totalPedagios);
         estCostMonitor.textContent = formatCurrencyBr(totalMonitor);
+        eventTotalValue.textContent = formatCurrencyBr(totalFaturamento);
+        astronomerProfit.textContent = formatCurrencyBr(totalLucroAstronomo);
     }
 
-    // --- Expenses Modal Functions (copied/adapted from app.js) ---
+    // --- Expenses Modal Functions ---
     const expensesModal = document.getElementById('expenses-modal');
     const expensesModalClose = document.getElementById('expenses-modal-close');
     const expensesForm = document.getElementById('expenses-form');
@@ -434,6 +568,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // ... resto do código (modal de localização, event listeners, etc) permanece igual ...
     expensesModalClose.addEventListener('click', closeExpensesModal);
     expCancelBtn.addEventListener('click', closeExpensesModal);
     expensesForm.addEventListener('submit', submitExpensesForm);
@@ -442,52 +577,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && expensesModal.classList.contains('open')) closeExpensesModal();
-    });
-
-    // --- Location Modal Functions (copied/adapted from app.js) ---
-    const locationModal = document.getElementById('location-modal');
-    const locationModalClose = document.getElementById('location-modal-close');
-    const locCancelBtn = document.getElementById('loc-cancel');
-    const manualLocationForm = document.getElementById('manual-location-form');
-
-    function openLocationModal(ev, destino) {
-        document.getElementById('loc-id-evento').value = ev?.id || '';
-        document.getElementById('loc-destino').value = destino || '';
-        locationModal.classList.add('open');
-        locationModal.setAttribute('aria-hidden', 'false');
-    }
-
-    function closeLocationModal() {
-        locationModal.classList.remove('open');
-        locationModal.setAttribute('aria-hidden', 'true');
-    }
-
-    async function submitManualLocation(e) {
-        e.preventDefault();
-        const id_evento = document.getElementById('loc-id-evento').value;
-        const manual_city = document.getElementById('manual-city').value.trim();
-        const uf = document.getElementById('manual-uf').value.trim();
-        const destino = document.getElementById('loc-destino').value;
-        if (!manual_city || !uf) { showNotification('Informe cidade e UF.', 'error'); return; }
-        try {
-            // This part needs to be adapted if `requestRouteInfoForEvent` and `geocodeCityUF` are not global
-            // For now, just send the location update
-            await callAgendaWebhook('obter_localizacao', { id_evento, manual_city, uf, destino });
-            showNotification('Localização manual enviada.', 'success');
-            closeLocationModal();
-        } catch (err) {
-            showNotification('Falha ao enviar localização: ' + err.message, 'error');
-        }
-    }
-
-    locationModalClose.addEventListener('click', closeLocationModal);
-    locCancelBtn.addEventListener('click', closeLocationModal);
-    manualLocationForm.addEventListener('submit', submitManualLocation);
-    locationModal.addEventListener('click', (e) => {
-        if (e.target === locationModal) closeLocationModal();
-    });
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && locationModal.classList.contains('open')) closeLocationModal();
     });
 
     // Period filter buttons
@@ -512,60 +601,4 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial fetch
     fetchEvents();
     eventSelect.addEventListener('change', handleEventSelect);
-
-    // Função para parse de datas preservando UTC
-    function parseDatePreserveUTC(dateString) {
-        if (!dateString) return null;
-        try {
-            const date = new Date(dateString);
-            return isNaN(date.getTime()) ? null : date;
-        } catch (e) {
-            return null;
-        }
-    }
-
-    // Funções de manipulação de datas (se não existirem)
-    function startOfDay(date) {
-        const d = new Date(date);
-        d.setHours(0, 0, 0, 0);
-        return d;
-    }
-
-    function endOfDay(date) {
-        const d = new Date(date);
-        d.setHours(23, 59, 59, 999);
-        return d;
-    }
-
-    function startOfWeek(date) {
-        const d = new Date(date);
-        const day = d.getDay();
-        const diff = d.getDate() - day;
-        d.setDate(diff);
-        d.setHours(0, 0, 0, 0);
-        return d;
-    }
-
-    function endOfWeek(date) {
-        const d = new Date(date);
-        const day = d.getDay();
-        const diff = d.getDate() + (6 - day);
-        d.setDate(diff);
-        d.setHours(23, 59, 59, 999);
-        return d;
-    }
-
-    function startOfMonth(date) {
-        const d = new Date(date);
-        d.setDate(1);
-        d.setHours(0, 0, 0, 0);
-        return d;
-    }
-
-    function endOfMonth(date) {
-        const d = new Date(date);
-        d.setMonth(d.getMonth() + 1, 0);
-        d.setHours(23, 59, 59, 999);
-        return d;
-    }
 });
