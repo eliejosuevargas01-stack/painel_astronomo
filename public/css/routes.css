@@ -1,0 +1,143 @@
+/* Rotas — estilos aprimorados e container de mapa (Google Maps pronto) */
+
+.route-info{
+  margin-top: 8px;
+}
+.route-card{
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-neon);
+}
+.route-header{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: #fff;
+  margin-bottom: 10px;
+}
+.route-header i{ color: var(--accent-cyan); }
+
+.route-summary{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 8px 0 14px 0;
+}
+.route-summary p{
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  color: var(--muted);
+}
+.route-summary strong{ color:#fff; }
+.route-optimization{
+  display:flex; align-items:center; gap:8px;
+  background: linear-gradient(90deg, rgba(52,209,243,0.08), rgba(123,92,255,0.06));
+  border: 1px dashed var(--neon-outline);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  color: var(--muted);
+}
+.route-optimization i{ color: var(--accent-gold); }
+
+/* Mapa embutido (placeholder pronto para a API do Google Maps) */
+.map-embed-card{ margin-top: 12px; }
+.map-embed-header{
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 600; color:#fff; margin-bottom: 8px;
+}
+.map-embed-header i{ color: var(--accent-purple); }
+.map-embed{
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0a0f22;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.map-embed iframe, .map-embed canvas, .map-embed > div.google-map{
+  position:absolute; inset:0; width:100%; height:100%; border:0;
+}
+.map-embed-placeholder{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center; gap:12px;
+  color: var(--muted);
+  background: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 10px, transparent 10px 20px);
+}
+.map-embed-placeholder i{ color: var(--accent-magenta); font-size: 22px; }
+.map-embed-placeholder .title{ font-weight: 600; color:#fff; }
+.map-embed-placeholder .hint{ font-size: 12px; color: var(--muted-2); }
+
+/* Go button overlay in map embed */
+.map-embed .go-button{
+  position: absolute; right: 10px; bottom: 10px;
+  z-index: 2;
+  background: linear-gradient(90deg, rgba(52,209,243,0.25), rgba(123,92,255,0.25));
+  border: 1px solid var(--neon-outline);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.map-embed .go-button:hover{ filter: brightness(1.08); }
+
+.route-steps{
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+.route-step{
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+}
+.route-step .step-number{
+  width: 28px; height: 28px; border-radius: 50%; display:grid; place-items:center;
+  background: rgba(123,92,255,0.15); border: 1px solid var(--neon-outline); color:#fff; font-weight:700;
+}
+.route-step .step-location{ color:#fff; font-weight:600; }
+.route-step .step-action{
+  appearance: none;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  color: #fff;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+}
+.route-step .step-action i{ transition: transform var(--transition-fast); }
+.route-step .step-action:hover{
+  background: rgba(255,255,255,0.06);
+  border-color: var(--neon-outline);
+  color: var(--accent-gold);
+}
+.route-step.is-open .step-action i{ transform: rotate(180deg); }
+
+.route-actions{
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.btn-route{
+  background: linear-gradient(90deg, rgba(52,209,243,0.25), rgba(123,92,255,0.25));
+  border: 1px solid var(--neon-outline);
+}
+
+@media (max-width: 720px){
+  .route-summary{ grid-template-columns: 1fr; }
+  .route-step{ grid-template-columns: 28px 1fr auto; }
+}
