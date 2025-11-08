@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário de Eventos - Astrônomos</title>
+    <link rel="stylesheet" href="public/css/main-responsive.css">
+    <link rel="stylesheet" href="public/css/style.css">
+    <link rel="stylesheet" href="public/css/docs-urania.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Fundo galáctico (coeso com a Agenda Urânia) -->
+    <div class="space-layer stars"></div>
+    <div class="space-layer twinkle"></div>
+    <div class="space-layer nebula"></div>
+    <div class="space-layer galaxies"></div>
+
+    <div class="container">
+        <header>
+            <h1>🌌 Agenda do Astrônomo</h1>
+            <a href="account.html" class="nav-button" title="Minha Conta"><i class="fas fa-user-astronaut"></i> Minha Conta</a>
+        </header>
+        
+        <div class="navigation">
+            <a href="index.html" class="nav-button active"><i class="fas fa-calendar-alt"></i> Agenda</a>
+            <a href="feedbacks.html" class="nav-button"><i class="fas fa-comment-dots"></i> Feedbacks</a>
+            <a href="despesas.html" class="nav-button"><i class="fas fa-file-invoice-dollar"></i> Despesas</a>
+            <a href="historico.html" class="nav-button"><i class="fas fa-history"></i> Históricos</a>
+            <a href="login.html" class="nav-button"><i class="fas fa-right-to-bracket"></i> Entrar</a>
+        </div>
+
+        <div class="webhook-status" id="webhook-status">
+            <div class="event-detail">
+                <i>🔗</i>
+                <span><strong>Webhook:</strong> <span id="webhook-url">https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/agenda-astronomos</span></span>
+            </div>
+            <div class="event-detail">
+                <i>📡</i>
+                <span><strong>Status:</strong> <span id="connection-status">Aguardando dados...</span></span>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="total-events">0</div>
+                <div class="stat-label">Total de Eventos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="total-revenue">R$ 0</div>
+                <div class="stat-label">Faturamento Estimado (período selecionado)</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="finalized-events">0</div>
+                <div class="stat-label">Eventos Finalizados</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="actual-revenue-day">R$ 0</div>
+                <div class="stat-label">Faturamento (Dia) - Finalizados</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="actual-revenue-week">R$ 0</div>
+                <div class="stat-label">Faturamento (Semana) - Finalizados</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="actual-revenue-month">R$ 0</div>
+                <div class="stat-label">Faturamento (Mês) - Finalizados</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="cities-visited">0</div>
+                <div class="stat-label">Cidades visitadas</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="next-event">—</div>
+                <div class="stat-label">Próximo evento</div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <section class="calendar-section">
+                <h2 class="section-title">📅 Calendário</h2>
+                <div class="calendar-header">
+                    <button class="calendar-nav" id="prev-month">← Mês Anterior</button>
+                    <h3 id="current-month">Carregando...</h3>
+                    <button class="calendar-nav" id="next-month">Próximo Mês →</button>
+                </div>
+                <table class="calendar" id="calendar">
+                    <thead>
+                        <tr>
+                            <th>Dom</th>
+                            <th>Seg</th>
+                            <th>Ter</th>
+                            <th>Qua</th>
+                            <th>Qui</th>
+                            <th>Sex</th>
+                            <th>Sáb</th>
+                        </tr>
+                    </thead>
+                    <tbody id="calendar-body">
+                        <!-- O calendário será gerado dinamicamente com JavaScript -->
+                    </tbody>
+                </table>
+
+                <!-- Painel de Localização Atual do Astrônomo -->
+                <div class="location-panel" id="location-panel" style="margin-top: 14px; border:1px solid var(--glass-border); border-radius:12px; padding:12px; background: linear-gradient(180deg, rgba(12,14,34,0.35), rgba(6,8,22,0.45));">
+                    <div class="form-group" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                        <label class="form-label" for="current-manual-city" style="margin:0;">Estou em:</label>
+                        <input class="form-input" id="current-manual-city" type="text" placeholder="Cidade" style="max-width:260px;" />
+                        <input class="form-input" id="current-manual-uf" type="text" placeholder="UF" maxlength="2" style="max-width:80px; text-transform:uppercase;" />
+                        <button class="btn btn-secondary" id="btn-use-geolocation"><i class="fas fa-location-crosshairs"></i> Usar minha localização atual</button>
+                        <button class="btn btn-secondary" id="btn-save-location"><i class="fas fa-save"></i> Salvar</button>
+                        <span id="current-location-status" class="faint"></span>
+                    </div>
+                </div>
+
+                <!-- Painel de Informações do Dia Selecionado -->
+                <div class="day-info-panel" id="day-info-panel" style="margin-top: 12px; border:1px solid var(--glass-border); border-radius:12px; padding:12px; background: linear-gradient(180deg, rgba(12,14,34,0.35), rgba(6,8,22,0.45));">
+                    <div class="empty-state">
+                        <i>🗓️</i>
+                        <p>Selecione um dia no calendário para ver os eventos.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="events-section">
+                <h2 class="section-title">📋 Eventos</h2>
+                <div class="filters">
+                    <div class="filter-group">
+                        <label class="filter-label" for="city-select">Filtrar por cidade:</label>
+                        <select class="filter-select" id="city-select">
+                            <option value="all">Todas as cidades</option>
+                            <!-- As opções serão preenchidas dinamicamente -->
+                        </select>
+                    </div>
+                    <div class="period-filter" id="period-filter">
+                        <div class="period-button" data-period="dia">Dia</div>
+                        <div class="period-button" data-period="semana">Semana</div>
+                        <div class="period-button active" data-period="mes">Mês</div>
+                    </div>
+                </div>
+                <div class="events-list" id="events-list">
+                    <div class="empty-state">
+                        <i>🌌</i>
+                        <p>Aguardando dados do webhook...</p>
+                    </div>
+                </div>
+                <button class="refresh-button" id="refresh-button">
+                    <span class="button-text">Buscar Dados do Webhook</span>
+                </button>
+                <!-- Seção: Eventos pendentes de finalizar (abaixo do botão verde) -->
+                <div class="events-list" id="pending-events">
+                    <!-- Renderizado dinamicamente em renderEvents() -->
+                </div>
+            </section>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+
+    <!-- Modal de Detalhes do Evento -->
+    <div class="modal" id="event-modal" aria-hidden="true" role="dialog">
+        <div class="modal-content" role="document">
+            <button class="close-btn" id="event-modal-close" aria-label="Fechar">&times;</button>
+            <div id="event-modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Modal: Lançar Despesas -->
+    <div class="modal" id="expenses-modal" aria-hidden="true" role="dialog">
+        <div class="modal-content" role="document">
+            <button class="close-btn" id="expenses-modal-close" aria-label="Fechar">&times;</button>
+            <div class="modal-title"><i class="fas fa-file-invoice-dollar"></i> Lançar Despesas</div>
+            <form id="expenses-form" class="form-grid">
+                <input type="hidden" id="exp-id-evento" />
+                <div class="form-group">
+                    <label class="form-label" for="exp-combustivel">Combustível (R$)</label>
+                    <input class="form-input" id="exp-combustivel" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="exp-hospedagem">Hospedagem (R$)</label>
+                    <input class="form-input" id="exp-hospedagem" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="exp-alimentacao">Alimentação (R$)</label>
+                    <input class="form-input" id="exp-alimentacao" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="exp-pedagios">Pedágios (R$)</label>
+                    <input class="form-input" id="exp-pedagios" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="exp-monitor">Monitor (R$)</label>
+                    <input class="form-input" id="exp-monitor" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="exp-outros">Outros (R$)</label>
+                    <input class="form-input" id="exp-outros" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="controls" style="margin-top: 8px; gap:8px; display:flex; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-secondary" id="exp-submit"><i class="fas fa-paper-plane"></i> Enviar</button>
+                    <button type="button" class="btn btn-secondary" id="exp-cancel">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Localização Manual -->
+    <div class="modal" id="location-modal" aria-hidden="true" role="dialog">
+        <div class="modal-content" role="document">
+            <button class="close-btn" id="location-modal-close" aria-label="Fechar">&times;</button>
+            <div class="modal-title"><i class="fas fa-location-dot"></i> Informar Localização Atual</div>
+            <p>Não foi possível obter sua localização automaticamente. Informe manualmente sua cidade e UF.</p>
+            <form id="manual-location-form" class="form-grid">
+                <input type="hidden" id="loc-id-evento" />
+                <input type="hidden" id="loc-destino" />
+                <div class="form-group">
+                    <label class="form-label" for="manual-city">Cidade atual</label>
+                    <input class="form-input" id="manual-city" type="text" placeholder="Ex: Araranguá" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="manual-uf">UF</label>
+                    <input class="form-input" id="manual-uf" type="text" placeholder="Ex: SC" maxlength="2" required />
+                </div>
+                <div class="controls" style="margin-top: 8px; gap:8px; display:flex; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-secondary" id="loc-submit"><i class="fas fa-paper-plane"></i> Enviar</button>
+                    <button type="button" class="btn btn-secondary" id="loc-cancel">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Elementos DOM
+        const calendarBody = document.getElementById('calendar-body');
+        const currentMonthElement = document.getElementById('current-month');
+        const prevMonthButton = document.getElementById('prev-month');
+        const nextMonthButton = document.getElementById('next-month');
+        const eventsList = document.getElementById('events-list');
+        const pendingEventsElement = document.getElementById('pending-events');
+        const citySelect = document.getElementById('city-select');
+        const refreshButton = document.getElementById('refresh-button');
+        const notification = document.getElementById('notification');
+        const totalEventsElement = document.getElementById('total-events');
+        const totalRevenueElement = document.getElementById('total-revenue'); // Faturamento Estimado (período)
+        const finalizedEventsElement = document.getElementById('finalized-events');
+        const actualRevenueDayElement = document.getElementById('actual-revenue-day');
+        const actualRevenueWeekElement = document.getElementById('actual-revenue-week');
+        const actualRevenueMonthElement = document.getElementById('actual-revenue-month');
+        const citiesVisitedElement = document.getElementById('cities-visited');
+        const nextEventElement = document.getElementById('next-event');
+        const connectionStatus = document.getElementById('connection-status');
+        const webhookStatus = document.getElementById('webhook-status');
+        // Painel localização atual
+        const currentLocationInput = document.getElementById('current-location-text');
+        const currentCityInput = document.getElementById('current-manual-city');
+        const currentUfInput = document.getElementById('current-manual-uf');
+        const btnUseGeolocation = document.getElementById('btn-use-geolocation');
+        const btnSaveLocation = document.getElementById('btn-save-location');
+        const currentLocationStatus = document.getElementById('current-location-status');
+        // Painel de info do dia
+        const dayInfoPanel = document.getElementById('day-info-panel');
+        const periodFilterEl = document.getElementById('period-filter');
+
+        // Configuração do Webhook (novo endpoint)
+        const AGENDA_WEBHOOK_URL = 'https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/agenda-astronomos';
+
+        // Estado da aplicação
+        let currentDate = new Date();
+        let selectedDate = null;
+        let filteredCity = 'all';
+        let eventsData = [];
+        let currentModalEvent = null;
+        let calendarOccurrences = [];
+        const groupColors = new Map(); // groupId -> color
+        let viewPeriod = 'mes'; // 'dia' | 'semana' | 'mes'
+        // Geolocalização atual (estado)
+        let lastKnownPosition = null; // { lat, lng }
+        let currentLocationSentWithNext = false;
+        let manualLocationEvent = null;
+        const routeInfoCache = new Map();
+        const routeInfoPromises = new Map();
+        let routeRefreshScheduled = false;
+
+        function parseRouteNumber(raw){
+            if (raw == null) return null;
+            const cleaned = String(raw).replace(',', '.').trim();
+            if (!cleaned) return null;
+            const parsed = Number.parseFloat(cleaned);
+            return Number.isFinite(parsed) ? parsed : null;
+        }
+        function readNested(obj, path){
+            if (!obj || !path) return undefined;
+            return path.split('.').reduce((acc, part)=>{
+                if (acc && typeof acc === 'object') return acc[part];
+                return undefined;
+            }, obj);
+        }
+        function findCoordinates(ev, candidates){
+            for (const [latPath, lngPath] of candidates){
+                const lat = parseRouteNumber(readNested(ev, latPath));
+                const lng = parseRouteNumber(readNested(ev, lngPath));
+                if (lat != null && lng != null) return { lat, lng };
+            }
+            return null;
+        }
+        function getEventOriginCoords(ev){
+            const originCandidates = [
+                ['origem_lat','origem_lon'],
+                ['origem_latitude','origem_longitude'],
+                ['origem_latitud','origem_longitud'],
+                ['origem.latitude','origem.longitude'],
+                ['origem.lat','origem.lng'],
+                ['origem.lat','origem.lon'],
+                ['origem.y','origem.x'],
+                ['coordenadas_origem.lat','coordenadas_origem.lng'],
+                ['coordenadas_origem.lat','coordenadas_origem.lon'],
+                ['origem.latitude','origem.lon']
+            ];
+            return findCoordinates(ev, originCandidates);
+        }
+        function getEventDestinationCoords(ev){
+            const destinationCandidates = [
+                ['destino_lat','destino_lon'],
+                ['destino_latitude','destino_longitude'],
+                ['destino_latitud','destino_longitud'],
+                ['destino.latitude','destino.longitude'],
+                ['destino.lat','destino.lng'],
+                ['destino.lat','destino.lon'],
+                ['destino.y','destino.x'],
+                ['latitude_destino','longitude_destino'],
+                ['lat_destino','lng_destino'],
+                ['lat','lng'],
+                ['latitude','longitude'],
+                ['destino_lat','destino_long'],
+                ['destino_latitude','destino_long'],
+                ['coordenadas.lat','coordenadas.lng'],
+                ['coordenadas.lat','coordenadas.lon'],
+                ['destino.latitude','destino.long']
+            ];
+            return findCoordinates(ev, destinationCandidates);
+        }
+        function formatRouteKey(origin, destination){
+            const formatCoord = (value)=> Number(value).toFixed(6);
+            return `${formatCoord(origin.lat)},${formatCoord(origin.lng)}|${formatCoord(destination.lat)},${formatCoord(destination.lng)}`;
+        }
+        function formatDurationText(seconds){
+            if (!Number.isFinite(seconds)) return '—';
+            const minutes = Math.round(seconds / 60);
+            if (minutes >= 60){
+                const hrs = Math.floor(minutes / 60);
+                const mins = minutes % 60;
+                return `${hrs}h ${mins}m`;
+            }
+            return `${minutes} min`;
+        }
+        function formatDistanceText(km){
+            if (!Number.isFinite(km)) return '—';
+            return `${km.toFixed(1)} km`;
+        }
+        function formatCurrencyBr(value){
+            if (!Number.isFinite(value)) return '—';
+            return 'R$ ' + value.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
+        }
+        function scheduleRouteRefresh(){
+            if (routeRefreshScheduled) return;
+            routeRefreshScheduled = true;
+            setTimeout(()=>{
+                routeRefreshScheduled = false;
+                renderEvents();
+                renderDayInfoPanel();
+            }, 25);
+        }
+        // Geocodificação simples via Nominatim (cidade + UF → lat/lng)
+        async function geocodeCityUF(city, uf){
+            try{
+                const q = `${String(city||'').trim()} ${String(uf||'').trim()}`.trim();
+                if (!q) return null;
+                const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=br&q=${encodeURIComponent(q)}&addressdetails=1`;
+                const resp = await fetch(url, { headers: { 'Accept':'application/json' } });
+                if (!resp.ok) return null;
+                const arr = await resp.json();
+                if (!Array.isArray(arr) || arr.length===0) return null;
+                const item = arr[0];
+                const lat = parseRouteNumber(item.lat);
+                const lng = parseRouteNumber(item.lon);
+                if (lat==null || lng==null) return null;
+                return { lat, lng };
+            }catch(_){ return null; }
+        }
+        async function fetchRouteFromOSRM(origin, destination){
+            const url = `https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?overview=false&steps=true`;
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error(`OSRM ${resp.status}`);
+            const payload = await resp.json();
+            const route = (payload && Array.isArray(payload.routes) && payload.routes[0]) || null;
+            if (!route || !Number.isFinite(route.distance) || !Number.isFinite(route.duration)) throw new Error('Rota não encontrada');
+            return {
+                distanceKm: route.distance / 1000,
+                durationSec: route.duration
+            };
+        }
+        function getOriginLabel(ev){
+            return (ev.cidade_origem || ev.origem || ev.origem_cidade || ev.cidade || 'Origem');
+        }
+        function getDestinationLabel(ev){
+            return (ev.cidade_destino || ev.destino || ev.cidade || ev.local_instalacao || 'Destino');
+        }
+        function buildRouteInfoEntity(ev, { key, originLabel, destinationLabel, originCoords, destinationCoords, distanceKm, durationSec, error=null }){
+            const fuelData = extractFuelDataFromEvent(ev);
+            const liters = (distanceKm && fuelData.consumo_km_l) ? distanceKm / fuelData.consumo_km_l : null;
+            const cost = (liters != null && fuelData.valor_litro != null) ? liters * fuelData.valor_litro : null;
+            return {
+                key,
+                originLabel,
+                destinationLabel,
+                originCoords,
+                destinationCoords,
+                distanceKm,
+                durationSec,
+                distanceText: distanceKm != null ? formatDistanceText(distanceKm) : '—',
+                durationText: durationSec != null ? formatDurationText(durationSec) : '—',
+                fuelConsumption: fuelData.consumo_km_l,
+                fuelValue: fuelData.valor_litro,
+                fuelLiters: liters,
+                fuelCost: cost,
+                error
+            };
+        }
+        async function requestRouteInfoForEvent(ev, { originOverride=null, originLabelOverride=null, forceOverride=false } = {}){
+            const origin = originOverride ?? getEventOriginCoords(ev);
+            const destination = getEventDestinationCoords(ev);
+            const targetProp = originOverride ? 'routeInfoOverride' : 'routeInfo';
+            if (!origin || !destination){
+                const errorInfo = {
+                    key: origin && destination ? formatRouteKey(origin, destination) : null,
+                    originLabel: originLabelOverride || getOriginLabel(ev),
+                    destinationLabel: getDestinationLabel(ev),
+                    originCoords: origin || null,
+                    destinationCoords: destination || null,
+                    error: 'Coordenadas insuficientes',
+                    distanceKm: null,
+                    durationSec: null
+                };
+                ev[targetProp] = errorInfo;
+                return errorInfo;
+            }
+            const key = formatRouteKey(origin, destination);
+            const label = originLabelOverride || getOriginLabel(ev);
+            const destLabel = getDestinationLabel(ev);
+            const existing = ev[targetProp];
+            if (existing && existing.key === key && !forceOverride) return existing;
+            const cached = routeInfoCache.get(key);
+            if (cached){
+                const info = { ...cached, key, originLabel: label, destinationLabel: destLabel, originCoords: origin, destinationCoords: destination };
+                ev[targetProp] = info;
+                return info;
+            }
+            // Fallback do payload só deve ser usado na rota padrão (origem do próprio evento).
+            // Quando houver originOverride (localização atual), precisamos forçar o cálculo via OSRM
+            // para refletir a distância REAL da posição atual até o destino.
+            const fallbackDist = parseRouteNumber(ev.distancia_km ?? ev.distancia);
+            const fallbackDurationMin = parseRouteNumber(ev.duracao_minutos ?? ev.duracao);
+            if (!originOverride && fallbackDist != null && fallbackDurationMin != null){
+                const info = buildRouteInfoEntity(ev, {
+                    key,
+                    originLabel: label,
+                    destinationLabel: destLabel,
+                    originCoords: origin,
+                    destinationCoords: destination,
+                    distanceKm: fallbackDist,
+                    durationSec: fallbackDurationMin * 60,
+                    error: null
+                });
+                routeInfoCache.set(key, info);
+                ev[targetProp] = info;
+                scheduleRouteRefresh();
+                return info;
+            }
+            const promiseKey = `${key}:${originOverride?'override':'default'}`;
+            if (routeInfoPromises.has(promiseKey)){
+                return routeInfoPromises.get(promiseKey);
+            }
+            const promise = fetchRouteFromOSRM(origin, destination)
+                .then(route => {
+                    const info = buildRouteInfoEntity(ev, {
+                        key,
+                        originLabel: label,
+                        destinationLabel: destLabel,
+                        originCoords: origin,
+                        destinationCoords: destination,
+                        distanceKm: route.distanceKm,
+                        durationSec: route.durationSec,
+                        error: null
+                    });
+                    routeInfoCache.set(key, info);
+                    ev[targetProp] = info;
+                    scheduleRouteRefresh();
+                    return info;
+                })
+                .catch(err => {
+                    const errorInfo = {
+                        key,
+                        originLabel: label,
+                        destinationLabel: destLabel,
+                        originCoords: origin,
+                        destinationCoords: destination,
+                        error: err.message || 'Não foi possível calcular a rota',
+                        distanceKm: null,
+                        durationSec: null
+                    };
+                    ev[targetProp] = errorInfo;
+                    scheduleRouteRefresh();
+                    return errorInfo;
+                })
+                .finally(()=>{
+                    routeInfoPromises.delete(promiseKey);
+                });
+            routeInfoPromises.set(promiseKey, promise);
+            return promise;
+        }
+        function ensureRouteInfoForAllEvents(){
+            eventsData.forEach(ev => {
+                if (!ev.routeInfo){
+                    requestRouteInfoForEvent(ev);
+                }
+            });
+        }
+        function buildRouteInfoHtml(event, providedInfo){
+            const info = providedInfo || event.routeInfoOverride || event.routeInfo;
+            const originLabel = (info && info.originLabel) ? info.originLabel : getOriginLabel(event);
+            const destinationLabel = (info && info.destinationLabel) ? info.destinationLabel : getDestinationLabel(event);
+            const distanceText = info ? (info.distanceText || '—') : 'Calculando rota...';
+            const durationText = info ? (info.durationText || '—') : 'Calculando rota...';
+            const fuelMeta = event._fuelData || (event._fuelData = extractFuelDataFromEvent(event));
+            const consumption = info?.fuelConsumption ?? fuelMeta.consumo_km_l;
+            const fuelCost = info?.fuelCost;
+            const fuelValue = info?.fuelValue ?? fuelMeta.valor_litro;
+            const fuelCostLabel = fuelCost != null ? formatCurrencyBr(fuelCost) : (info ? '—' : 'Aguardando rota');
+            const consumptionLabel = consumption != null ? `${consumption.toFixed(1)} km/l` : '—';
+            const statusMessage = info?.error ? `<div style="margin-top:6px;font-size:0.8rem;color:var(--danger-color,#ff8080);">⚠️ ${info.error}</div>` : '';
+            const exp = extractExpenseEstimates(event, info);
+            const expLines = `
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                    <span>Hospedagem</span><span>${exp.hospedagem!=null?formatCurrencyBr(exp.hospedagem):'—'}</span>
+                </div>
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                    <span>Combustível</span><span>${exp.combustivel!=null?formatCurrencyBr(exp.combustivel):fuelCostLabel}</span>
+                </div>
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                    <span>Alimentação</span><span>${exp.alimentacao!=null?formatCurrencyBr(exp.alimentacao):'—'}</span>
+                </div>
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                    <span>Pedágios</span><span>${exp.pedagios!=null?formatCurrencyBr(exp.pedagios):'—'}</span>
+                </div>
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                    <span>Monitor</span><span>${exp.monitor!=null?formatCurrencyBr(exp.monitor):'—'}</span>
+                </div>
+                <hr style="border:none;border-top:1px solid var(--glass-border);margin:6px 0;" />
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-weight:600;">
+                    <span>Total estimado</span><span>${exp.total!=null?formatCurrencyBr(exp.total): (fuelCost!=null?formatCurrencyBr(fuelCost):'—')}</span>
+                </div>`;
+            // Resumo financeiro: 26% do valor_total menos despesas
+            const valorTotalEvento = (function(){ try{ return parseCurrencyBR(event.valor_total); }catch(_){ return null; } })();
+            const parcelaAstronomo = Number.isFinite(valorTotalEvento) ? valorTotalEvento * 0.26 : null;
+            const totalDespesas = Number.isFinite(exp.total) ? exp.total : null;
+            const liquidoAstronomo = (parcelaAstronomo!=null) ? (parcelaAstronomo - (totalDespesas||0)) : null;
+            return `
+            <div class="event-route" style="margin-top:12px; padding:10px; border-radius:10px; border:1px solid var(--glass-border); background:rgba(255,255,255,0.02);">
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-size:0.9rem;">
+                    <strong style="font-weight:600;">Origem</strong>
+                    <span>${originLabel}</span>
+                </div>
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-size:0.9rem;">
+                    <strong style="font-weight:600;">Destino</strong>
+                    <span>${destinationLabel}</span>
+                </div>
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-size:0.85rem; margin-top:6px;">
+                    <span>Distância</span>
+                    <span>${distanceText}</span>
+                </div>
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                    <span>Duração</span>
+                    <span>${durationText}</span>
+                </div>
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                    <span>Consumo</span>
+                    <span>${consumptionLabel}</span>
+                </div>
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                    <span>Combustível total</span>
+                    <span>${fuelCostLabel}</span>
+                </div>
+                ${statusMessage}
+            </div>
+            <div class="event-route" style="margin-top:8px; padding:10px; border-radius:10px; border:1px solid var(--glass-border); background:rgba(255,255,255,0.02);">
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-size:0.9rem;">
+                    <strong style="font-weight:600;">Despesas estimadas</strong>
+                    <span></span>
+                </div>
+                ${expLines}
+            </div>
+            <div class="event-route" style="margin-top:8px; padding:10px; border-radius:10px; border:1px solid var(--glass-border); background:rgba(255,255,255,0.02);">
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-size:0.9rem;">
+                    <strong style="font-weight:600;">Resumo financeiro</strong>
+                    <span></span>
+                </div>
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                    <span>Valor total do evento</span><span>${Number.isFinite(valorTotalEvento)?formatCurrencyBr(valorTotalEvento):'—'}</span>
+                </div>
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                    <span>Astrônomo (26%)</span><span>${parcelaAstronomo!=null?formatCurrencyBr(parcelaAstronomo):'—'}</span>
+                </div>
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                    <span>Despesas estimadas</span><span>${totalDespesas!=null?formatCurrencyBr(totalDespesas):'—'}</span>
+                </div>
+                <hr style="border:none;border-top:1px solid var(--glass-border);margin:6px 0;" />
+                <div class="event-route-row" style="display:flex; justify-content:space-between; font-weight:600;">
+                    <span>Líquido estimado (26% - despesas)</span><span>${liquidoAstronomo!=null?formatCurrencyBr(liquidoAstronomo):'—'}</span>
+                </div>
+            </div>`;
+        }
+        function extractExpenseEstimates(ev, routeInfo){
+            try{
+                const diarias = (function(){
+                    const raw = ev?.numero_de_diarias ?? ev?.numero_diarias ?? ev?.diarias; 
+                    const n = parseInt(String(raw??'').replace(/\D+/g,''),10);
+                    return Number.isFinite(n)&&n>0 ? n : 1;
+                })();
+                const pick = (...keys)=>{
+                    for (const k of keys){
+                        const v = readNested(ev, k) ?? ev[k];
+                        const n = parseRouteNumber(v);
+                        if (n!=null) return n;
+                    }
+                    return null;
+                };
+                // combustivel: preferir rota calculada
+                let combustivel = (routeInfo && routeInfo.fuelCost!=null) ? routeInfo.fuelCost : null;
+                if (combustivel==null){ combustivel = pick('custo_total_combustivel','gasto_combustivel','gasto_combustivel_media'); }
+                // hospedagem por diária * diarias
+                const hospDia = pick('valor_diaria_hospedagem','diaria_hospedagem','diaria_hospedagem_media');
+                const hospedagem = hospDia!=null ? hospDia * diarias : null;
+                // alimentacao por diária * diarias
+                const alimDia = pick('valor_diario_alimentacao','alimentacao_diaria','alimentacao_diaria_media');
+                const alimentacao = alimDia!=null ? alimDia * diarias : null;
+                const pedagios = pick('pedagios','pedagios_media');
+                const monitor = pick('monitor','monitor_media');
+                const parts = [combustivel, hospedagem, alimentacao, pedagios, monitor].filter(v=>Number.isFinite(v));
+                const total = parts.length ? parts.reduce((a,b)=>a+b,0) : null;
+                return { combustivel, hospedagem, alimentacao, pedagios, monitor, total };
+            }catch(_){ return { combustivel:null, hospedagem:null, alimentacao:null, pedagios:null, monitor:null, total:null }; }
+        }
+        function overrideNextEventOriginCoords(lat, lng, nextEvent){
+            const target = nextEvent || getNextUpcomingEvent(new Date());
+            if (!target) return;
+            const loc = loadAstronomerLocation();
+            const label = loc?.resolved_city || loc?.text || 'Minha localização atual';
+            target.cidade_origem = label;
+            target.origem_lat = lat;
+            target.origem_lon = lng;
+            target.coordenadas_origem = { lat, lng };
+            requestRouteInfoForEvent(target, { originOverride: { lat, lng }, originLabelOverride: label, forceOverride: true });
+        }
+
+        function parseFuelValue(raw){
+            if (raw == null) return null;
+            const cleaned = String(raw).replace(',', '.').trim();
+            if (!cleaned) return null;
+            const parsed = parseFloat(cleaned);
+            return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+        }
+        function extractFuelDataFromEvent(ev){
+            if (!ev || typeof ev !== 'object') return {};
+            const data = {};
+            const consumo = parseFuelValue(ev.consumo_km_l ?? ev.km_por_litro ?? ev.km_per_liter);
+            if (consumo != null) data.consumo_km_l = consumo;
+            const valor = parseFuelValue(ev.valor_litro ?? ev.valor_litro_real ?? ev.preco_litro);
+            if (valor != null) data.valor_litro = valor;
+            return data;
+        }
+        function attachEventFuelParams(params, ev){
+            const fuel = extractFuelDataFromEvent(ev);
+            if (fuel.consumo_km_l != null) params.consumo_km_l = fuel.consumo_km_l;
+            if (fuel.valor_litro != null) params.valor_litro = fuel.valor_litro;
+        }
+        function loadAstronomerLocation(){ try{ const raw = localStorage.getItem('astronomo_location'); return raw ? JSON.parse(raw) : null; }catch(_){ return null; } }
+        function saveAstronomerLocation(obj){ try{ localStorage.setItem('astronomo_location', JSON.stringify({ ...obj, ts: Date.now() })); }catch(_){}}
+        function updateLocationStatus(){
+            const loc = loadAstronomerLocation();
+            if (!loc){ currentLocationStatus.textContent = 'Sem localização definida'; return; }
+            const isLatLngText = (s)=> /^\s*-?\d{1,3}(?:[\.,]\d+)?\s*,\s*-?\d{1,3}(?:[\.,]\d+)?\s*$/.test(String(s||''));
+            const city = loc.resolved_city || (!isLatLngText(loc.text) ? loc.text : '');
+            if (city){
+                currentLocationStatus.textContent = `Estou em ${city}`;
+                if (currentLocationInput && loc.text) currentLocationInput.value = loc.text;
+                if (currentCityInput) currentCityInput.value = city;
+                if (currentUfInput && loc.text){
+                    const m = /-\s*([A-Za-z]{2})$/.exec(String(loc.text));
+                    if (m) currentUfInput.value = m[1].toUpperCase();
+                }
+                return;
+            }
+            const parts = [];
+            if (loc.text) parts.push(loc.text);
+            if (loc.lat != null && loc.lng != null) parts.push(`(${Number(loc.lat).toFixed(5)}, ${Number(loc.lng).toFixed(5)})`);
+            currentLocationStatus.textContent = parts.length ? `Local atual: ${parts.join(' ')}` : 'Local atual definido';
+            if (loc.text && currentLocationInput) currentLocationInput.value = loc.text;
+        }
+        // Extrai nome de cidade a partir da resposta do webhook obter_localizacao
+        function extractCityFromLocationResponse(resp){
+            try{
+                const pickCity = (obj)=>{
+                    if (!obj || typeof obj !== 'object') return '';
+                    return obj.cidade || obj.nome || obj.label || obj.endereco || '';
+                };
+                const clean = (s)=> String(s||'').replace(/\s*-\s*[A-Z]{2}$/,'').trim();
+                if (Array.isArray(resp)){
+                    for (const it of resp){
+                        const c = extractCityFromLocationResponse(it); if (c) return c;
+                    }
+                    return '';
+                }
+                if (!resp || typeof resp !== 'object') return '';
+                const fields = ['cidade_origem','origem_cidade','cidade_base','cidade','current_city','city','origem_nome','origem_label'];
+                for (const k of fields){
+                    const v = resp[k];
+                    if (typeof v === 'string' && v.trim()) return clean(v);
+                }
+                if (resp.origem){
+                    const o = resp.origem;
+                    if (typeof o === 'string' && o.trim()) return clean(o);
+                    const oc = pickCity(o); if (oc) return clean(oc);
+                }
+                if (resp.local_atual && typeof resp.local_atual === 'string') return clean(resp.local_atual);
+                return '';
+            }catch(_){ return ''; }
+        }
+        function setResolvedCity(city){
+            const c = String(city||'').trim(); if (!c) return;
+            const loc = loadAstronomerLocation() || {};
+            loc.resolved_city = c;
+            // Se o texto salvo for vazio ou parecer lat/lng, substitui por cidade para exibir melhor
+            if (!loc.text || /^\s*-?\d+(?:[\.,]\d+)?\s*,/.test(String(loc.text))) loc.text = c;
+            saveAstronomerLocation(loc);
+            updateLocationStatus();
+        }
+        // Util: próxima visita (evento não-finalizado mais próximo no tempo)
+        function getEventDate(ev){
+            const raw = ev?.data_e_hora_do_agendamento || ev?.data_agendamento || ev?.data || ev?.date;
+            const d = new Date(raw);
+            return isNaN(d.getTime()) ? null : d;
+        }
+        function getNextUpcomingEvent(now=new Date()){
+            try{
+                const upcoming = eventsData
+                    .filter(ev => !isFinalized(ev))
+                    .map(ev => ({ ev, d: getEventDate(ev) }))
+                    .filter(x => x.d && x.d > now)
+                    .sort((a,b)=> a.d - b.d);
+                return upcoming.length ? upcoming[0].ev : null;
+            }catch(_){ return null; }
+        }
+        function getDestinationForEvent(ev){
+            const destLat = parseFloat(ev?.destino_lat ?? ev?.lat ?? ev?.latitude);
+            const destLng = parseFloat(ev?.destino_lon ?? ev?.lng ?? ev?.longitude);
+            const hasCoords = !Number.isNaN(destLat) && !Number.isNaN(destLng);
+            const text = [ev?.local_instalacao || ev?.endereco || '', ev?.cidade || ''].filter(Boolean).join(', ');
+            return { hasCoords, destLat, destLng, text };
+        }
+        async function sendCurrentLocationWithNextDestination(lat, lng){
+            const s = getLoggedSession();
+            const next = getNextUpcomingEvent(new Date());
+            overrideNextEventOriginCoords(lat, lng, next);
+            const paramsBase = {
+                current_lat: lat,
+                current_lng: lng,
+                current_location: `${lat},${lng}`
+            };
+            const paramsWithUser = (s?.id_astronomo != null) ? { ...paramsBase, id_astronomo: s.id_astronomo } : paramsBase;
+            let params = { ...paramsWithUser };
+            if (next){
+                const dest = getDestinationForEvent(next);
+                if (dest.hasCoords){ params.destino_lat = dest.destLat; params.destino_lon = dest.destLng; }
+                if (dest.text){ params.destino = dest.text; }
+            }
+            attachEventFuelParams(params, next);
+            const resp = await callAgendaWebhook('obter_localizacao', params);
+            const city = extractCityFromLocationResponse(resp);
+            if (city) setResolvedCity(city);
+            currentLocationSentWithNext = true;
+        }
+        // Solicita geolocalização do navegador (mostra popup de permissão) quando útil
+        async function attemptAutoGeolocation(){
+            try{
+                const saved = loadAstronomerLocation();
+                if (saved && (saved.lat != null && saved.lng != null)) return; // já temos coords
+                if (!('geolocation' in navigator)) return;
+                // Se Permissions API disponível, consulta estado para evitar chamadas desnecessárias
+                let canPrompt = true;
+                try{
+                    if (navigator.permissions && navigator.permissions.query){
+                        const status = await navigator.permissions.query({ name: 'geolocation' });
+                        canPrompt = (status.state === 'prompt' || status.state === 'granted');
+                    }
+                }catch(_){ /* sem suporte; continua */ }
+                if (!canPrompt) return;
+                navigator.geolocation.getCurrentPosition((pos)=>{
+                    const { latitude, longitude } = pos.coords;
+                    saveAstronomerLocation({ lat: latitude, lng: longitude, text: `${latitude},${longitude}` });
+                    updateLocationStatus();
+                    // envia silenciosamente via query incluindo destino do próximo evento
+                    lastKnownPosition = { lat: latitude, lng: longitude };
+                    sendCurrentLocationWithNextDestination(latitude, longitude).catch(()=>{});
+                }, (_err)=>{ /* usuário negou ou falhou: mantém silencioso */ }, { enableHighAccuracy:true, timeout:8000, maximumAge:0 });
+            }catch(_){ }
+        }
+
+        // Sessão do usuário logado (para id_astronomo)
+        function getLoggedSession(){
+            try{
+                const raw = localStorage.getItem('astronomo_session');
+                const s = raw ? JSON.parse(raw) : null;
+                if (s && s.loggedIn) return s;
+            }catch(_){ }
+            return null;
+        }
+
+        // Util: montar URL com query
+        function buildUrl(base, params){
+            const usp = new URLSearchParams();
+            Object.entries(params||{}).forEach(([k,v])=>{
+                if (v !== undefined && v !== null) usp.append(k, String(v));
+            });
+            const sep = base.includes('?') ? '&' : '?';
+            return base + sep + usp.toString();
+        }
+
+        // Util: chaves de cache por usuário
+        function cacheKey(base){
+            const s = getLoggedSession();
+            const ns = (s && (s.id_astronomo || s.username || s.usuario)) || 'anon';
+            return base + '::' + String(ns).toLowerCase();
+        }
+        function saveEventsCache(data){
+            try{ localStorage.setItem(cacheKey('events_cache'), JSON.stringify({ ts: Date.now(), data })); }catch(_){ }
+        }
+        function loadEventsCache(){
+            try{
+                const raw = localStorage.getItem(cacheKey('events_cache'));
+                if (!raw) return null;
+                const obj = JSON.parse(raw);
+                if (!obj || !obj.data) return null;
+                return obj.data;
+            }catch(_){ return null; }
+        }
+
+        // Util: hash + cor única por grupo (HSL) e normalização de chave
+        function hashCode(str){ let h=0; for(let i=0;i<str.length;i++){ h=((h<<5)-h)+str.charCodeAt(i); h|=0; } return h; }
+        function colorForGroup(id){
+            if (groupColors.has(id)) return groupColors.get(id);
+            const h = Math.abs(hashCode(String(id))) % 360; // 360 cores possíveis
+            const s = 70, l = 55;
+            const c = `hsl(${h}, ${s}%, ${l}%)`;
+            groupColors.set(id, c);
+            return c;
+        }
+        function normalizeKey(v){
+            return String(v ?? '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '') // remove acentos
+                .toLowerCase()
+                .replace(/\s+/g, ' ') // espaços múltiplos
+                .replace(/[\-_/.,;:|]+/g, ' ') // pontuações comuns
+                .trim();
+        }
+
+        // Normalização e agrupamento multi-dia
+        function parseNum(v){ const n = parseInt(String(v||'').replace(/\D+/g,''),10); return isNaN(n)?1:Math.max(1,n); }
+        // SUBSTITUIÇÃO: normaliza com suporte ao payload novo do n8n
+        function normalizeEvent(event){
+            // Corrigir texto_tarefa que vem como objeto JSONB
+            let texto_tarefa = event?.texto_tarefa;
+            if (texto_tarefa && typeof texto_tarefa === 'object') {
+                texto_tarefa = texto_tarefa.texto || JSON.stringify(texto_tarefa);
+            }
+            
+            // Usar faixa_de_alunos como número real de alunos (não numero_alunos_empresa)
+            const faixa_alunos = event?.faixa_de_alunos || event?.numero_de_alunos || 'Número não informado';
+            
+            // Para cidade: priorizar cidade_destino quando cidade for null
+            const cidade = (typeof event?.cidade === 'string' && event.cidade.trim()) 
+                ? event.cidade 
+                : (event?.cidade_destino || texto_tarefa || 'Cidade não informada');
+            
+            // Para local_instalacao: ignorar quando for null/string "null", usar endereco como fallback
+            const local_instalacao = (event?.local_instalacao && 
+                                     event.local_instalacao !== 'null' && 
+                                     event.local_instalacao !== null && 
+                                     String(event.local_instalacao).trim() !== '')
+                ? event.local_instalacao
+                : (event?.endereco || 'Local a definir');
+            
+            return {
+                ...event,
+                id: event?.id || event?.id_evento || event?.id_evento_unico || 'N/A',
+                texto_tarefa: texto_tarefa || '',
+                conteudo_da_apresentacao: event?.conteudo_da_apresentacao || texto_tarefa || 'Evento Astronômico',
+                data_e_hora_do_agendamento: event?.data_e_hora_do_agendamento || event?.data_agendamento || new Date().toISOString(),
+                cidade: cidade,
+                responsavel_pelo_evento: event?.responsavel_pelo_evento || event?.nome_lead || 'Não informado',
+                telefone_responsavel_evento: event?.telefone_responsavel_evento || event?.telefone || '',
+                endereco: event?.endereco || '',
+                local_instalacao: local_instalacao,
+                turno: event?.turno || '',
+                faixa_de_alunos: faixa_alunos,
+                nome_da_escola: event?.nome_da_escola || event?.nome_lead || '',
+                valor_total: event?.valor_total ?? '0',
+                astronomo: event?.astronomo || event?.astronomo_validacao || 'A definir',
+                tipo_da_tarefa: event?.tipo_da_tarefa || 'VISITA',
+                numero_diarias: parseNum(event?.numero_de_diarias ?? event?.numero_diarias ?? event?.diarias ?? 1),
+                brinde: event?.brinde,
+                produtos: event?.produtos,
+                finalizado: event?.finalizado || false
+            };
+        }
+        function groupKey(ev){
+            const parts = [
+                ev.astronomo,
+                ev.cidade,
+                ev.local_instalacao || ev.endereco,
+                ev.nome_da_escola || ev.nome_lead,
+                ev.responsavel_pelo_evento,
+                String(parseCurrencyBR(ev.valor_total || 0))
+            ];
+            return parts.map(normalizeKey).join('|');
+        }
+        function rebuildOccurrences(){
+            calendarOccurrences = [];
+            const byGroup = new Map();
+            // Agrupar por chave básica
+            eventsData.forEach(ev => {
+                const key = groupKey(ev);
+                if (!byGroup.has(key)) byGroup.set(key, []);
+                byGroup.get(key).push(ev);
+            });
+            // Para cada grupo, gerar ocorrências por dia
+            byGroup.forEach((list, key) => {
+                const color = colorForGroup(key);
+                // ordenar por data
+                list.sort((a,b)=> new Date(a.data_e_hora_do_agendamento) - new Date(b.data_e_hora_do_agendamento));
+                list.forEach(ev => {
+                    const start = new Date(ev.data_e_hora_do_agendamento);
+                    const days = ev.numero_diarias || 1;
+                    for (let d=0; d<days; d++){
+                        const date = new Date(start); date.setDate(start.getDate()+d);
+                        calendarOccurrences.push({ date, event: ev, groupId: key, color, texto_tarefa: ev.texto_tarefa || ev.conteudo_da_apresentacao, finalized: isFinalized(ev) });
+                    }
+                });
+            });
+        }
+
+        // Chamada unificada para o webhook de agenda
+        async function callAgendaWebhook(action, params){
+            const url = buildUrl(AGENDA_WEBHOOK_URL, { action, ...(params||{}) });
+            try{ if (action === 'obter_localizacao') console.log('Webhook obter_localizacao URL:', url); }catch(_){ }
+            const resp = await fetch(url, { method: 'GET', headers: { 'Accept':'application/json' } });
+            if (!resp.ok) throw new Error(`Erro HTTP ${resp.status}`);
+            try{ return await resp.json(); }catch(_){ return null; }
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            const sess = getLoggedSession();
+            if (!sess){ window.location.href = 'login.html'; return; }
+            renderCalendar();
+            
+            // Event Listeners
+            prevMonthButton.addEventListener('click', goToPrevMonth);
+            nextMonthButton.addEventListener('click', goToNextMonth);
+            citySelect.addEventListener('change', handleCityFilter);
+            refreshButton.addEventListener('click', fetchEventsFromWebhook);
+
+            // Period filter listeners
+            if (periodFilterEl){
+                periodFilterEl.querySelectorAll('.period-button').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        periodFilterEl.querySelectorAll('.period-button').forEach(b=>b.classList.remove('active'));
+                        btn.classList.add('active');
+                        viewPeriod = btn.getAttribute('data-period') || 'mes';
+                        renderCalendar();
+                        renderEvents();
+                        updateStats();
+                    });
+                });
+            }
+
+            // Localização atual - listeners
+            if (btnSaveLocation){
+                btnSaveLocation.addEventListener('click', async ()=>{
+                    const city = (currentCityInput?.value || '').trim();
+                    let uf = (currentUfInput?.value || '').trim().toUpperCase();
+                    if (!city || !uf){ showNotification('Informe Cidade e UF separadamente.', 'error'); return; }
+                    if (uf.length !== 2){ showNotification('UF deve ter 2 letras.', 'error'); return; }
+                    // Salva texto localmente (cidade - UF) e resolved_city
+                    saveAstronomerLocation({ text: `${city} - ${uf}`, resolved_city: city });
+                    updateLocationStatus();
+                    // Envia ao webhook com os campos exatos: manual_city e uf (via query)
+                    try{
+                        const s = getLoggedSession();
+                        // Incluir destino do próximo evento (lat/lon) quando disponível
+                        const next = getNextUpcomingEvent(new Date());
+                        let extra = {};
+                        if (next){
+                            const dest = getDestinationForEvent(next);
+                            if (dest.hasCoords){ extra.destino_lat = dest.destLat; extra.destino_lon = dest.destLng; }
+                        }
+                        const base = { manual_city: city, uf, ...extra };
+                        attachEventFuelParams(base, next);
+                        const params = s?.id_astronomo != null ? { ...base, id_astronomo: s.id_astronomo } : base;
+                        const resp = await callAgendaWebhook('obter_localizacao', params);
+                        const resolved = extractCityFromLocationResponse(resp);
+                        if (resolved){ setResolvedCity(resolved); }
+                        // Geocodifica cidade/UF para recalcular rota do próximo evento a partir da local atual manual
+                        try{
+                            const coords = await geocodeCityUF(city, uf);
+                            if (coords){ overrideNextEventOriginCoords(coords.lat, coords.lng, next); }
+                        }catch(_){ }
+                        showNotification('Localização salva.', 'success');
+                    }catch(e){ showNotification('Localização salva, mas falhou o envio: '+e.message, 'error'); }
+                });
+            }
+            if (btnUseGeolocation){
+                btnUseGeolocation.addEventListener('click', ()=>{
+                    if (!navigator.geolocation){ showNotification('Geolocalização não suportada.', 'error'); return; }
+                    btnUseGeolocation.disabled = true;
+                    btnUseGeolocation.innerHTML = '<span class="loading"></span> Obtendo localização...';
+                    navigator.geolocation.getCurrentPosition((pos)=>{
+                        const { latitude, longitude } = pos.coords;
+                        saveAstronomerLocation({ lat: latitude, lng: longitude, text: `${latitude},${longitude}` });
+                        updateLocationStatus();
+                        // envia via query incluindo destino do próximo evento
+                        lastKnownPosition = { lat: latitude, lng: longitude };
+                        sendCurrentLocationWithNextDestination(latitude, longitude)
+                            .then(()=> showNotification('Localização atual capturada e enviada.', 'success'))
+                            .catch(e=> showNotification('Localização capturada, mas falhou o envio: '+e.message, 'error'));
+                        btnUseGeolocation.disabled = false;
+                        btnUseGeolocation.innerHTML = '<i class="fas fa-location-crosshairs"></i> Usar minha localização atual';
+                    }, (err)=>{
+                        showNotification('Falha ao obter geolocalização: '+err.message, 'error');
+                        btnUseGeolocation.disabled = false;
+                        btnUseGeolocation.innerHTML = '<i class="fas fa-location-crosshairs"></i> Usar minha localização atual';
+                    }, { enableHighAccuracy:true, timeout:7000, maximumAge:0 });
+                });
+            }
+
+            // Inicializa status do painel de localização
+            updateLocationStatus();
+            // Tenta obter a localização automaticamente (mostra popup de permissão do navegador)
+            attemptAutoGeolocation();
+            
+            // Carregar do cache primeiro (se houver)
+            const cached = loadEventsCache();
+            if (cached) {
+                try{
+                    let data = Array.isArray(cached) ? cached : (typeof cached==='object' ? [cached] : []);
+                    eventsData = data.map(normalizeEvent);
+                    ensureRouteInfoForAllEvents();
+                    rebuildOccurrences();
+                    populateFilters();
+                    renderCalendar();
+                    renderEvents();
+                    updateStats();
+                    connectionStatus.textContent = `Offline - ${eventsData.length} eventos (cache)`;
+                }catch(_){ }
+            }
+
+            // Buscar dados automaticamente (online)
+            fetchEventsFromWebhook();
+
+            // Bind modais auxiliares
+            document.getElementById('expenses-modal-close').addEventListener('click', closeExpensesModal);
+            document.getElementById('exp-cancel').addEventListener('click', closeExpensesModal);
+            document.getElementById('expenses-form').addEventListener('submit', submitExpensesForm);
+
+            document.getElementById('location-modal-close').addEventListener('click', closeLocationModal);
+            document.getElementById('loc-cancel').addEventListener('click', closeLocationModal);
+            document.getElementById('manual-location-form').addEventListener('submit', submitManualLocation);
+        });
+
+        // Funções do Calendário
+        function renderCalendar() {
+            calendarBody.innerHTML = '';
+            
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            // Atualizar o cabeçalho do mês atual
+            currentMonthElement.textContent = currentDate.toLocaleDateString('pt-BR', { 
+                month: 'long', 
+                year: 'numeric' 
+            }).replace(/^\w/, c => c.toUpperCase());
+            
+            // Primeiro dia do mês
+            const firstDay = new Date(year, month, 1);
+            // Último dia do mês
+            const lastDay = new Date(year, month + 1, 0);
+            // Dia da semana do primeiro dia (0 = Domingo, 6 = Sábado)
+            const firstDayIndex = firstDay.getDay();
+            // Número de dias no mês
+            const daysInMonth = lastDay.getDate();
+            
+            let date = 1;
+            
+            // Criar as semanas do calendário
+            for (let i = 0; i < 6; i++) {
+                let row = document.createElement('tr');
+                
+                // Criar os dias da semana
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 && j < firstDayIndex) {
+                        // Dias vazios antes do primeiro dia do mês
+                        const cell = document.createElement('td');
+                        row.appendChild(cell);
+                    } else if (date > daysInMonth) {
+                        // Dias vazios após o último dia do mês
+                        break;
+                    } else {
+                        const cell = document.createElement('td');
+                        cell.textContent = date;
+                        
+                        const cellDate = new Date(year, month, date);
+                        const today = new Date();
+                        
+                        // Verificar se é hoje
+                        if (cellDate.toDateString() === today.toDateString()) {
+                            cell.classList.add('today');
+                        }
+                        
+                        // Verificar se tem eventos neste dia
+                        const todays = getDayOccurrences(cellDate);
+                        if (todays.length) {
+                            cell.classList.add('has-event');
+                            // Pinta o dia inteiro com a cor do grupo predominante
+                            const counts = new Map();
+                            todays.forEach(o=> counts.set(o.groupId, (counts.get(o.groupId)||0)+1));
+                            let chosenGroup = null, max = -1;
+                            counts.forEach((cnt, gid)=>{ if (cnt>max){ max=cnt; chosenGroup=gid; } });
+                            const baseColor = colorForGroup(chosenGroup);
+                            // Se todos os eventos do dia estiverem finalizados, marca com padrão cinza
+                            const allFinalized = todays.every(o => isFinalized(o.event));
+                            if (allFinalized){
+                                cell.classList.add('finalized-day');
+                                cell.style.background = '';
+                            } else {
+                                cell.classList.remove('finalized-day');
+                                const hsla = baseColor.replace(/^hsl\(/,'hsla(').replace(/\)$/ ,`, 0.28)`);
+                                cell.style.background = hsla;
+                            }
+                            cell.style.borderRadius = '6px';
+                            // Ajusta cor do texto conforme luminância aproximada (usa o "l" do HSL)
+                            const lm = /hsl[a]?\(\s*\d+\s*,\s*\d+%\s*,\s*(\d+)%/.exec(baseColor);
+                            const lVal = lm ? parseInt(lm[1],10) : 55;
+                            cell.style.color = lVal > 60 ? '#0b0f1c' : '#ffffff';
+                        }
+                        
+                        // Verificar se está selecionado
+                        if (selectedDate && cellDate.toDateString() === selectedDate.toDateString()) {
+                            cell.classList.add('selected');
+                        }
+                        
+                        cell.addEventListener('click', () => selectDate(cellDate));
+                        row.appendChild(cell);
+                        date++;
+                    }
+                }
+                
+                calendarBody.appendChild(row);
+                
+                // Se já preenchemos todos os dias, sair do loop
+                if (date > daysInMonth) {
+                    break;
+                }
+            }
+        }
+
+        function goToPrevMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+            renderEvents();
+            updateStats();
+            renderDayInfoPanel();
+        }
+
+        function goToNextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+            renderEvents();
+            updateStats();
+            renderDayInfoPanel();
+        }
+
+        function selectDate(date) {
+            selectedDate = date;
+            renderCalendar();
+            renderEvents();
+            updateStats();
+            renderDayInfoPanel();
+        }
+
+        function getDayOccurrences(date){
+            const ds = date.toDateString();
+            return calendarOccurrences.filter(occ => occ.date.toDateString() === ds && (filteredCity === 'all' || (occ.event.cidade && occ.event.cidade.includes(filteredCity))));
+        }
+        function hasEventsOnDate(date) {
+            return getDayOccurrences(date).length > 0;
+        }
+
+        // Funções da Lista de Eventos
+        function cityBaseName(cidade) {
+            if (!cidade) return 'Desconhecida';
+            const s = String(cidade).trim();
+            // Tenta remover UF/estado quando no formato "Cidade - UF", "Cidade/UF" ou "Cidade, UF"
+            if (s.includes(' - ')) return s.split(' - ')[0].trim();
+            if (s.includes('/')) return s.split('/')[0].trim();
+            if (s.includes(',')) return s.split(',')[0].trim();
+            return s;
+        }
+
+        function populateFilters() {
+            // Limpar selects
+            citySelect.innerHTML = '<option value=\"all\">Todas as cidades</option>';
+            
+            // Obter lista única de cidades
+            const cities = [...new Set(eventsData.map(event => cityBaseName(event.cidade)))];
+            cities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = city;
+                citySelect.appendChild(option);
+            });
+            
+            // Atualizar estatísticas
+            updateStats();
+        }
+
+        // Helpers: datas e períodos
+        function startOfDay(d){ const x = new Date(d); x.setHours(0,0,0,0); return x; }
+        function endOfDay(d){ const x = new Date(d); x.setHours(23,59,59,999); return x; }
+        function startOfWeek(d){ const x = new Date(d); const diff = x.getDay(); x.setDate(x.getDate() - diff); x.setHours(0,0,0,0); return x; } // domingo
+        function endOfWeek(d){ const s = startOfWeek(d); const e = new Date(s); e.setDate(s.getDate()+6); e.setHours(23,59,59,999); return e; }
+        function startOfMonth(d){ const x = new Date(d.getFullYear(), d.getMonth(), 1); x.setHours(0,0,0,0); return x; }
+        function endOfMonth(d){ const x = new Date(d.getFullYear(), d.getMonth()+1, 0); x.setHours(23,59,59,999); return x; }
+        function getViewRange(){
+            if (viewPeriod === 'dia'){
+                const ref = selectedDate || new Date();
+                return [startOfDay(ref), endOfDay(ref)];
+            }
+            if (viewPeriod === 'semana'){
+                const ref = selectedDate || new Date();
+                return [startOfWeek(ref), endOfWeek(ref)];
+            }
+            // mês: usa o mês exibido no calendário (currentDate)
+            const ref = currentDate || new Date();
+            return [startOfMonth(ref), endOfMonth(ref)];
+        }
+
+        function renderDayInfoPanel(){
+            if (!dayInfoPanel) return;
+            dayInfoPanel.innerHTML = '';
+            if (!selectedDate){
+                dayInfoPanel.innerHTML = `<div class="empty-state"><i>🗓️</i><p>Selecione um dia no calendário para ver os eventos.</p></div>`;
+                return;
+            }
+            const occs = getDayOccurrences(selectedDate).sort((a,b)=> a.date - b.date);
+            if (occs.length === 0){
+                const dlabel = selectedDate.toLocaleDateString('pt-BR');
+                dayInfoPanel.innerHTML = `<div class="empty-state"><i>🌌</i><p>Nenhum evento em ${dlabel}.</p></div>`;
+                return;
+            }
+            const header = document.createElement('div');
+            header.className = 'event-header';
+            header.style.marginBottom = '8px';
+            header.innerHTML = `<div class="left" style="font-weight:700;">Eventos em ${selectedDate.toLocaleDateString('pt-BR')}</div>`;
+            dayInfoPanel.appendChild(header);
+
+            occs.forEach(occ => {
+                const ev = occ.event;
+                const d = new Date(occ.date);
+                const time = d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+                const title = occ.texto_tarefa || ev.conteudo_da_apresentacao || 'Evento Astronômico';
+                const local = ev.local_instalacao || ev.endereco || '';
+                const cidade = ev.cidade || '';
+                const phoneDigits = (ev.telefone_responsavel_evento || ev.telefone || '').toString().replace(/\D+/g,'');
+                const savedLoc = loadAstronomerLocation();
+                const originParam = savedLoc ? (savedLoc.lat!=null && savedLoc.lng!=null ? `${savedLoc.lat},${savedLoc.lng}` : (savedLoc.text || '')) : '';
+                const destLat = parseFloat(ev.destino_lat ?? ev.lat ?? ev.latitude);
+                const destLng = parseFloat(ev.destino_lon ?? ev.lng ?? ev.longitude);
+                const hasCoords = !Number.isNaN(destLat) && !Number.isNaN(destLng);
+                const destText = [local, cidade].filter(Boolean).join(', ');
+                const routeUrl = hasCoords
+                    ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destLat+','+destLng)}${originParam ? '&origin='+encodeURIComponent(originParam):''}`
+                    : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destText)}${originParam ? '&origin='+encodeURIComponent(originParam):''}`;
+                const hotelsUrl = hasCoords
+                    ? `https://www.google.com/maps/search/Hotéis/@${destLat},${destLng},14z`
+                    : `https://www.google.com/maps/search/Hotéis+perto+de+${encodeURIComponent(destText)}`;
+                const foodUrl = hasCoords
+                    ? `https://www.google.com/maps/search/Restaurantes/@${destLat},${destLng},14z`
+                    : `https://www.google.com/maps/search/Restaurantes+perto+de+${encodeURIComponent(destText)}`;
+                const waUrl = phoneDigits ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent('Olá! Sou o astrônomo sobre o evento '+title+' em '+cidade+' no dia '+selectedDate.toLocaleDateString('pt-BR')+' '+time)}` : '';
+
+                const card = document.createElement('div');
+                card.className = 'event-item';
+                card.style.marginBottom = '10px';
+                card.style.borderLeft = `4px solid ${occ.color}`;
+                const isFinal = isFinalized(ev);
+                const hasBrinde = (function(b){
+                    if (b == null) return false;
+                    if (typeof b === 'string') {
+                        const s = b.trim().toLowerCase();
+                        return s === 'sim' || s === 'yes' || s === 'true' || s === '1' || s === 's';
+                    }
+                    return Boolean(b);
+                })(ev.brinde);
+                const brindeBadge = `<span class="brinde-badge ${hasBrinde ? 'yes' : 'no'}"><i class="fas fa-gift"></i> ${hasBrinde ? 'Brinde' : 'Sem brinde'}</span>`;
+                const finalizadoBadge = isFinal ? `<span class="finalizado-badge"><i class="fas fa-check-circle"></i> Finalizado</span>` : '';
+                const dayRouteHtml = buildRouteInfoHtml(ev);
+                card.innerHTML = `
+                    <div class="event-header">
+                        <div class="event-title">${title}</div>
+                        <div class="event-date">${time}</div>
+                    </div>
+                    <div class="event-details">
+                        <div class="event-detail"><i>📍</i><span>${cidade} - ${local || 'Local a definir'}</span></div>
+                        <div class="event-detail"><i>👨‍🏫</i><span>Responsável: ${ev.responsavel_pelo_evento || '—'}</span></div>
+                    </div>
+                    ${dayRouteHtml}
+                    <div class="event-flags">${finalizadoBadge} ${brindeBadge}</div>
+                    <div class="controls" style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+                        <a class="btn btn-secondary btn-sm" href="${routeUrl}" target="_blank"><i class="fas fa-route"></i> Rota</a>
+                        <a class="btn btn-secondary btn-sm" href="${hotelsUrl}" target="_blank"><i class="fas fa-hotel"></i> Hotéis</a>
+                        <a class="btn btn-secondary btn-sm" href="${foodUrl}" target="_blank"><i class="fas fa-utensils"></i> Restaurantes</a>
+                        ${waUrl ? `<a class="btn btn-secondary btn-sm" href="${waUrl}" target="_blank"><i class='fab fa-whatsapp'></i> WhatsApp</a>` : ''}
+                        <button class="btn btn-secondary btn-sm" data-act="finalize"><i class="fas fa-flag-checkered"></i> Finalizar</button>
+                        <button class="btn btn-secondary btn-sm" data-act="details"><i class="fas fa-circle-info"></i> Detalhes</button>
+                    </div>
+                `;
+                card.querySelector('[data-act="details"]').addEventListener('click', (e)=>{ e.stopPropagation(); openEventModal(ev, d); });
+                (function(){
+                    const btn = card.querySelector('[data-act="finalize"]');
+                    if (!btn) return;
+                    if (isFinal){
+                        card.style.opacity = '0.8';
+                        const badge = document.createElement('span');
+                        badge.className = 'completion-badge';
+                        badge.innerHTML = '<i class="fas fa-check-circle"></i> Finalizado';
+                        btn.replaceWith(badge);
+                    } else {
+                        btn.addEventListener('click', (e)=>{ e.stopPropagation(); finalizeEvent(ev, d); });
+                    }
+                })();
+                dayInfoPanel.appendChild(card);
+            });
+        }
+
+        function renderEvents() {
+            eventsList.innerHTML = '';
+
+            const [rangeStart, rangeEnd] = getViewRange();
+            let filteredOcc = calendarOccurrences.filter(occ => {
+                const matchesCity = filteredCity === 'all' || (occ.event.cidade && occ.event.cidade.includes(filteredCity));
+                const matchesDate = occ.date >= rangeStart && occ.date <= rangeEnd;
+                return matchesCity && matchesDate;
+            });
+            filteredOcc = filteredOcc.filter(occ => !isFinalized(occ.event));
+            filteredOcc.sort((a,b)=> a.date - b.date);
+
+            const todayStart = startOfDay(new Date());
+            const upcoming = filteredOcc.filter(occ => occ.date >= todayStart);
+            const pending = filteredOcc.filter(occ => occ.date < todayStart);
+
+            if (upcoming.length === 0 && pending.length === 0) {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'empty-state';
+                emptyState.innerHTML = `
+                    <i>🌌</i>
+                    <p>Nenhum evento encontrado para os filtros selecionados.</p>
+                `;
+                eventsList.appendChild(emptyState);
+                return;
+            }
+
+            const makeEventElement = (occ) => {
+                const event = occ.event;
+                const eventElement = document.createElement('div');
+                eventElement.className = 'event-item';
+                eventElement.style.borderLeft = `4px solid ${occ.color}`;
+                eventElement.style.cursor = 'pointer';
+                const eventDate = new Date(occ.date);
+                const formattedDate = eventDate.toLocaleDateString('pt-BR');
+                const formattedTime = eventDate.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+                const hasBrinde = (function(b){
+                    if (b == null) return false;
+                    if (typeof b === 'string') { const s=b.trim().toLowerCase(); return s==='sim'||s==='yes'||s==='true'||s==='1'||s==='s'; }
+                    return Boolean(b);
+                })(event.brinde);
+                const brindeBadge = `<span class=\"brinde-badge ${hasBrinde ? 'yes' : 'no'}\"><i class=\"fas fa-gift\"></i> ${hasBrinde ? 'Brinde' : 'Sem brinde'}</span>`;
+                const routeInfoHtml = buildRouteInfoHtml(event);
+                eventElement.innerHTML = `
+                    <div class=\"event-header\">
+                        <div class=\"event-title\">${occ.texto_tarefa || event.conteudo_da_apresentacao || 'Evento Astronômico'}</div>
+                        <div class=\"event-date\">${formattedDate} - ${formattedTime}</div>
+                    </div>
+                    <div class=\"event-flags\">${brindeBadge}</div>
+                    <div class=\"event-details\">
+                        <div class=\"event-detail\"><i>📍</i><span>${event.cidade} - ${event.local_instalacao}</span></div>
+                        <div class=\"event-detail\"><i>👥</i><span>${(event.faixa_de_alunos && event.faixa_de_alunos !== 'Número não informado') ? event.faixa_de_alunos : 'Número não informado'}</span></div>
+                        <div class=\"event-detail\"><i>👨‍🏫</i><span>Responsável: ${event.responsavel_pelo_evento}</span></div>
+                        <div class=\"event-detail\"><i>💰</i><span>Valor: R$ ${event.valor_total ? parseFloat(event.valor_total).toLocaleString('pt-BR') : 'N/A'}</span></div>
+                        ${event.turno ? `<div class=\"event-detail\"><i>⏰</i><span>Turno: ${event.turno}</span></div>` : ''}
+                    </div>
+                    ${routeInfoHtml}
+                    <div class=\"event-astronomer\">Astrônomo: ${event.astronomo || 'A definir'}</div>
+                    <div class=\"controls\" style=\"margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;\">
+                        <button class=\"btn btn-secondary btn-sm\" data-act=\"distance\"><i class=\"fas fa-route\"></i> Distância</button>
+                        <button class=\"btn btn-secondary btn-sm\" data-act=\"expenses\"><i class=\"fas fa-file-invoice-dollar\"></i> Lançar Despesa</button>
+                        <button class=\"btn btn-secondary btn-sm\" data-act=\"finalize\"><i class=\"fas fa-flag-checkered\"></i> Finalizar</button>
+                        <button class=\"btn btn-secondary btn-sm\" data-act=\"delete\"><i class=\"fas fa-trash\"></i> Excluir</button>
+                        <button class=\"btn btn-secondary btn-sm\" data-act=\"details\"><i class=\"fas fa-circle-info\"></i> Detalhes</button>
+                    </div>`;
+                eventElement.querySelector('.event-header').addEventListener('click', () => openEventModal(event, eventDate));
+                eventElement.querySelector('[data-act=\"distance\"]').addEventListener('click', (e)=>{ e.stopPropagation(); onGetDistance(event); });
+                eventElement.querySelector('[data-act=\"expenses\"]').addEventListener('click', (e)=>{ e.stopPropagation(); openExpensesModal(event); });
+                eventElement.querySelector('[data-act=\"finalize\"]').addEventListener('click', (e)=>{ e.stopPropagation(); finalizeEvent(event, eventDate); });
+                eventElement.querySelector('[data-act=\"delete\"]').addEventListener('click', (e)=>{ e.stopPropagation(); deleteEvent(event); });
+                eventElement.querySelector('[data-act=\"details\"]').addEventListener('click', (e)=>{ e.stopPropagation(); openEventModal(event, eventDate); });
+                return eventElement;
+            };
+
+            const addSection = (label, kind, targetEl) => {
+                const header = document.createElement('div');
+                header.className = `list-subtitle ${kind||''}`.trim();
+                header.textContent = label;
+                (targetEl || eventsList).appendChild(header);
+            };
+
+            if (upcoming.length){
+                addSection('Próximos eventos','upcoming', eventsList);
+                upcoming.forEach(occ => eventsList.appendChild(makeEventElement(occ)));
+            }
+            if (pending.length){
+                if (pendingEventsElement){
+                    pendingEventsElement.innerHTML = '';
+                    addSection('Eventos pendentes de finalizar','pending', pendingEventsElement);
+                    pending.forEach(occ => pendingEventsElement.appendChild(makeEventElement(occ)));
+                } else {
+                    addSection('Eventos pendentes de finalizar','pending', eventsList);
+                    pending.forEach(occ => eventsList.appendChild(makeEventElement(occ)));
+                }
+            } else if (pendingEventsElement){
+                pendingEventsElement.innerHTML = '';
+            }
+        }
+
+        // ===== MODAL DE DETALHES DO EVENTO =====
+        const eventModal = document.getElementById('event-modal');
+        const eventModalBody = document.getElementById('event-modal-body');
+        const eventModalClose = document.getElementById('event-modal-close');
+
+        function openEventModal(ev, occurrenceDate){
+            try{
+                // Usa a data da ocorrência (segura) quando disponível; fallback para o campo bruto do evento
+                const d = (occurrenceDate instanceof Date) ? occurrenceDate : new Date(ev.data_e_hora_do_agendamento);
+                // Se ainda estiver inválida, usa a data atual para não quebrar o modal
+                if (isNaN(d?.getTime?.())) {
+                    console.warn('Data inválida no evento, usando Date.now()', ev?.data_e_hora_do_agendamento);
+                    d.setTime(Date.now());
+                }
+                const date = d.toLocaleDateString('pt-BR');
+                const time = d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+                const title = ev.conteudo_da_apresentacao || ev.texto_tarefa || 'Evento Astronômico';
+                const cidade = ev.cidade || 'Cidade não informada';
+                const local = ev.local_instalacao || ev.endereco || 'Local não informado';
+                const escola = ev.nome_da_escola || ev.nome_lead || '—';
+                const responsavel = ev.responsavel_pelo_evento || ev.nome_lead || '—';
+                const telefone = ev.telefone_responsavel_evento || ev.telefone || '—';
+                const astronomo = ev.astronomo || ev.astronomo_validacao || 'A definir';
+                const turno = ev.turno || '—';
+                const alunos = ev.faixa_de_alunos || ev.numero_de_alunos || ev.numero_alunos_empresa || 'Número não informado';
+                const valor = ev.valor_total ? `R$ ${parseFloat(ev.valor_total).toLocaleString('pt-BR')}` : '—';
+                const tipo = ev.tipo_da_tarefa || '—';
+                const id = ev.id || '—';
+                const diarias = ev.numero_de_diarias || ev.numero_diarias || ev.diarias || '—';
+                const diaSemana = d.toLocaleDateString('pt-BR', { weekday:'long' });
+                const destLat = parseFloat(ev.destino_lat ?? ev.lat ?? ev.latitude);
+                const destLng = parseFloat(ev.destino_lon ?? ev.lng ?? ev.longitude);
+                const hasCoords = !Number.isNaN(destLat) && !Number.isNaN(destLng);
+                const coords = hasCoords ? `${destLat}, ${destLng}` : ((ev.coordenadas || ev.coordinates || (ev.lat && ev.lng && `${ev.lat}, ${ev.lng}`)) || '—');
+                const produtos = ev.produtos || ev.pacote || '—';
+                const hasBrinde = ev.brinde != null ? (String(ev.brinde).toLowerCase()==='sim' || ev.brinde===true || String(ev.brinde).toLowerCase()==='true' || String(ev.brinde)==='1') : false;
+                const brinde = ev.brinde == null ? '—' : (hasBrinde ? 'Sim' : 'Não');
+                const vendedor = ev.vendedor || ev.responsavel_comercial || '—';
+                const status = ev.status || ev.estagio_funil || '—';
+                // Links dinâmicos baseados em coordenadas e localização salva
+                const savedLoc = loadAstronomerLocation();
+                const originParam = savedLoc ? (savedLoc.lat!=null && savedLoc.lng!=null ? `${savedLoc.lat},${savedLoc.lng}` : (savedLoc.text || '')) : '';
+                const destText = [local, cidade].filter(Boolean).join(', ');
+                const routeUrl = hasCoords
+                    ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destLat+','+destLng)}${originParam ? '&origin='+encodeURIComponent(originParam):''}`
+                    : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destText)}${originParam ? '&origin='+encodeURIComponent(originParam):''}`;
+                const hotelsUrl = hasCoords
+                    ? `https://www.google.com/maps/search/Hotéis/@${destLat},${destLng},14z`
+                    : `https://www.google.com/maps/search/Hotéis+perto+de+${encodeURIComponent(destText)}`;
+                const foodUrl = hasCoords
+                    ? `https://www.google.com/maps/search/Restaurantes/@${destLat},${destLng},14z`
+                    : `https://www.google.com/maps/search/Restaurantes+perto+de+${encodeURIComponent(destText)}`;
+                const phoneDigits = (telefone || '').toString().replace(/\D+/g,'');
+                const waUrl = phoneDigits ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent('Olá! Sou o astrônomo sobre o evento '+title+' em '+cidade+' no dia '+date+' '+time)}` : '';
+                const modalRouteHtml = buildRouteInfoHtml(ev);
+
+                eventModalBody.innerHTML = `
+                    <div class="event-modal-title">${title}</div>
+                    <div class="event-flags"><span class="brinde-badge ${hasBrinde ? 'yes' : 'no'}"><i class='fas fa-gift'></i> ${hasBrinde ? 'Brinde' : 'Sem brinde'}</span></div>
+
+                    <div class="event-section">
+                        <div class="event-section-header"><i class="fas fa-calendar-day"></i> Informações da Data</div>
+                        <div class="event-kv-grid">
+                            <div class="event-kv"><div class="kv-label">Data do Agendamento</div><div class="kv-value">${date}</div></div>
+                            <div class="event-kv"><div class="kv-label">Horário</div><div class="kv-value">${time}</div></div>
+                            <div class="event-kv"><div class="kv-label">Número de Diárias</div><div class="kv-value">${diarias}</div></div>
+                            <div class="event-kv"><div class="kv-label">Dia da Semana</div><div class="kv-value">${diaSemana}</div></div>
+                        </div>
+                    </div>
+
+                    <div class="event-section">
+                        <div class="event-section-header"><i class="fas fa-map-marked-alt"></i> Localização</div>
+                        <div class="event-kv-grid">
+                            <div class="event-kv"><div class="kv-label">Cidade</div><div class="kv-value">${cidade}</div></div>
+                            <div class="event-kv"><div class="kv-label">Endereço</div><div class="kv-value">${ev.endereco || '—'}</div></div>
+                            <div class="event-kv"><div class="kv-label">Local de Instalação</div><div class="kv-value">${local}</div></div>
+                            <div class="event-kv"><div class="kv-label">Coordenadas</div><div class="kv-value">${coords}</div></div>
+                        </div>
+                    </div>
+
+                    <div class="event-section">
+                        <div class="event-section-header"><i class="fas fa-info-circle"></i> Informações do Evento</div>
+                        <div class="event-kv-grid">
+                            <div class="event-kv"><div class="kv-label">Nome da Escola/Empresa</div><div class="kv-value">${escola}</div></div>
+                            <div class="event-kv"><div class="kv-label">Número de Alunos</div><div class="kv-value">${alunos}</div></div>
+                            <div class="event-kv"><div class="kv-label">Faixa de Alunos</div><div class="kv-value">${ev.faixa_de_alunos || '—'}</div></div>
+                            <div class="event-kv"><div class="kv-label">Turno</div><div class="kv-value">${turno}</div></div>
+                        </div>
+                    </div>
+
+                    <div class="event-section">
+                        <div class="event-section-header"><i class="fas fa-users"></i> Pessoas Envolvidas</div>
+                        <div class="event-kv-grid">
+                            <div class="event-kv"><div class="kv-label">Responsável pelo Evento</div><div class="kv-value">${responsavel}</div></div>
+                            <div class="event-kv"><div class="kv-label">Telefone do Responsável</div><div class="kv-value">${telefone}</div></div>
+                            <div class="event-kv"><div class="kv-label">Astrônomo</div><div class="kv-value">${astronomo}</div></div>
+                            <div class="event-kv"><div class="kv-label">Vendedor</div><div class="kv-value">${vendedor}</div></div>
+                        </div>
+                    </div>
+
+                    <div class="event-section">
+                        <div class="event-section-header"><i class="fas fa-coins"></i> Informações Financeiras</div>
+                        <div class="event-kv-grid">
+                            <div class="event-kv"><div class="kv-label">Valor Total</div><div class="kv-value">${valor}</div></div>
+                            <div class="event-kv"><div class="kv-label">Produtos</div><div class="kv-value">${produtos}</div></div>
+                            <div class="event-kv"><div class="kv-label">Brinde</div><div class="kv-value">${brinde}</div></div>
+                            <div class="event-kv"><div class="kv-label">Status</div><div class="kv-value">${status}</div></div>
+                        </div>
+                    </div>
+
+                    <div class="event-section">
+                        <div class="event-section-header"><i class="fas fa-route"></i> Rota estimada</div>
+                        ${modalRouteHtml}
+                    </div>
+
+                    <div class="event-section">
+                        <div class="event-section-header"><i class="fas fa-compass"></i> Ações Rápidas</div>
+                        <div class="controls" style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <a class="btn btn-secondary" href="${routeUrl}" target="_blank"><i class="fas fa-route"></i> Traçar rota</a>
+                            <a class="btn btn-secondary" href="${hotelsUrl}" target="_blank"><i class="fas fa-hotel"></i> Hotéis por perto</a>
+                            <a class="btn btn-secondary" href="${foodUrl}" target="_blank"><i class="fas fa-utensils"></i> Restaurantes por perto</a>
+                            ${waUrl ? `<a class="btn btn-secondary" href="${waUrl}" target="_blank"><i class='fab fa-whatsapp'></i> WhatsApp do responsável</a>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="event-section">
+                        <div class="event-section-header"><i class="fas fa-clipboard-list"></i> Informações Adicionais</div>
+                        <div class="event-kv-grid">
+                            <div class="event-kv"><div class="kv-label">Tipo da Tarefa</div><div class="kv-value">${tipo}</div></div>
+                            <div class="event-kv"><div class="kv-label">Conteúdo da Apresentação</div><div class="kv-value">${ev.conteudo_da_apresentacao || '—'}</div></div>
+                            <div class="event-kv"><div class="kv-label">Texto da Tarefa</div><div class="kv-value">${ev.texto_tarefa || '—'}</div></div>
+                            <div class="event-kv"><div class="kv-label">ID</div><div class="kv-value">${id}</div></div>
+                        </div>
+                    </div>
+                `;
+                eventModal.classList.add('open');
+                eventModal.setAttribute('aria-hidden','false');
+                currentModalEvent = ev;
+            }catch(err){ console.error('Falha ao abrir modal do evento', err); }
+        }
+
+        function closeEventModal(){
+            eventModal.classList.remove('open');
+            eventModal.setAttribute('aria-hidden','true');
+            eventModalBody.innerHTML = '';
+        }
+
+        eventModalClose.addEventListener('click', closeEventModal);
+        eventModal.addEventListener('click', (e)=>{ if (e.target === eventModal) closeEventModal(); });
+        document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape' && eventModal.classList.contains('open')) closeEventModal(); });
+
+        // Removido filtro por astrônomo (usaremos login/minha-conta)
+
+        function handleCityFilter(e) {
+            filteredCity = e.target.value;
+            renderCalendar();
+            renderEvents();
+        }
+
+        function parseCurrencyBR(v){
+            const s = String(v ?? '')
+                .toString()
+                .replace(/[^0-9.,-]/g,'')
+                .replace(/\.(?=\d{3}(\D|$))/g, '') // remove milhares
+                .replace(',', '.');
+            const n = parseFloat(s);
+            return isNaN(n) ? 0 : n;
+        }
+        function isFinalized(ev){
+            const f = ev?.finalizado;
+            return f === true || f === 'true' || ev?.status === 'finalizado' || ev?.estagio_funil === 'finalizado' || ev?.estagio_funil === 'concluído' || ev?.tipo_da_tarefa === 'VISITA_FINALIZADA';
+        }
+        function eventDateForRevenue(ev){
+            const raw = ev?.data_finalizacao || ev?.data_e_hora_do_agendamento || ev?.data || ev?.date;
+            const d = new Date(raw);
+            return isNaN(d.getTime()) ? new Date() : d;
+        }
+        function updateStats() {
+            const totalEvents = eventsData.filter(ev => !isFinalized(ev)).length;
+            const totalCities = new Set(eventsData.filter(ev=>!isFinalized(ev)).map(event => cityBaseName(event.cidade))).size;
+            const now = new Date();
+            const upcoming = calendarOccurrences.filter(occ => occ.date >= now).sort((a,b)=> a.date - b.date)[0];
+
+            // Faturamento Estimado no período selecionado (de-duplicando eventos multi-dia)
+            const [viewStart, viewEnd] = getViewRange();
+            const selectedOcc = calendarOccurrences.filter(occ => occ.date >= viewStart && occ.date <= viewEnd && (filteredCity === 'all' || (occ.event.cidade && occ.event.cidade.includes(filteredCity))));
+            const uniqEvents = new Set();
+            selectedOcc.forEach(occ => { if (!isFinalized(occ.event)) uniqEvents.add(occ.event); });
+            let estimatedRevenue = 0;
+            uniqEvents.forEach(ev => { estimatedRevenue += parseCurrencyBR(ev.valor_total); });
+
+            // Finalizados
+            const finalized = eventsData.filter(isFinalized);
+            const todayStart = startOfDay(now), todayEnd = endOfDay(now);
+            const weekStart = startOfWeek(now), weekEnd = endOfWeek(now);
+            const monthStart = startOfMonth(now), monthEnd = endOfMonth(now);
+            let rDay = 0, rWeek = 0, rMonth = 0;
+            finalized.forEach(ev => {
+                const d = eventDateForRevenue(ev);
+                const val = parseCurrencyBR(ev.valor_total);
+                if (d >= todayStart && d <= todayEnd) rDay += val;
+                if (d >= weekStart && d <= weekEnd) rWeek += val;
+                if (d >= monthStart && d <= monthEnd) rMonth += val;
+            });
+
+            // Atualiza DOM
+            totalEventsElement.textContent = totalEvents;
+            citiesVisitedElement.textContent = totalCities;
+            totalRevenueElement.textContent = 'R$ ' + estimatedRevenue.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
+            finalizedEventsElement.textContent = finalized.length;
+            actualRevenueDayElement.textContent = 'R$ ' + rDay.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
+            actualRevenueWeekElement.textContent = 'R$ ' + rWeek.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
+            actualRevenueMonthElement.textContent = 'R$ ' + rMonth.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
+            nextEventElement.textContent = upcoming ? `${upcoming.date.toLocaleDateString('pt-BR')} ${upcoming.date.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}` : '—';
+        }
+
+        // Funções: ações de eventos
+        async function finalizeEvent(ev, occurrenceDate){
+            const idEvento = ev?.id_evento ?? ev?.id ?? ev?.id_evento_unico;
+            if (!idEvento) { showNotification('Evento sem ID.', 'error'); return; }
+            const nomeEscola = ev?.nome_da_escola ?? ev?.nome_lead ?? '';
+            const dataAgendamento = ev?.data_agendamento ?? ev?.data_e_hora_do_agendamento ?? ev?.data ?? '';
+            try{
+                // Envia como query string, igual às outras actions
+                await callAgendaWebhook('finalizar_evento', {
+                    id_evento: idEvento,
+                    nome_da_escola: nomeEscola,
+                    data_agendamento: dataAgendamento,
+                    // Permite finalizar por ocorrência (dia específico)
+                    data_ocorrencia: (occurrenceDate instanceof Date && !isNaN(occurrenceDate)) ? occurrenceDate.toISOString() : undefined
+                });
+                showNotification('Evento marcado como finalizado.', 'success');
+                fetchEventsFromWebhook();
+            }catch(e){ showNotification('Falha ao finalizar: '+e.message, 'error'); }
+        }
+
+        async function deleteEvent(ev){
+            if (!ev?.id) { showNotification('Evento sem ID.', 'error'); return; }
+            if (!confirm('Deseja realmente excluir este evento?')) return;
+            try{
+                await callAgendaWebhook('delete_evento', { id_evento: ev.id });
+                showNotification('Evento excluído.', 'success');
+                fetchEventsFromWebhook();
+            }catch(e){ showNotification('Falha ao excluir: '+e.message, 'error'); }
+        }
+
+        function onGetDistance(ev){
+            try{
+                const destino = [ev.endereco || ev.local_instalacao || '', ev.cidade || ''].filter(Boolean).join(', ');
+                const saved = loadAstronomerLocation();
+                if (saved && (saved.lat != null && saved.lng != null)){
+                    // Usa localização salva (lat/lng)
+                    const params = {
+                        id_evento: ev.id,
+                        current_lat: saved.lat,
+                        current_lng: saved.lng,
+                        current_location: `${saved.lat},${saved.lng}`,
+                        destino
+                    };
+                    attachEventFuelParams(params, ev);
+                    callAgendaWebhook('obter_localizacao', params).then((resp)=>{
+                        try{ const city = extractCityFromLocationResponse(resp); if (city) setResolvedCity(city); }catch(_){ }
+                        showNotification('Localização enviada. Distância será calculada.', 'success');
+                    }).catch(e=> showNotification('Falha ao enviar localização: '+e.message, 'error'));
+                    return;
+                }
+                if (saved && saved.text){
+                    // Usa descrição textual salva
+                    const params = {
+                        id_evento: ev.id,
+                        current_location: saved.text,
+                        destino
+                    };
+                    attachEventFuelParams(params, ev);
+                    callAgendaWebhook('obter_localizacao', params).then((resp)=>{
+                        try{ const city = extractCityFromLocationResponse(resp); if (city) setResolvedCity(city); }catch(_){ }
+                        showNotification('Localização enviada. Distância será calculada.', 'success');
+                    }).catch(e=> showNotification('Falha ao enviar localização: '+e.message, 'error'));
+                    return;
+                }
+                // Sem localização salva: tenta geolocalização
+                if (navigator.geolocation){
+                    navigator.geolocation.getCurrentPosition(async (pos)=>{
+                        const { latitude, longitude } = pos.coords;
+                        overrideNextEventOriginCoords(latitude, longitude);
+                        try{
+                            const params = { id_evento: ev.id, current_lat: latitude, current_lng: longitude, current_location: `${latitude},${longitude}`, destino };
+                            attachEventFuelParams(params, ev);
+                            const resp = await callAgendaWebhook('obter_localizacao', params);
+                            try{ const city = extractCityFromLocationResponse(resp); if (city) setResolvedCity(city); }catch(_){ }
+                            showNotification('Localização enviada. Distância será calculada.', 'success');
+                        }catch(e){ showNotification('Falha ao enviar localização: '+e.message, 'error'); }
+                    }, (_err)=>{ openLocationModal(ev, destino); }, { enableHighAccuracy:true, timeout:8000, maximumAge:0 });
+                } else { openLocationModal(ev, destino); }
+            }catch(e){ showNotification('Erro na localização: '+e.message, 'error'); }
+        }
+
+        function openLocationModal(ev, destino){
+            document.getElementById('loc-id-evento').value = ev?.id || '';
+            document.getElementById('loc-destino').value = destino || '';
+            manualLocationEvent = ev || null;
+            const m = document.getElementById('location-modal');
+            m.classList.add('open');
+            m.setAttribute('aria-hidden','false');
+        }
+        function closeLocationModal(){
+            manualLocationEvent = null;
+            const m = document.getElementById('location-modal');
+            m.classList.remove('open');
+            m.setAttribute('aria-hidden','true');
+        }
+        async function submitManualLocation(e){
+            e.preventDefault();
+            const id_evento = document.getElementById('loc-id-evento').value;
+            const manual_city = document.getElementById('manual-city').value.trim();
+            const uf = document.getElementById('manual-uf').value.trim();
+            const destino = document.getElementById('loc-destino').value;
+            if (!manual_city || !uf){ showNotification('Informe cidade e UF.', 'error'); return; }
+            try{
+                const params = { id_evento, manual_city, uf, destino };
+                attachEventFuelParams(params, manualLocationEvent);
+                await callAgendaWebhook('obter_localizacao', params);
+                // Tenta geocodificar a origem manual e recalcular rota para o evento aberto
+                try{
+                    const coords = await geocodeCityUF(manual_city, uf);
+                    if (coords){
+                        // Atualiza visualmente rota do evento do modal
+                        const label = `${manual_city} - ${uf}`;
+                        await requestRouteInfoForEvent(manualLocationEvent || getNextUpcomingEvent(new Date()), { originOverride: { lat: coords.lat, lng: coords.lng }, originLabelOverride: label, forceOverride: true });
+                    }
+                }catch(_){ }
+                showNotification('Localização manual enviada. Distância será calculada.', 'success');
+                closeLocationModal();
+            }catch(err){ showNotification('Falha ao enviar localização: '+err.message, 'error'); }
+        }
+
+        function openExpensesModal(ev){
+            document.getElementById('exp-id-evento').value = ev?.id || '';
+            ['exp-combustivel','exp-hospedagem','exp-alimentacao','exp-pedagios','exp-monitor','exp-outros'].forEach(id=>{
+                const el=document.getElementById(id); if (el) el.value='';
+            });
+            const m = document.getElementById('expenses-modal');
+            m.classList.add('open');
+            m.setAttribute('aria-hidden','false');
+        }
+        function closeExpensesModal(){
+            const m = document.getElementById('expenses-modal');
+            m.classList.remove('open');
+            m.setAttribute('aria-hidden','true');
+        }
+        async function submitExpensesForm(e){
+            e.preventDefault();
+            const id_evento = document.getElementById('exp-id-evento').value;
+            const combustivel = Number(document.getElementById('exp-combustivel').value||0);
+            const hospedagem = Number(document.getElementById('exp-hospedagem').value||0);
+            const alimentacao = Number(document.getElementById('exp-alimentacao').value||0);
+            const pedagios = Number(document.getElementById('exp-pedagios').value||0);
+            const monitor = Number(document.getElementById('exp-monitor').value||0);
+            const outros = Number(document.getElementById('exp-outros').value||0);
+            if (!id_evento){ showNotification('Evento inválido.', 'error'); return; }
+            try{
+                await callAgendaWebhook('lancar_despesas', {
+                    id_evento,
+                    combustivel,
+                    hospedagem,
+                    alimentacao,
+                    pedagios,
+                    monitor,
+                    outros
+                });
+                // Disparar geração de médias após lançar
+                const s = getLoggedSession();
+                if (s?.id_astronomo != null){
+                    try{ await callAgendaWebhook('gerar_media_de_gastos', { id_astronomo: s.id_astronomo }); }catch(_){ }
+                }
+                showNotification('Despesas lançadas com sucesso.', 'success');
+                closeExpensesModal();
+            }catch(err){ showNotification('Falha ao lançar despesas: '+err.message, 'error'); }
+        }
+
+        // Função para buscar eventos do webhook (atualizar_agenda)
+        async function fetchEventsFromWebhook() {
+            try {
+                refreshButton.disabled = true;
+                refreshButton.innerHTML = '<span class="loading"></span> Buscando dados...';
+                connectionStatus.textContent = 'Conectando ao webhook...';
+                webhookStatus.classList.remove('status-connected', 'status-error');
+
+                const s = getLoggedSession();
+                let data;
+                if (s?.id_astronomo != null){
+                    data = await callAgendaWebhook('atualizar_agenda', { id_astronomo: s.id_astronomo });
+                } else {
+                    // Sem sessão: buscar geral (sem filtro)
+                    data = await callAgendaWebhook('atualizar_agenda', {});
+                }
+
+                if (data == null) throw new Error('Sem dados retornados');
+                
+                // Processar os dados recebidos
+                if (Array.isArray(data)) {
+                    eventsData = data.map(normalizeEvent);
+                } else if (typeof data === 'object') {
+                    eventsData = [normalizeEvent(data)];
+                } else {
+                    throw new Error('Formato de dados inválido recebido do webhook');
+                }
+
+                ensureRouteInfoForAllEvents();
+
+                // Reconstroi ocorrências e salva cache
+                rebuildOccurrences();
+                saveEventsCache(eventsData);
+
+                // Se já temos posição atual, reenvia com destino do próximo evento
+                if (lastKnownPosition && !currentLocationSentWithNext){
+                    try{ await sendCurrentLocationWithNextDestination(lastKnownPosition.lat, lastKnownPosition.lng); }catch(_){ }
+                }
+
+                populateFilters();
+                renderCalendar();
+                renderEvents();
+                renderDayInfoPanel();
+                
+                connectionStatus.textContent = `Conectado - ${eventsData.length} eventos carregados`;
+                webhookStatus.classList.add('status-connected');
+                showNotification(`${eventsData.length} eventos carregados com sucesso do webhook!`, 'success');
+                
+            } catch (error) {
+                console.error('Erro ao buscar eventos do webhook:', error);
+                connectionStatus.textContent = `Erro: ${error.message}`;
+                webhookStatus.classList.add('status-error');
+                showNotification(`Erro ao carregar eventos: ${error.message}`, 'error');
+                
+                // Em caso de erro, mostrar estado vazio
+                eventsData = [];
+                calendarOccurrences = [];
+                renderEvents();
+            } finally {
+                refreshButton.disabled = false;
+                refreshButton.innerHTML = '<span class="button-text">Atualizar Dados do Webhook</span>';
+            }
+        }
+
+        function showNotification(message, type) {
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+
+        // Tentar reconectar automaticamente a cada 2 minutos
+        setInterval(() => {
+            if (eventsData.length === 0) {
+                fetchEventsFromWebhook();
+            }
+        }, 120000);
+    </script>
+</body>
+</html>

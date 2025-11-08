@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Despesas - Urânia</title>
+    <link rel="stylesheet" href="public/css/main-responsive.css">
+    <link rel="stylesheet" href="public/css/style.css">
+    <link rel="stylesheet" href="public/css/despesas-modern.css">
+    <link rel="stylesheet" href="public/css/docs-urania.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="space-layer stars"></div>
+    <div class="space-layer twinkle"></div>
+    <div class="space-layer nebula"></div>
+    <div class="space-layer galaxies"></div>
+
+    <div class="container">
+        <header>
+            <h1>💰 Gestão de Despesas</h1>
+            <a href="account.html" class="nav-button" title="Minha Conta"><i class="fas fa-user-astronaut"></i> Minha Conta</a>
+        </header>
+        
+        <div class="navigation">
+            <a href="index.html" class="nav-button"><i class="fas fa-calendar-alt"></i> Agenda</a>
+            <a href="feedbacks.html" class="nav-button"><i class="fas fa-comment-dots"></i> Feedbacks</a>
+            <a href="despesas.html" class="nav-button active"><i class="fas fa-file-invoice-dollar"></i> Despesas</a>
+            <a href="historico.html" class="nav-button"><i class="fas fa-history"></i> Históricos</a>
+            <a href="login.html" class="nav-button"><i class="fas fa-right-to-bracket"></i> Entrar</a>
+        </div>
+
+        <main>
+            <div class="period-filter-buttons" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button class="btn btn-secondary period-filter-button active" data-period="all">Todos</button>
+                <button class="btn btn-secondary period-filter-button" data-period="day">Dia</button>
+                <button class="btn btn-secondary period-filter-button" data-period="week">Semana</button>
+                <button class="btn btn-secondary period-filter-button" data-period="month">Mês</button>
+            </div>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <span class="label">⛽ Combustível (Evento)</span>
+                    <span class="value" id="est-cost-fuel">R$ 0,00</span>
+                </div>
+                <div class="summary-card">
+                    <span class="label">🏨 Hospedagem (Evento)</span>
+                    <span class="value" id="est-cost-hotel">R$ 0,00</span>
+                </div>
+                <div class="summary-card">
+                    <span class="label">🍽️ Alimentação (Evento)</span>
+                    <span class="value" id="est-cost-food">R$ 0,00</span>
+                </div>
+                <div class="summary-card">
+                    <span class="label">🛣️ Pedágios (Evento)</span>
+                    <span class="value" id="est-cost-pedagios">R$ 0,00</span>
+                </div>
+                <div class="summary-card">
+                    <span class="label">🧑‍🏫 Monitor (Evento)</span>
+                    <span class="value" id="est-cost-monitor">R$ 0,00</span>
+                </div>
+                <div class="summary-card">
+                    <span class="label">💲 Faturamento Total</span>
+                    <span class="value" id="event-total-value">R$ 0,00</span>
+                </div>
+                <div class="summary-card">
+                    <span class="label">💸 Lucro Astrônomo (26%)</span>
+                    <span class="value" id="astronomer-profit">R$ 0,00</span>
+                </div>
+            </div>
+
+            <section class="events-section" style="margin-top: 2rem;">
+                <h2 class="section-title">Detalhes dos Eventos e Despesas Estimadas</h2>
+                <div class="filters">
+                    <div class="filter-group">
+                        <label class="filter-label" for="event-select-despesas">Selecione um Evento para ver os detalhes de despesa:</label>
+                        <select class="filter-select" id="event-select-despesas">
+                            <option value="">Carregando eventos...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="despesas-events-list" style="margin-top: 1.5rem;">
+                    <!-- A lista de eventos será renderizada aqui pelo JavaScript -->
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            © 2025 Urânia Planetários — Sistema de Gestão de Despesas
+        </footer>
+    </div>
+
+    <script src="public/js/app.js"></script>
+    <script src="public/js/despesas.js"></script>
+
+    <!-- Modal: Lançar Despesas -->
+    <div class="modal" id="expenses-modal" aria-hidden="true" role="dialog">
+        <div class="modal-content" role="document">
+            <button class="close-btn" id="expenses-modal-close" aria-label="Fechar">&times;</button>
+            <div class="modal-title"><i class="fas fa-file-invoice-dollar"></i> Lançar Despesas</div>
+            <form id="expenses-form" class="form-grid">
+                <input type="hidden" id="exp-id-evento" />
+                <div class="form-group">
+                    <label class="form-label" for="exp-combustivel">Combustível (R$)</label>
+                    <input class="form-input" id="exp-combustivel" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="exp-hospedagem">Hospedagem (R$)</label>
+                    <input class="form-input" id="exp-hospedagem" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="exp-alimentacao">Alimentação (R$)</label>
+                    <input class="form-input" id="exp-alimentacao" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="exp-pedagios">Pedágios (R$)</label>
+                    <input class="form-input" id="exp-pedagios" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="exp-monitor">Monitor (R$)</label>
+                    <input class="form-input" id="exp-monitor" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="exp-outros">Outros (R$)</label>
+                    <input class="form-input" id="exp-outros" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="controls" style="margin-top: 8px; gap:8px; display:flex; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-secondary" id="exp-submit"><i class="fas fa-paper-plane"></i> Enviar</button>
+                    <button type="button" class="btn btn-secondary" id="exp-cancel">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Localização Manual -->
+    <div class="modal" id="location-modal" aria-hidden="true" role="dialog">
+        <div class="modal-content" role="document">
+            <button class="close-btn" id="location-modal-close" aria-label="Fechar">&times;</button>
+            <div class="modal-title"><i class="fas fa-location-dot"></i> Informar Localização Atual</div>
+            <p>Não foi possível obter sua localização automaticamente. Informe manualmente sua cidade e UF.</p>
+            <form id="manual-location-form" class="form-grid">
+                <input type="hidden" id="loc-id-evento" />
+                <input type="hidden" id="loc-destino" />
+                <div class="form-group">
+                    <label class="form-label" for="manual-city">Cidade atual</label>
+                    <input class="form-input" id="manual-city" type="text" placeholder="Ex: Araranguá" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="manual-uf">UF</label>
+                    <input class="form-input" id="manual-uf" type="text" placeholder="Ex: SC" maxlength="2" required />
+                </div>
+                <div class="controls" style="margin-top: 8px; gap:8px; display:flex; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-secondary" id="loc-submit"><i class="fas fa-paper-plane"></i> Enviar</button>
+                    <button type="button" class="btn btn-secondary" id="loc-cancel">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,715 @@
+/* ======================================================
+   LOGIN.CSS - Tema Espacial Galáctico
+   Fundo renovado com estrelas cadentes e nebulosas
+   ====================================================== */
+
+:root {
+  --bg-deep: #030417;
+  --accent-purple: #7b5cff;
+  --accent-cyan: #34d1f3;
+  --accent-magenta: #ff5ec4;
+  --accent-gold: #ffd86b;
+  --muted: rgba(255,255,255,0.7);
+  --muted-2: rgba(255,255,255,0.45);
+  --border-glow: rgba(123,92,255,0.2);
+  --card-bg: rgba(10,12,35,0.65);
+  --radius-md: 14px;
+  --radius-lg: 18px;
+}
+
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Space Grotesk", "Segoe UI", Tahoma, sans-serif;
+  background: var(--bg-deep);
+  color: #eaf4ff;
+  overflow: hidden;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ===== FUNDO GALÁCTICO ===== */
+.stars, .nebula, .particles, .shooting-stars {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -10;
+}
+
+/* Estrelas */
+.stars {
+  background-image:
+    radial-gradient(#ffffff 1.2px, transparent 1.2px),
+    radial-gradient(rgba(255,255,255,0.9) 0.8px, transparent 0.8px),
+    radial-gradient(rgba(255,255,255,0.7) 0.6px, transparent 0.6px);
+  background-size: 800px 800px, 500px 500px, 300px 300px;
+  background-position: 0 0, 200px 300px, 400px 100px;
+  animation: starsMove 120s linear infinite;
+  opacity: 0.3;
+}
+@keyframes starsMove {
+  from { transform: translate3d(0,0,0); }
+  to { transform: translate3d(-600px, 600px, 0); }
+}
+
+/* Nebulosa */
+.nebula {
+  background:
+    radial-gradient(circle at 20% 40%, rgba(123,92,255,0.25), transparent 60%),
+    radial-gradient(circle at 80% 70%, rgba(52,209,243,0.22), transparent 70%),
+    radial-gradient(circle at 50% 80%, rgba(255,94,196,0.2), transparent 80%);
+  mix-blend-mode: screen;
+  animation: nebulaFloat 40s ease-in-out infinite alternate;
+}
+@keyframes nebulaFloat {
+  0% { transform: scale(1) translate(0,0); }
+  50% { transform: scale(1.04) translate(30px,-30px); }
+  100% { transform: scale(1) translate(-30px,30px); }
+}
+
+/* Estrelas cadentes */
+.shooting-stars { overflow: hidden; }
+.shooting-star {
+  position: absolute;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.9) 30%,
+    rgba(255,255,255,0.9) 70%,
+    rgba(255,255,255,0) 100%);
+  height: 2px;
+  border-radius: 50%;
+  filter: blur(0.5px);
+  animation: shootingStar linear forwards;
+}
+/* Quatro trilhas de exemplo */
+.shooting-star:nth-child(1) { top: 20%; left: -100px; width: 120px; animation-duration: 2.5s; animation-delay: 0s; }
+.shooting-star:nth-child(2) { top: 40%; left: -150px; width: 180px; animation-duration: 3s; animation-delay: 5s; }
+.shooting-star:nth-child(3) { top: 70%; left: -120px; width: 150px; animation-duration: 2s; animation-delay: 10s; }
+.shooting-star:nth-child(4) { top: 30%; left: -180px; width: 200px; animation-duration: 3.5s; animation-delay: 15s; }
+@keyframes shootingStar {
+  0% {
+    transform: translateX(0) translateY(0) rotate(45deg);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% {
+    transform: translateX(100vw) translateY(100vh) rotate(45deg);
+    opacity: 0;
+  }
+}
+
+/* ===== CONTAINER ===== */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  position: relative;
+  z-index: 2;
+  padding: 20px;
+}
+
+/* ===== CARD DE LOGIN ===== */
+.login-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-glow);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 0 40px rgba(11,9,28,0.8);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.8s ease-out;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(40px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Reflexo animado */
+.login-card::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  animation: shimmer 4s infinite;
+}
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* ===== CABEÇALHO ===== */
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.logo i {
+  font-size: 2.3em;
+  color: var(--accent-gold);
+  text-shadow: 0 0 20px rgba(255,216,107,0.5);
+  animation: floatIcon 3s ease-in-out infinite;
+}
+@keyframes floatIcon {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.logo h1 {
+  color: var(--accent-gold);
+  font-size: 1.8em;
+  font-weight: 700;
+}
+.login-header p {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+/* ===== FORM ===== */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.form-group label {
+  color: var(--muted);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95em;
+}
+.form-group input {
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: #eaf4ff;
+  font-size: 1em;
+  transition: all 0.3s ease;
+}
+.form-group input:focus {
+  outline: none;
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 10px rgba(123,92,255,0.3);
+  background: rgba(255,255,255,0.07);
+}
+.form-group input::placeholder { color: var(--muted-2); }
+
+/* ===== OPÇÕES ===== */
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9em;
+  color: var(--muted-2);
+}
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.remember-me input { display: none; }
+.checkmark {
+  width: 18px; height: 18px;
+  border: 2px solid var(--accent-cyan);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+.remember-me input:checked + .checkmark {
+  background: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(52,209,243,0.5);
+}
+.remember-me input:checked + .checkmark::after {
+  content: '✓';
+  color: #001020;
+  font-size: 12px;
+  font-weight: bold;
+}
+.forgot-password {
+  color: var(--accent-cyan);
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+.forgot-password:hover {
+  color: var(--accent-gold);
+  text-decoration: underline;
+}
+
+/* ===== BOTÃO LOGIN ===== */
+.login-btn {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+  border: none;
+  padding: 16px 28px;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(123,92,255,0.2);
+  position: relative;
+  overflow: hidden;
+}
+.login-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 35px rgba(52,209,243,0.3);
+}
+.login-btn:active { transform: translateY(0); }
+
+/* ===== MENSAGENS ===== */
+.login-message {
+  margin-top: 20px;
+  padding: 14px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  display: none; /* controlado por JS */
+}
+.login-message.success {
+  /* exibido via JS */
+  background: rgba(52,209,243,0.2);
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+.login-message.error {
+  /* exibido via JS */
+  background: rgba(255,94,196,0.15);
+  border: 1px solid var(--accent-magenta);
+  color: var(--accent-magenta);
+}
+
+/* ===== FOOTER ===== */
+.login-footer {
+  margin-top: 25px;
+  text-align: center;
+  color: var(--muted-2);
+  font-size: 0.9em;
+}
+
+/* ===== RESPONSIVO ===== */
+@media (max-width: 480px) {
+  .login-card { padding: 30px 25px; }
+  .logo { flex-direction: column; gap: 8px; }
+  .logo h1 { font-size: 1.5em; }
+  .form-options { flex-direction: column; gap: 12px; align-items: flex-start; }
+}
+/* ======================================================
+   LOGIN.CSS - Tema Espacial Galáctico
+   Fundo completamente renovado com efeitos interestelares
+   ====================================================== */
+
+:root {
+  --bg-deep: #030417;
+  --accent-purple: #7b5cff;
+  --accent-cyan: #34d1f3;
+  --accent-magenta: #ff5ec4;
+  --accent-gold: #ffd86b;
+  --muted: rgba(255,255,255,0.7);
+  --muted-2: rgba(255,255,255,0.45);
+  --border-glow: rgba(123,92,255,0.2);
+  --card-bg: rgba(10,12,35,0.65);
+  --radius-md: 14px;
+  --radius-lg: 18px;
+}
+
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Space Grotesk", "Segoe UI", Tahoma, sans-serif;
+  background: var(--bg-deep);
+  color: #eaf4ff;
+  overflow: hidden;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ===== FUNDO GALÁCTICO DO LOGIN ===== */
+.stars, .nebula, .shooting-stars {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -10;
+}
+
+/* Estrelas do login */
+.stars {
+  background-image:
+    radial-gradient(#ffffff 1.2px, transparent 1.2px),
+    radial-gradient(rgba(255,255,255,0.9) 0.8px, transparent 0.8px),
+    radial-gradient(rgba(255,255,255,0.7) 0.6px, transparent 0.6px);
+  background-size: 800px 800px, 500px 500px, 300px 300px;
+  background-position: 0 0, 200px 300px, 400px 100px;
+  animation: starsMove 120s linear infinite;
+  opacity: 0.3;
+}
+
+@keyframes starsMove {
+  from { transform: translate3d(0,0,0); }
+  to { transform: translate3d(-600px, 600px, 0); }
+}
+
+/* Nebulosa do login */
+.nebula {
+  background:
+    radial-gradient(circle at 20% 40%, rgba(123,92,255,0.25), transparent 60%),
+    radial-gradient(circle at 80% 70%, rgba(52,209,243,0.22), transparent 70%),
+    radial-gradient(circle at 50% 80%, rgba(255,94,196,0.2), transparent 80%);
+  mix-blend-mode: screen;
+  animation: nebulaFloat 40s ease-in-out infinite alternate;
+}
+
+@keyframes nebulaFloat {
+  0% { transform: scale(1) translate(0,0); }
+  50% { transform: scale(1.04) translate(30px,-30px); }
+  100% { transform: scale(1) translate(-30px,30px); }
+}
+
+/* Estrelas cadentes do login */
+.shooting-stars {
+  overflow: hidden;
+}
+
+.shooting-star {
+  position: absolute;
+  background: linear-gradient(90deg, 
+    rgba(255,255,255,0) 0%, 
+    rgba(255,255,255,0.9) 30%, 
+    rgba(255,255,255,0.9) 70%, 
+    rgba(255,255,255,0) 100%);
+  height: 2px;
+  border-radius: 50%;
+  filter: blur(0.5px);
+  animation: shootingStar linear forwards;
+}
+
+/* Estrelas cadentes específicas para o login */
+.shooting-star:nth-child(1) { top: 20%; left: -100px; width: 120px; animation-duration: 2.5s; animation-delay: 0s; }
+.shooting-star:nth-child(2) { top: 40%; left: -150px; width: 180px; animation-duration: 3s; animation-delay: 5s; }
+.shooting-star:nth-child(3) { top: 70%; left: -120px; width: 150px; animation-duration: 2s; animation-delay: 10s; }
+.shooting-star:nth-child(4) { top: 30%; left: -180px; width: 200px; animation-duration: 3.5s; animation-delay: 15s; }
+
+@keyframes shootingStar {
+  0% { 
+    transform: translateX(0) translateY(0) rotate(45deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% { 
+    transform: translateX(100vw) translateY(100vh) rotate(45deg);
+    opacity: 0;
+  }
+}
+
+/* ===== CONTAINER ===== */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  position: relative;
+  z-index: 2;
+  padding: 20px;
+}
+
+/* ===== CARD DE LOGIN ===== */
+.login-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-glow);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 0 40px rgba(11,9,28,0.8);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.8s ease-out;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(40px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Efeito de brilho na borda */
+.login-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, 
+    rgba(123,92,255,0.3), 
+    rgba(52,209,243,0.2), 
+    rgba(255,94,196,0.3));
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Reflexo animado */
+.login-card::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  animation: shimmer 4s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* ===== CABEÇALHO ===== */
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.logo i {
+  font-size: 2.3em;
+  color: var(--accent-gold);
+  text-shadow: 0 0 20px rgba(255,216,107,0.5);
+  animation: floatIcon 3s ease-in-out infinite;
+}
+@keyframes floatIcon {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.logo h1 {
+  color: var(--accent-gold);
+  font-size: 1.8em;
+  font-weight: 700;
+}
+.login-header p {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+/* ===== FORM ===== */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.form-group label {
+  color: var(--muted);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95em;
+}
+.form-group input {
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: #eaf4ff;
+  font-size: 1em;
+  transition: all 0.3s ease;
+}
+.form-group input:focus {
+  outline: none;
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 10px rgba(123,92,255,0.3);
+  background: rgba(255,255,255,0.07);
+}
+.form-group input::placeholder { color: var(--muted-2); }
+
+/* ===== BOTÃO LOGIN ===== */
+.login-btn {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+  border: none;
+  padding: 16px 28px;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(123,92,255,0.2);
+  position: relative;
+  overflow: hidden;
+}
+.login-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 35px rgba(52,209,243,0.3);
+}
+.login-btn:active { transform: translateY(0); }
+
+/* ===== MENSAGENS ===== */
+.login-message {
+  margin-top: 20px;
+  padding: 14px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  display: none; /* controlado por JS para evitar banners duplos */
+}
+.login-message.success {
+  /* exibido via JS */
+  background: rgba(52,209,243,0.2);
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+.login-message.error {
+  /* exibido via JS */
+  background: rgba(255,94,196,0.15);
+  border: 1px solid var(--accent-magenta);
+  color: var(--accent-magenta);
+}
+
+/* ===== FOOTER ===== */
+.login-footer {
+  margin-top: 25px;
+  text-align: center;
+  color: var(--muted-2);
+  font-size: 0.9em;
+}
+
+/* ===== RESPONSIVO ===== */
+@media (max-width: 480px) {
+  .login-card { padding: 30px 25px; }
+  .logo { flex-direction: column; gap: 8px; }
+  .logo h1 { font-size: 1.5em; }
+}
+
+/* ===== LISTA DE ASTRÔNOMOS (SELECT) ===== */
+/* Tornar a lista mais escura e legível no tema escuro */
+.form-group select,
+#astronomer-select {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 14px 44px 14px 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(6,11,29,0.88);
+  color: #eaf4ff;
+  font-size: 1.06em;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.2px;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  /* seta custom à direita */
+  background-image: linear-gradient(45deg, transparent 50%, var(--accent-cyan) 50%),
+                    linear-gradient(135deg, var(--accent-cyan) 50%, transparent 50%),
+                    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2334d1f3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2v0'/%3E%3C/svg%3E");
+  background-position: calc(100% - 26px) calc(50% - 3px), calc(100% - 18px) calc(50% - 3px), 14px center;
+  background-size: 8px 8px, 8px 8px, 18px 18px;
+  background-repeat: no-repeat;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18), inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+
+.form-group select:focus,
+#astronomer-select:focus {
+  outline: none;
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 3px rgba(123,92,255,0.28), 0 8px 20px rgba(0,0,0,0.25);
+  background: rgba(6,11,29,0.94);
+}
+
+/* Estado hover para melhor indicação de interação */
+.form-group select:hover,
+#astronomer-select:hover {
+  border-color: rgba(255,255,255,0.18);
+  background: rgba(8,14,34,0.92);
+}
+
+/* Truncar textos muito longos com reticências */
+.form-group select,
+#astronomer-select {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Remove seta padrão no IE/Edge legado */
+#astronomer-select::-ms-expand { display: none; }
+
+/* Opções do dropdown em tom mais escuro para legibilidade */
+.form-group select option,
+#astronomer-select option {
+  background: #0b0f2a; /* escuro sólido para a lista */
+  color: #eaf4ff;
+  font-size: 0.98em;
+  line-height: 1.4;
+  padding: 8px 10px; /* pode não ser suportado em todos navegadores */
+}
+
+/* Placeholder/primeira opção */
+#astronomer-select option[value=""],
+#astronomer-select option:disabled {
+  color: var(--muted-2);
+}
+
+/* Realce do item selecionado na lista (quando aplicável) */
+.form-group select option:checked,
+#astronomer-select option:checked {
+  background-color: #11163a;
+  color: #eaf4ff;
+}
+
+/* Estado desabilitado */
+.form-group select:disabled,
+#astronomer-select:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Mobile: aumentar ainda mais a legibilidade e área de toque */
+@media (max-width: 480px) {
+  #astronomer-select {
+    font-size: 1.1em;
+    min-height: 52px;
+    padding-left: 46px;
+  }
+}

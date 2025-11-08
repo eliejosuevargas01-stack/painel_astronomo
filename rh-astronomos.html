@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel RH - Astrônomos</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="public/css/main-responsive.css">
+  <link rel="stylesheet" href="public/css/style.css">
+  <link rel="stylesheet" href="public/css/calendar-collapsible.css">
+</head>
+<body>
+  <div class="space-layer stars"></div>
+  <div class="space-layer twinkle"></div>
+  <div class="space-layer nebula"></div>
+  <div class="space-layer galaxies"></div>
+  <div class="space-layer stardust"></div>
+
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-user-astronaut"></i> Gestão de Astrônomos</h1>
+    </header>
+
+    <section class="upcoming-events-section" style="margin-top:12px;">
+      <div class="section-header">
+        <h3><i class="fas fa-rocket"></i> Painel RH - Astrônomos</h3>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div class="events-count" id="total-astronomos">Total: 0</div>
+          <span class="badge" id="data-source-label" title="Origem dos dados">Fonte: —</span>
+          <button class="btn btn-secondary" id="btn-refresh"><i class="fas fa-sync-alt"></i> Atualizar</button>
+          <button class="btn btn-secondary" id="btn-clear-cache" title="Limpar cache local"><i class="fas fa-broom"></i> Limpar cache</button>
+          <button class="btn btn-secondary" id="btn-export"><i class="fas fa-file-export"></i> Exportar CSV</button>
+          <input type="file" id="file-import" accept=".csv,text/csv" style="display:none" />
+          <button class="btn btn-secondary" id="btn-import"><i class="fas fa-file-import"></i> Importar CSV</button>
+          <button class="btn btn-secondary" id="btn-debug" title="Alternar modo debug"><i class="fas fa-bug"></i> Debug</button>
+        </div>
+      </div>
+
+      <!-- Filtros e paginação -->
+      <div class="summary-card" style="margin:8px 0; display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+        <div class="form-row" style="min-width:180px;">
+          <label>Estado</label>
+          <select id="filter-estado" style="min-width:160px">
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div class="form-row" style="min-width:220px;">
+          <label>Cidade</label>
+          <input type="text" id="filter-cidade" placeholder="Filtrar por cidade…" />
+        </div>
+        <div class="form-row" style="min-width:220px;">
+          <label>Buscar por nome/usuário</label>
+          <input type="text" id="filter-busca" placeholder="Digite para filtrar…" />
+        </div>
+        <div style="margin-left:auto; display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap;">
+          <div class="form-row">
+            <label>Por página</label>
+            <select id="page-size" style="min-width:90px">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+          <div class="row rh-pager" style="align-items:center;">
+            <button class="btn btn-secondary" id="prev-page" title="Anterior"><i class="fas fa-chevron-left"></i></button>
+            <span id="page-info" class="badge">1 / 1</span>
+            <button class="btn btn-secondary" id="next-page" title="Próxima"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-card rh-scroll" style="overflow:auto;">
+        <table class="rh-table" style="width:100%; border-collapse:separate; border-spacing:0; min-width:1200px;">
+          <thead>
+            <tr style="text-align:left;">
+              <th>ID</th>
+              <th>Nome Completo</th>
+              <th>Usuário</th>
+              <th>Cidade Base</th>
+              <th>Estado</th>
+              <th>Telefone</th>
+              <th>E-mail</th>
+              <th>Veículo</th>
+              <th>Consumo (km/L)</th>
+              <th>Combustível</th>
+              <th>Valor/Litro</th>
+              <th>Diária Hosp.</th>
+              <th>Alimentação</th>
+              <th>Monitor</th>
+              <th>Pedágios</th>
+              <th style="width:110px;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-astronomos"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Botão flutuante Novo -->
+    <button id="btn-novo" class="btn btn-primary" title="Novo Astrônomo" style="position:fixed;right:18px;bottom:84px;border-radius:999px;z-index:990;">
+      <i class="fas fa-plus"></i> Novo Astrônomo
+    </button>
+  </div>
+
+  <!-- Modal de Cadastro/Edição -->
+  <div class="modal" id="rh-modal">
+    <div class="modal-content" style="max-width:1100px;">
+      <button class="close-btn" id="modal-close">&times;</button>
+      <h2 id="modal-title">Novo Astrônomo</h2>
+      <form id="form-astronomo" class="stack" style="margin-top:8px;">
+        <div class="form-grid">
+          <div class="form-row">
+            <label>ID do Astrônomo (opcional)</label>
+            <input type="text" id="id_astronomo" placeholder="Ex.: 123 ou GUID" />
+          </div>
+          <div class="form-row">
+            <label>Usuário</label>
+            <input type="text" id="usuario" required />
+          </div>
+          <div class="form-row">
+            <label>Senha</label>
+            <input type="password" id="senha_usuario" />
+          </div>
+          <div class="form-row">
+            <label>Nome Completo</label>
+            <input type="text" id="nome_completo" required />
+          </div>
+          <div class="form-row">
+            <label>Cidade Base</label>
+            <input type="text" id="cidade_base" />
+          </div>
+          <div class="form-row">
+            <label>Estado</label>
+            <input type="text" id="estado" placeholder="UF (ex.: SC)" required />
+          </div>
+          <div class="form-row">
+            <label>Origem Lat</label>
+            <input type="text" id="origem_lat" placeholder="-23.5505" />
+          </div>
+          <div class="form-row">
+            <label>Origem Lon</label>
+            <input type="text" id="origem_lon" placeholder="-46.6333" />
+          </div>
+          <div class="form-row" style="align-self:end;display:flex;align-items:flex-end;">
+            <button type="button" class="btn btn-secondary" id="btn-lookup-coords"><i class="fas fa-map-marker-alt"></i> Definir Coordenadas</button>
+          </div>
+          <div class="form-row">
+            <label>Telefone</label>
+            <input type="text" id="telefone" />
+          </div>
+          <div class="form-row">
+            <label>E-mail</label>
+            <input type="email" id="email" />
+          </div>
+          <div class="form-row">
+            <label>Veículo</label>
+            <input type="text" id="veiculo" />
+          </div>
+          <div class="form-row">
+            <label>Consumo (km/L)</label>
+            <input type="number" step="0.01" id="consumo_km_l" />
+          </div>
+          <div class="form-row">
+            <label>Combustível</label>
+            <input type="text" id="combustivel" />
+          </div>
+          <div class="form-row">
+            <label>Valor do Litro</label>
+            <input type="number" step="0.01" id="valor_litro" />
+          </div>
+          <div class="form-row">
+            <label>Diária de hospedagem</label>
+            <input type="number" step="0.01" id="diaria_hospedagem" />
+          </div>
+          <div class="form-row">
+            <label>Alimentação Diária</label>
+            <input type="number" step="0.01" id="alimentacao_diaria" />
+          </div>
+          <div class="form-row">
+            <label>Valor do Monitor</label>
+            <input type="number" step="0.01" id="monitor" />
+          </div>
+          <div class="form-row">
+            <label>Pedágios</label>
+            <input type="number" step="0.01" id="pedagios" />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="modal-cancel">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="modal-save">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Overlay de carregamento (n8n em processamento) -->
+  <div id="rh-loading" class="rh-loading">
+    <div class="rh-loading-box">
+      <div class="rh-spinner" aria-hidden="true"></div>
+      <div id="rh-loading-text" class="rh-loading-text">Processando…</div>
+    </div>
+  </div>
+
+  <script src="public/js/rh-astronomos.js?v=20251106g"></script>
+  <style>
+    /* Painel de debug (só aparece quando ativado) */
+    #rh-debug-panel{ position:fixed; right:16px; bottom:16px; width:420px; max-height:50vh; z-index:2100; display:none; }
+    #rh-debug-panel.open{ display:block; }
+    #rh-debug-panel .dbg-box{ border:1px solid var(--glass-border); border-radius:10px; overflow:hidden; background:rgba(6,8,22,0.92); box-shadow:0 10px 30px rgba(2,6,20,0.5); }
+    #rh-debug-panel .dbg-head{ display:flex; align-items:center; justify-content:space-between; padding:8px 10px; color:#eaf4ff; font-weight:800; background:linear-gradient(180deg, rgba(10,12,28,0.92), rgba(6,8,22,0.92)); }
+    #rh-debug-panel .dbg-body{ padding:8px; }
+    #rh-debug-panel pre{ margin:0; max-height:34vh; overflow:auto; font-size:12px; line-height:1.35; color:#cde7ff; background:transparent; }
+    #rh-debug-panel button{ font-size:12px; }
+    /* ===== RH — UI Polida ===== */
+
+    /* Cabeçalho central, com brilho sutil */
+    #rh-header{
+      justify-content: center;
+      text-align: center;
+      border: 1px solid var(--glass-border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      position: relative;
+    }
+    #rh-header::after{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background: radial-gradient(600px 120px at 50% -10%, rgba(123,92,255,0.12), transparent 60%);
+    }
+    #rh-header h1{ letter-spacing:.02em; }
+
+    /* Barra superior (filtros + ações) coesa */
+    .section-header{
+      display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      padding: 10px 12px; border-radius: 12px; border:1px solid var(--glass-border);
+      background: linear-gradient(180deg, rgba(10,12,28,0.6), rgba(6,8,20,0.6));
+      box-shadow: var(--shadow-neon);
+    }
+    #data-source-label{ border-color: rgba(123,92,255,0.35); color: var(--accent-iris); font-weight:800; }
+
+    /* Inputs e selects maiores e com foco evidente */
+    .summary-card .form-row label{ font-weight:800; color: var(--muted); }
+    .summary-card input, .summary-card select{
+      min-height: 42px; font-size: 0.98rem; border-radius: 12px;
+      background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
+      transition: box-shadow .2s ease, border-color .2s ease;
+    }
+    .summary-card input:focus, .summary-card select:focus{
+      outline: none; border-color: var(--accent-purple);
+      box-shadow: 0 0 0 3px rgba(123,92,255,0.24);
+    }
+
+    /* Cartões com leve elevação */
+    .summary-card{
+      border:1px solid var(--glass-border);
+      background: linear-gradient(180deg, rgba(12,14,34,0.55), rgba(6,8,22,0.65));
+      box-shadow: 0 12px 40px rgba(3,6,18,0.4);
+      border-radius: 14px;
+    }
+
+    /* Tabela — cabeçalho fixo, listras e hover marcante */
+    .rh-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .rh-table thead th {
+      padding: 12px 14px;
+      color: var(--text-strong, #ecf3ff);
+      font-weight: 800;
+      letter-spacing: .01em;
+      border-bottom: 1px solid var(--glass-border);
+      white-space: nowrap;
+      background: linear-gradient(180deg, rgba(8,10,24,0.95), rgba(5,7,16,0.95));
+    }
+    .rh-table tbody td {
+      padding: 12px 14px;
+      color: var(--calendar-text);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    /* Listras mais escuras para melhorar contraste/legibilidade */
+    .rh-table tbody tr:nth-child(odd){ background: rgba(5,7,16,0.55); }
+    .rh-table tbody tr:nth-child(even){ background: rgba(10,12,28,0.45); }
+    .rh-table tbody tr:hover { background: rgba(123,92,255,0.16); }
+
+    /* Cabeçalho colado no topo do contêiner scrollável */
+    .rh-scroll thead th{ position: sticky; top: 0; z-index: 2;
+      background: linear-gradient(180deg, rgba(8,10,24,0.96), rgba(5,7,16,0.96));
+      backdrop-filter: blur(6px);
+      box-shadow: 0 2px 0 rgba(255,255,255,0.06) inset;
+    }
+    /* Coluna de ações sempre visível à direita */
+    .rh-scroll th:last-child, .rh-scroll td:last-child{
+      position: sticky; right: 0; z-index: 1;
+      background: linear-gradient(180deg, rgba(8,10,24,0.96), rgba(5,7,16,0.96));
+      backdrop-filter: blur(6px);
+      box-shadow: -10px 0 18px rgba(2,6,20,0.45);
+    }
+
+    /* Scrollbar grande e acessível apenas neste contêiner */
+    .rh-scroll { scrollbar-width: auto; }
+    .rh-scroll::-webkit-scrollbar { height: 22px; width: 16px; }
+    .rh-scroll::-webkit-scrollbar-track { background: rgba(8,10,26,.55); border-radius: 12px; }
+    .rh-scroll::-webkit-scrollbar-thumb {
+      background: linear-gradient(90deg, rgba(123,92,255,.7), rgba(52,209,243,.65));
+      border-radius: 12px;
+      border: 5px solid rgba(8,10,26,.55);
+    }
+    .rh-scroll::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(90deg, rgba(123,92,255,.85), rgba(52,209,243,.8));
+    }
+
+    /* Pager (bem grande e fácil de tocar) */
+    .rh-pager { gap: 14px; display:flex; align-items:center; justify-content:center; }
+    .rh-pager .btn { min-width: 64px; min-height: 64px; padding: 18px 22px; border-radius: 14px; font-size: 1.15rem; }
+    .rh-pager .btn i{ font-size: 1.25rem; }
+    #page-info, #page-info-bottom { display:inline-flex; align-items:center; justify-content:center; min-width: 110px; height: 56px; border-radius: 999px; font-weight: 900; font-size: 1.05rem; }
+    @media (pointer: coarse), (max-width: 640px){
+      .rh-pager .btn { min-width: 72px; min-height: 72px; padding: 20px 24px; font-size: 1.2rem; }
+      .rh-pager .btn i{ font-size: 1.35rem; }
+      #page-info, #page-info-bottom { min-width: 120px; height: 60px; font-size: 1.12rem; }
+    }
+
+    /* Overlay de carregamento */
+    .rh-loading{ position: fixed; inset: 0; display:none; align-items:center; justify-content:center; z-index: 2000; background: rgba(3,6,18,0.45); backdrop-filter: blur(6px); }
+    .rh-loading.open{ display:flex; }
+    .rh-loading-box{ display:flex; flex-direction:column; align-items:center; gap:12px; padding:20px 24px; border-radius:14px; border:1px solid var(--glass-border); background: linear-gradient(180deg, rgba(10,12,28,0.92), rgba(6,8,22,0.92)); box-shadow: 0 18px 60px rgba(2,6,20,0.6); }
+    .rh-spinner{ width: 36px; height: 36px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.2); border-top-color: var(--accent-purple); animation: spin 1s linear infinite; }
+    .rh-loading-text{ color: #eaf4ff; font-weight: 800; letter-spacing: .02em; }
+    @keyframes spin{ from{ transform: rotate(0deg)} to{ transform: rotate(360deg)} }
+  </style>
+</body>
+</html>
