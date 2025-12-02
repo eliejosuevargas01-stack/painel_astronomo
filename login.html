@@ -118,6 +118,33 @@
     </div>
 
     <script>
+        // Limpa caches no reload (F5), preservando apenas sessões
+        (function(){
+            const isReload = (() => {
+                try{
+                    const nav = performance.getEntriesByType('navigation')[0];
+                    if (nav && nav.type) return nav.type === 'reload';
+                    if (performance.navigation) return performance.navigation.type === 1;
+                }catch(_){}
+                return false;
+            })();
+            if (!isReload) return;
+            try{
+                const keep = new Set(['astronomo_session','userSession']);
+                const prefixes = ['agenda_cache_v1','rotas_cache_v1','rotas_override_v1','route_cache_osrm_v1','coord_cache_nominatim_v1','route_block_cache_v1'];
+                const contains = ['user_theme','savedUser','astronomersData','astronomersLastUpdate'];
+                const toDelete = [];
+                for (let i=0;i<localStorage.length;i++){
+                    const k = localStorage.key(i);
+                    if (!k) continue;
+                    if (keep.has(k)) continue;
+                    if (prefixes.some(p => k.startsWith(p)) || contains.some(c => k.includes(c))) {
+                        toDelete.push(k);
+                    }
+                }
+                toDelete.forEach(k => localStorage.removeItem(k));
+            }catch(_){}
+        })();
         // Elementos DOM
         const loginForm = document.getElementById('login-form');
         const astronomerSelect = document.getElementById('astronomer-select');
@@ -138,7 +165,7 @@
         const rememberMe = document.getElementById('remember-me');
 
         // Configuração do Webhook
-        const ASTRONOMER_WEBHOOK_URL = 'https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/novo-astronomo?action=list';
+        const ASTRONOMER_WEBHOOK_URL = 'https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/novo-astronomo-1';
 
         // Estado da aplicação
         let astronomersData = [];
@@ -167,15 +194,29 @@
                 connectionStatus.textContent = 'Conectando...';
                 webhookStatus.classList.remove('status-connected', 'status-error');
 
-                const response = await fetch(ASTRONOMER_WEBHOOK_URL, {
-                    method: 'GET',
-                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-                    mode: 'cors'
-                });
+                let data = null;
+                // 1) Tenta POST action=list (novo endpoint principal)
+                try{
+                    const response = await fetch(ASTRONOMER_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                        mode: 'cors',
+                        body: JSON.stringify({ action: 'list' })
+                    });
+                    if (!response.ok) throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+                    data = await response.json();
+                }catch(err){
+                    // 2) Fallback: GET com action=list
+                    const url = `${ASTRONOMER_WEBHOOK_URL}?action=list`;
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                        mode: 'cors'
+                    });
+                    if (!response.ok) throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+                    data = await response.json();
+                }
 
-                if (!response.ok) throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
-
-                const data = await response.json();
                 if (Array.isArray(data)) astronomersData = data;
                 else if (typeof data === 'object') astronomersData = [data];
                 else throw new Error('Formato de dados inválido recebido');
@@ -252,6 +293,37 @@
             return match ? `(${match[1]}) ${match[2]}-${match[3]}` : phone;
         }
 
+        function parseProfitRate(raw) {
+            if (raw === undefined || raw === null) return null;
+            const cleaned = (typeof raw === 'string' ? raw.replace('%', '').replace(',', '.').trim() : raw);
+            const num = Number(cleaned);
+            if (!Number.isFinite(num)) return null;
+            if (num >= 0 && num <= 1) return num;       // já em decimal
+            if (num > 1 && num <= 100) return num / 100; // valor em %
+            return null;
+        }
+
+        function extractProfitRate(astronomer) {
+            if (!astronomer || typeof astronomer !== 'object') return null;
+            const candidates = [
+                astronomer.percentual_lucro,
+                astronomer.porcentagem_lucro,
+                astronomer.porcentagem_de_lucro,
+                astronomer.lucro_percentual,
+                astronomer.taxa_lucro,
+                astronomer.percentual_de_lucro,
+                astronomer.comissao,
+                astronomer.comissao_percentual,
+                astronomer.percentual,
+                astronomer.porcentagem,
+            ];
+            for (const raw of candidates) {
+                const rate = parseProfitRate(raw);
+                if (rate !== null) return rate;
+            }
+            return null;
+        }
+
         // ========== AUTENTICAÇÃO ==========
         function handleLogin(e) {
             e.preventDefault();
@@ -294,6 +366,20 @@
         }
 
         function loginSuccess(astronomer) {
+            // Deriva ID do astrônomo com múltiplos fallbacks
+            const deriveId = (a) => {
+                const candidates = [
+                    a.id_astronomo, a.astronomo_id, a.id, a.user_id, a.usuario_id, a.assistant_id, a.row_number, a.row_num
+                ];
+                for (const v of candidates){
+                    if (v === undefined || v === null || v === '') continue;
+                    const num = Number(v);
+                    if (Number.isFinite(num)) return num;
+                    return v;
+                }
+                return null;
+            };
+
             // Salvar sessão
             const token = generateToken();
             const sessionData = { 
@@ -301,21 +387,84 @@
                 loginTime: new Date().toISOString(), 
                 token
             };
+            const lucroPercentualDecimal = extractProfitRate(astronomer);
+            const lucroPercentual = lucroPercentualDecimal != null ? lucroPercentualDecimal * 100 : null;
+            const astronomerFull = { ...astronomer };
+            if (lucroPercentualDecimal != null) {
+                astronomerFull.lucro_percentual_normalizado = lucroPercentualDecimal;
+                astronomerFull.lucro_percentual = astronomerFull.lucro_percentual ?? lucroPercentual;
+                astronomerFull.percentual_lucro = astronomerFull.percentual_lucro ?? lucroPercentual;
+                astronomerFull.taxa_lucro = astronomerFull.taxa_lucro ?? lucroPercentualDecimal;
+            }
+
+            // Preferir médias (quando > 0) antes de salvar defaults de custos
+            const pickWithAverage = (mediaKey, fallbackKey) => {
+                const mediaVal = astronomer[mediaKey];
+                const fallbackVal = astronomer[fallbackKey];
+                const mediaNum = Number(mediaVal);
+                if (Number.isFinite(mediaNum) && mediaNum > 0) return mediaNum;
+                const fbNum = Number(fallbackVal);
+                return Number.isFinite(fbNum) ? fbNum : null;
+            };
+
             // Compat: sessão usada por páginas atuais
             localStorage.setItem('userSession', JSON.stringify(sessionData));
             // Sessão unificada para páginas públicas (Minha Conta, Despesas, etc.)
             try {
+                const astroId = deriveId(astronomer);
                 const unified = {
+                    ...astronomerFull, // inclui todos os campos brutos
                     loggedIn: true,
                     username: astronomer.usuario,
                     usuario: astronomer.usuario,
-                    id_astronomo: astronomer.id_astronomo ?? astronomer.id ?? null,
+                    astronomo: astronomer.astronomo || astronomer.nome_completo || astronomer.usuario || null,
+                    id_astronomo: astroId,
                     assistant_id: astronomer.assistant_id ?? null,
-                    row_number: astronomer.row_number ?? null,
+                    row_number: astronomer.row_number ?? astronomer.row_num ?? null,
                     sessionId: token,
                     session_id: token,
                     timestamp: Date.now(),
-                    nome_completo: astronomer.nome_completo || null,
+                    nome_completo: astronomer.nome_completo || astronomer.nome || null,
+                    telefone: astronomer.telefone || astronomer.celular || astronomer.whatsapp || astronomer.contato || null,
+                    email: astronomer.email || null,
+                    cidade_base: astronomer.cidade_base || null,
+                    estado: astronomer.estado || astronomer.uf || null,
+                    veiculo: astronomer.veiculo || null,
+                    consumo_km_l: astronomer.consumo_km_l || astronomer.consumo || null,
+                    combustivel: astronomer.combustivel || null,
+                    valor_litro: astronomer.valor_litro || null,
+                    diaria_hospedagem: astronomer.diaria_hospedagem || null,
+                    monitor: astronomer.monitor || null,
+                    pedagios: astronomer.pedagios || null,
+                    alimentacao_diaria: astronomer.alimentacao_diaria || null,
+                    origem_real: astronomer.origem_real || null,
+                    precisa_voltar_para_base: astronomer.precisa_voltar_para_base ?? null,
+                    origem_lat: astronomer.origem_lat ?? astronomer.lat_origem ?? null,
+                    origem_lon: astronomer.origem_lon ?? astronomer.lon_origem ?? null,
+                    senha: passwordInput.value || null,
+                    senha_usuario: astronomer.senha_usuario || null,
+                    lucro_percentual: lucroPercentual,
+                    percentual_lucro: lucroPercentual,
+                    lucro_percentual_decimal: lucroPercentualDecimal,
+                    taxa_lucro: lucroPercentualDecimal,
+                    // custos base: usam médias se disponíveis (>0)
+                    valor_litro_real: pickWithAverage('valor_litro_real_media', 'valor_litro_real') ?? pickWithAverage('valor_litro_media', 'valor_litro'),
+                    valor_litro: pickWithAverage('valor_litro_media', 'valor_litro'),
+                    valor_diaria_hospedagem: pickWithAverage('diaria_hospedagem_media', 'diaria_hospedagem'),
+                    diaria_hospedagem: pickWithAverage('diaria_hospedagem_media', 'diaria_hospedagem'),
+                    alimentacao_diaria: pickWithAverage('alimentacao_diaria_media', 'alimentacao_diaria'),
+                    monitor: pickWithAverage('monitor_media', 'monitor'),
+                    pedagios: pickWithAverage('pedagios_media', 'pedagios'),
+                    consumo_km_l: pickWithAverage('consumo_km_l_media', 'consumo_km_l') ?? pickWithAverage('consumo_media', 'consumo'),
+                    custo_combustivel_medio: pickWithAverage('custo_combustivel_medio', 'custo_combustivel'),
+                    // alias de médias para consumo pelas outras telas
+                    valor_litro_media: pickWithAverage('valor_litro_media', 'valor_litro'),
+                    diaria_hospedagem_media: pickWithAverage('diaria_hospedagem_media', 'diaria_hospedagem'),
+                    alimentacao_diaria_media: pickWithAverage('alimentacao_diaria_media', 'alimentacao_diaria'),
+                    monitor_media: pickWithAverage('monitor_media', 'monitor'),
+                    pedagios_media: pickWithAverage('pedagios_media', 'pedagios'),
+                    consumo_km_l_media: pickWithAverage('consumo_km_l_media', 'consumo_km_l'),
+                    dados_completos: astronomerFull,
                 };
                 localStorage.setItem('astronomo_session', JSON.stringify(unified));
             } catch(_) {}

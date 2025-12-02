@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Histórico - Eventos Finalizados</title>
-    <link rel="stylesheet" href="public/css/main-responsive.css">
-    <link rel="stylesheet" href="public/css/style.css">
-    <link rel="stylesheet" href="public/css/docs-urania.css">
+    <link rel="stylesheet" href="css/main-responsive.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/docs-urania.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -17,9 +17,9 @@
     <div class="space-layer galaxies"></div>
 
     <div class="container">
-        <header>
+        <header class="page-header">
             <h1>📊 Histórico de Eventos Finalizados</h1>
-            <p class="subtitle">Registro completo de todos os eventos concluídos</p>
+            <a href="account.html" class="nav-button account-header-btn"><i class="fas fa-user-astronaut"></i> Minha Conta</a>
         </header>
         
         <div class="navigation">
@@ -128,6 +128,34 @@
     <div class="notification" id="notification"></div>
 
     <script>
+        // Limpa caches no reload (F5), preservando apenas sessões
+        (function(){
+            const isReload = (() => {
+                try{
+                    const nav = performance.getEntriesByType('navigation')[0];
+                    if (nav && nav.type) return nav.type === 'reload';
+                    if (performance.navigation) return performance.navigation.type === 1;
+                }catch(_){}
+                return false;
+            })();
+            if (!isReload) return;
+            try{
+                const keep = new Set(['astronomo_session','userSession']);
+                const prefixes = ['agenda_cache_v1','rotas_cache_v1','rotas_override_v1','route_cache_osrm_v1','coord_cache_nominatim_v1','route_block_cache_v1'];
+                const contains = ['user_theme','savedUser','astronomersData','astronomersLastUpdate'];
+                const toDelete = [];
+                for (let i=0;i<localStorage.length;i++){
+                    const k = localStorage.key(i);
+                    if (!k) continue;
+                    if (keep.has(k)) continue;
+                    if (prefixes.some(p => k.startsWith(p)) || contains.some(c => k.includes(c))) {
+                        toDelete.push(k);
+                    }
+                }
+                toDelete.forEach(k => localStorage.removeItem(k));
+            }catch(_){}
+        })();
+
         // Elementos DOM
         const historyGrid = document.getElementById('history-grid');
         const citySelect = document.getElementById('city-select');
@@ -468,17 +496,22 @@
                 
                 const finalizadoDate = new Date(event.finalizado_em || event.data);
                 const finalizadoFormatted = finalizadoDate.toLocaleDateString('pt-BR');
+                const cidadeNome = event.cidade || 'Cidade não informada';
                 
                 eventElement.innerHTML = `
                     <div class="history-header">
                         <div class="event-title">${event.evento}</div>
-                        <div class="event-date">${formattedDate}</div>
+                        <div class="event-date">${formattedDate} • ${cidadeNome}</div>
                     </div>
                     
                     <div class="history-details">
                         <div class="detail-item">
                             <span class="detail-label">Data do Evento</span>
                             <span class="detail-value">${formattedDate} - ${formattedTime}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Cidade</span>
+                            <span class="detail-value">${cidadeNome}</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Finalizado em</span>

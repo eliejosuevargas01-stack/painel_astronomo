@@ -26,8 +26,26 @@ header h1{
   align-items: center;
 }
 
+header.page-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  width:100%;
+}
+
 /* Navegação superior simples (Agenda / Feedbacks / Despesas / Históricos) */
-.navigation{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin: 18px 0 24px }
+.navigation{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  width:fit-content;
+  max-width:100%;
+  margin:18px auto 24px;
+}
 .nav-button{
   background: transparent;
   border:1px solid var(--glass-border);

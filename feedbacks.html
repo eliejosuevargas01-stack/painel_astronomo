@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feedbacks - Astrônomos</title>
-    <link rel="stylesheet" href="public/css/main-responsive.css">
-    <link rel="stylesheet" href="public/css/style.css">
-    <link rel="stylesheet" href="public/css/docs-urania.css">
+    <link rel="stylesheet" href="css/main-responsive.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/docs-urania.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -18,8 +18,13 @@
 
     <div class="container">
         <header>
-            <h1>📝 Feedbacks dos Astrônomos</h1>
-            <p class="subtitle">Avaliações e observações sobre os eventos realizados</p>
+            <div style="display:flex; align-items:center; gap:10px; justify-content:space-between; flex-wrap:wrap;">
+                <div>
+                    <h1>📝 Feedbacks dos Astrônomos</h1>
+                    <p class="subtitle">Minha Conta</p>
+                </div>
+                <a href="account.html" class="nav-button account-header-btn"><i class="fas fa-user-astronaut"></i> Minha Conta</a>
+            </div>
         </header>
         
         <div class="navigation">
@@ -124,6 +129,34 @@
     <div class="notification" id="notification"></div>
 
     <script>
+        // Limpa caches no reload (F5), preservando apenas sessões
+        (function(){
+            const isReload = (() => {
+                try{
+                    const nav = performance.getEntriesByType('navigation')[0];
+                    if (nav && nav.type) return nav.type === 'reload';
+                    if (performance.navigation) return performance.navigation.type === 1;
+                }catch(_){}
+                return false;
+            })();
+            if (!isReload) return;
+            try{
+                const keep = new Set(['astronomo_session','userSession']);
+                const prefixes = ['agenda_cache_v1','rotas_cache_v1','rotas_override_v1','route_cache_osrm_v1','coord_cache_nominatim_v1','route_block_cache_v1'];
+                const contains = ['user_theme','savedUser','astronomersData','astronomersLastUpdate'];
+                const toDelete = [];
+                for (let i=0;i<localStorage.length;i++){
+                    const k = localStorage.key(i);
+                    if (!k) continue;
+                    if (keep.has(k)) continue;
+                    if (prefixes.some(p => k.startsWith(p)) || contains.some(c => k.includes(c))) {
+                        toDelete.push(k);
+                    }
+                }
+                toDelete.forEach(k => localStorage.removeItem(k));
+            }catch(_){}
+        })();
+
         // Elementos DOM
         const feedbackGrid = document.getElementById('feedback-grid');
         const citySelect = document.getElementById('city-select');
@@ -149,6 +182,7 @@
 
         // Configuração do Webhook (novo endpoint)
         const AGENDA_WEBHOOK_URL = 'https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/agenda-astronomos';
+        const AGENDA_CACHE_PREFIX = 'agenda_cache_v1';
 
         // Utilitários de sessão e webhook
         function getLoggedSession(){
@@ -159,6 +193,12 @@
             }catch(_){ }
             return null;
         }
+
+        function agendaCacheKey(sess){
+            const ns = (sess && (sess.id_astronomo ?? sess.usuario ?? sess.username)) || 'anon';
+            return `${AGENDA_CACHE_PREFIX}::${String(ns).toLowerCase()}`;
+        }
+
         function buildUrl(base, params){
             const usp = new URLSearchParams();
             Object.entries(params||{}).forEach(([k,v])=>{ if (v!==undefined && v!==null) usp.append(k, String(v)); });
@@ -172,6 +212,24 @@
             try{ return await resp.json(); }catch(_){ return null; }
         }
 
+        function loadCachedAgenda(sess){
+            try{
+                const key = agendaCacheKey(sess);
+                const raw = localStorage.getItem(key);
+                if (!raw) return null;
+                const parsed = JSON.parse(raw);
+                if (!parsed || !Array.isArray(parsed.events)) return null;
+                const revived = parsed.events.map(ev => ({
+                    ...ev,
+                    _date: ev && ev._date ? new Date(ev._date) : (ev && ev.data ? new Date(ev.data) : null)
+                }));
+                return { ts: parsed.ts || parsed.timestamp || null, events: revived };
+            }catch(err){
+                console.warn('Não foi possível ler o cache da agenda:', err);
+                return null;
+            }
+        }
+
         // Estado da aplicação
         let eventsData = [];
         let feedbacksData = [];
@@ -182,15 +240,6 @@
         let currentPage = 1;
         const feedbacksPerPage = 12;
 
-        // Sessão do usuário logado
-        function getLoggedSession(){
-            try{
-                const raw = localStorage.getItem('astronomo_session');
-                const s = raw ? JSON.parse(raw) : null;
-                if (s && s.loggedIn) return s;
-            }catch(_){ }
-            return null;
-        }
         function norm(v){ return String(v||'').trim().toLowerCase(); }
         function belongsToSession(item, s){
             if (!s) return false;
@@ -224,6 +273,9 @@
                     applyFilters();
                 });
             });
+
+            // Carrega automaticamente do cache da Agenda ao abrir a página
+            fetchDataFromN8N();
         });
 
         // ========== FUNÇÃO PRINCIPAL - BUSCAR DADOS REAIS DO n8n ==========
@@ -232,52 +284,52 @@
             try {
                 btnFetchData.disabled = true;
                 btnFetchData.innerHTML = '<span class="loading"></span> Buscando dados...';
-                connectionStatus.textContent = 'Conectando ao n8n...';
+                connectionStatus.textContent = 'Lendo dados sincronizados na Agenda...';
                 webhookStatus.classList.remove('status-connected', 'status-error', 'status-warning');
 
                 const s = getLoggedSession();
-                const data = await callAgendaWebhook('atualizar_agenda', s?.id_astronomo != null ? { id_astronomo: s.id_astronomo } : {});
-                console.log('Dados recebidos do n8n:', data);
-                
-                // Processar os dados recebidos
-                if (Array.isArray(data)) {
-                    eventsData = data;
-                } else if (typeof data === 'object') {
-                    // Se for um único objeto, colocar em um array
-                    eventsData = [data];
-                } else {
-                    throw new Error('Formato de dados inválido recebido do n8n');
+                const cached = loadCachedAgenda(s);
+
+                if (!cached || !Array.isArray(cached.events) || cached.events.length === 0) {
+                    throw new Error('Nenhum dado em cache. Abra a Agenda (index) para sincronizar os eventos.');
                 }
 
-                // Extrair apenas eventos que têm feedback (ignora strings 'null')
-                feedbacksData = eventsData.filter(event => {
-                    const f = (event?.avaliacao_astronomo ?? '').toString().trim();
-                    return f !== '' && f.toLowerCase() !== 'null' && f.toLowerCase() !== 'undefined';
-                });
+                eventsData = cached.events;
+
+                // Extrair apenas eventos que têm feedback (avaliação/NPM)
+                feedbacksData = eventsData.filter(hasFeedbackFromEvent);
 
                 // Processar e validar os dados
                 feedbacksData = feedbacksData.map(event => {
-                    const ftxt = (event?.avaliacao_astronomo ?? '').toString();
-                    const sentiment = analyzeSentiment(ftxt);
+                    const feedbackTexto = extractFeedbackText(event);
+                    const nota = extractNotaNpm(event);
+                    const npmCampo = extractNpmField(event);
                     const textoRaw = (typeof event?.texto_tarefa === 'object' && event?.texto_tarefa !== null) ? (event.texto_tarefa.texto ?? '') : (event?.texto_tarefa ?? '');
-                    const eventoNome = (event?.conteudo_da_apresentacao ?? textoRaw ?? '').toString() || 'Evento Astronômico';
-                    const data = event?.data_agendamento ?? event?.data_e_hora_do_agendamento ?? new Date().toISOString();
+                    const escolaNome = (event?.nome_da_escola || event?.nome_escola || event?.escola || event?.nome_lead || '').toString().trim();
+                    const eventoNome = escolaNome || (event?.conteudo_da_apresentacao ?? textoRaw ?? '').toString() || 'Evento Astronômico';
+                    const dataBruta = event?._date || event?.data_agendamento || event?.data_e_hora_do_agendamento || event?.data || event?.date || new Date().toISOString();
+                    const dataObj = dataBruta instanceof Date ? dataBruta : new Date(dataBruta);
+                    const data = !Number.isNaN(dataObj.getTime()) ? dataObj.toISOString() : new Date().toISOString();
                     const cidade = (event?.cidade && event.cidade.toString().trim()) ? event.cidade : (event?.cidade_destino || 'Cidade não informada');
                     const local = (event?.local_instalacao && event.local_instalacao.toString().toLowerCase()!=='null') ? event.local_instalacao : (event?.endereco || 'Local não informado');
                     const alunos = event?.numero_alunos_empresa ?? event?.numero_de_alunos ?? '0';
                     const id = event?.id ?? event?.id_evento ?? event?.id_evento_unico ?? 'N/A';
+                    const sentiment = analyzeSentiment(feedbackTexto, nota);
                     return {
                         ...event,
                         id,
+                        escola: escolaNome || 'Escola não informada',
                         evento: eventoNome,
                         data,
                         cidade,
                         local,
                         astronomo: event?.astronomo ?? event?.astronomo_validacao ?? 'A definir',
-                        feedback: ftxt,
+                        feedback: feedbackTexto,
                         sentiment,
                         numero_alunos: alunos,
-                        valor_total: event?.valor_total ?? '0'
+                        valor_total: event?.valor_total ?? '0',
+                        nota_npm: nota,
+                        npm: npmCampo
                     };
                 });
 
@@ -289,19 +341,21 @@
 
                 populateFilters();
                 
-                connectionStatus.textContent = `Conectado - ${feedbacksData.length} feedbacks carregados`;
+                connectionStatus.textContent = `Carregado do cache da Agenda - ${feedbacksData.length} feedback(s)`;
                 webhookStatus.classList.add('status-connected');
-                showNotification(`${feedbacksData.length} feedbacks carregados com sucesso do n8n!`, 'success');
+                showNotification(`${feedbacksData.length} feedbacks carregados do cache da Agenda`, 'success');
                 
             } catch (error) {
                 console.error('Erro ao buscar dados do n8n:', error);
                 connectionStatus.textContent = `Erro: ${error.message}`;
                 webhookStatus.classList.add('status-error');
-                showNotification(`Erro ao carregar dados: ${error.message}`, 'error');
+                showNotification(`Abra a Agenda (index) para sincronizar: ${error.message}`, 'error');
                 
                 // Em caso de erro, mostrar estado vazio
                 feedbacksData = [];
                 renderFeedbacks();
+                updatePagination();
+                updateStats();
             } finally {
                 btnFetchData.disabled = false;
                 btnFetchData.innerHTML = '<i class="fas fa-sync-alt"></i> Buscar Dados';
@@ -310,15 +364,20 @@
 
         // ========== ANÁLISE DE SENTIMENTO ==========
 
-        function analyzeSentiment(feedback) {
+        function analyzeSentiment(feedback, notaNpm) {
+            // A nota NPM define o sentimento sempre que estiver presente
+            if (Number.isFinite(notaNpm)) {
+                if (notaNpm >= 8) return 'positive';
+                if (notaNpm >= 6) return 'neutral';
+                return 'negative';
+            }
+
+            // Fallback para casos sem nota: análise simples por palavras-chave
             if (!feedback) return 'neutral';
             
             const text = feedback.toLowerCase();
             
-            // Palavras positivas
             const positiveWords = ['excelente', 'ótimo', 'bom', 'perfeito', 'maravilhoso', 'incrível', 'fantástico', 'sucesso', 'satisfeito', 'gostaram', 'feliz', 'ótima'];
-            
-            // Palavras negativas
             const negativeWords = ['problema', 'problemas', 'ruim', 'péssimo', 'terrível', 'horrível', 'erro', 'falha', 'defeito', 'quebrou', 'caindo', 'desistiram', 'reclamação', 'reclamaram'];
             
             let positiveCount = 0;
@@ -335,6 +394,71 @@
             if (positiveCount > negativeCount) return 'positive';
             if (negativeCount > positiveCount) return 'negative';
             return 'neutral';
+        }
+
+        function extractFeedbackText(event){
+            const candidates = [
+                event?.avaliacao,
+                event?.avaliacao_astronomo,
+                event?.avaliacao_comentario,
+                event?.feedback,
+                event?.comentario_feedback,
+                event?.feedback_texto,
+                event?.avaliacao_responsavel
+            ];
+            for (const c of candidates){
+                const t = (c ?? '').toString().trim();
+                if (!t) continue;
+                const lower = t.toLowerCase();
+                if (lower === 'null' || lower === 'undefined') continue;
+                return t;
+            }
+            return '';
+        }
+
+        function extractNpmField(event){
+            const candidates = [
+                event?.npm,
+                event?.npm_texto,
+                event?.net_promoter_score,
+                event?.nota_nps,
+                event?.nps
+            ];
+            for (const c of candidates){
+                const t = (c ?? '').toString().trim();
+                if (!t) continue;
+                if (t.toLowerCase() === 'null' || t.toLowerCase() === 'undefined') continue;
+                return t;
+            }
+            return '';
+        }
+
+        function extractNotaNpm(event){
+            const candidates = [
+                event?.nota_npm,
+                event?.notaNpm,
+                event?.nota_npm_value,
+                event?.npm_nota,
+                event?.nota,
+                event?.nota_nps,
+                event?.nps
+            ];
+            for (const c of candidates){
+                if (c === null || c === undefined) continue;
+                const num = Number(String(c).replace(',', '.'));
+                if (!Number.isFinite(num)) continue;
+                if (num >= 0 && num <= 10) return num;
+                // aceita números fora do range, mas arredonda para 0-10
+                return Math.max(0, Math.min(10, num));
+            }
+            return null;
+        }
+
+        function hasFeedbackFromEvent(event){
+            const f = extractFeedbackText(event);
+            const nota = extractNotaNpm(event);
+            const npmField = extractNpmField(event);
+            return (f && f.trim() !== '') || (npmField && npmField.trim() !== '') || nota !== null;
         }
 
         function getSentimentClass(sentiment) {
@@ -479,20 +603,43 @@
                 const feedbackElement = document.createElement('div');
                 feedbackElement.className = `feedback-card ${feedback.sentiment}`;
                 
-                const feedbackDate = new Date(feedback.data);
-                const formattedDate = feedbackDate.toLocaleDateString('pt-BR');
-                const formattedTime = feedbackDate.toLocaleTimeString('pt-BR', { 
+                const feedbackDateRaw = feedback.data || feedback._date;
+                const feedbackDate = feedbackDateRaw ? new Date(feedbackDateRaw) : null;
+                const validDate = feedbackDate && !Number.isNaN(feedbackDate.getTime());
+                const formattedDate = validDate ? feedbackDate.toLocaleDateString('pt-BR') : 'Data não informada';
+                const formattedTime = validDate ? feedbackDate.toLocaleTimeString('pt-BR', { 
                     hour: '2-digit', 
                     minute: '2-digit' 
-                });
+                }) : '—';
+                const escolaNome = feedback.escola || feedback.evento || 'Escola não informada';
+                const cidadeNome = feedback.cidade || 'Cidade não informada';
+                const notaBadge = feedback.nota_npm !== null && feedback.nota_npm !== undefined
+                    ? `<span class="sentiment-badge sentiment-neutral"><i class="fas fa-star"></i> NPM ${feedback.nota_npm}/10</span>`
+                    : '';
+                const npmTextoBadge = feedback.npm
+                    ? `<span class="sentiment-badge sentiment-neutral"><i class="fas fa-chart-line"></i> ${feedback.npm}</span>`
+                    : '';
+                const escolaBadge = escolaNome
+                    ? `<span class="sentiment-badge sentiment-neutral"><i class="fas fa-school"></i> ${escolaNome}</span>`
+                    : '';
+                const cidadeBadge = cidadeNome
+                    ? `<span class="sentiment-badge sentiment-neutral"><i class="fas fa-city"></i> ${cidadeNome}</span>`
+                    : '';
                 
                 const sentimentClass = getSentimentClass(feedback.sentiment);
                 const sentimentIcon = getSentimentIcon(feedback.sentiment);
                 
                 feedbackElement.innerHTML = `
                     <div class="feedback-header">
-                        <div class="event-title">${feedback.evento}</div>
-                        <div class="event-date">${formattedDate}</div>
+                        <div class="event-title">${escolaNome}</div>
+                        <div class="event-date">${formattedDate} • ${cidadeNome}</div>
+                    </div>
+
+                    <div class="feedback-meta" style="display:flex; gap:8px; flex-wrap:wrap; margin:6px 0;">
+                        ${notaBadge}
+                        ${npmTextoBadge}
+                        ${escolaBadge}
+                        ${cidadeBadge}
                     </div>
                     
                     <div class="feedback-content">
@@ -503,8 +650,16 @@
                     
                     <div class="feedback-details">
                         <div class="detail-item">
-                            <span class="detail-label">Horário</span>
-                            <span class="detail-value">${formattedTime}</span>
+                            <span class="detail-label">Data/Horário</span>
+                            <span class="detail-value">${formattedDate} ${formattedTime !== '—' ? formattedTime : ''}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Escola</span>
+                            <span class="detail-value">${escolaNome}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Cidade</span>
+                            <span class="detail-value">${cidadeNome}</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Local</span>
@@ -517,6 +672,10 @@
                         <div class="detail-item">
                             <span class="detail-label">Valor</span>
                             <span class="detail-value">R$ ${feedback.valor_total ? parseFloat(feedback.valor_total).toLocaleString('pt-BR') : 'N/A'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Nota NPM</span>
+                            <span class="detail-value">${feedback.nota_npm !== null && feedback.nota_npm !== undefined ? `${feedback.nota_npm}/10` : 'Não informada'}</span>
                         </div>
                     </div>
                     

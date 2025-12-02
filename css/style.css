@@ -196,6 +196,23 @@ body{
   color: var(--accent-cyan);
 }
 
+.account-header-btn{
+  margin-left: auto;
+}
+
+.navigation{
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 18px auto 24px;
+  padding: 0;
+}
+
+
 /* ===== ANIMATED BACKGROUND LAYERS =====
    These elements should be inserted in your HTML:
    <div class="space-layer stars"></div>
@@ -859,3 +876,18 @@ footer{ margin-top:36px; padding:24px; text-align:center; color:var(--muted-2); 
 .btn-secondary{ background: rgba(255,255,255,0.03); color:var(--muted) }
 .queue-hint{ margin-top:12px; padding:12px; border-radius:10px; border:1px dashed rgba(255,255,255,0.15); color:var(--muted); text-align:center; font-size:0.85rem; background: rgba(255,255,255,0.02); letter-spacing:0.06em; text-transform:uppercase }
 .event-details-container{ max-height: 0; overflow: hidden; padding: 0; }
+
+/* ===== Override: remover fundos animados (estrelas/galáxias/nébula) para um visual simples ===== */
+.space-layer,
+.stars,
+.twinkle,
+.nebula,
+.galaxies,
+.shooting-stars,
+.shooting-stars-2,
+.shooting-stars-3,
+.stardust {
+  display: none !important;
+  background: none !important;
+  animation: none !important;
+}
