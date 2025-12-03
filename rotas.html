@@ -255,6 +255,7 @@
         ];
 
         const ROTAS_ENDPOINT = 'https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/rotas';
+        const AGENDA_CACHE_PREFIX = 'agenda_cache_v1';
         const ROTAS_CACHE_KEY = 'rotas_cache_v1';
         const ROTA_OVERRIDE_PREFIX = 'rotas_override_v1';
         let sessaoAtual = null;
@@ -433,8 +434,99 @@
             return { city, uf, lat, lng, source: data.source || data.origem || fallback.source };
         }
 
+        function extractDestinoCoords(ev){
+            if (!ev || typeof ev !== 'object') return { lat:null, lon:null, rawLat:null, rawLon:null };
+            const rawLat = ev.destino_lat ?? ev.lat_destino ?? ev.latitude_destino ?? ev.lat_dest ?? ev.latitude ?? ev.lat ?? null;
+            const rawLon = ev.destino_lon ?? ev.lon_destino ?? ev.longitude_destino ?? ev.lon_dest ?? ev.longitude ?? ev.lon ?? null;
+            const latNum = toNumber(rawLat);
+            const lonNum = toNumber(rawLon);
+            return {
+                lat: Number.isFinite(latNum) ? latNum : null,
+                lon: Number.isFinite(lonNum) ? lonNum : null,
+                rawLat,
+                rawLon
+            };
+        }
+
+        function readAgendaCacheForLocation(sess){
+            try{
+                const keys = [];
+                if (sess){
+                    const ns = (sess.id_astronomo ?? sess.usuario ?? sess.username ?? sess.astronomo) || 'anon';
+                    keys.push(`${AGENDA_CACHE_PREFIX}::${String(ns).toLowerCase()}`);
+                }
+                for (let i = 0; i < localStorage.length; i++){
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith(AGENDA_CACHE_PREFIX) && !keys.includes(k)) keys.push(k);
+                }
+                for (const key of keys){
+                    const raw = localStorage.getItem(key);
+                    const parsed = raw ? JSON.parse(raw) : null;
+                    const events = Array.isArray(parsed?.events) ? parsed.events : Array.isArray(parsed?.data) ? parsed.data : [];
+                    if (events.length) return events;
+                }
+            }catch(_){}
+            return [];
+        }
+
+        function getConsumoKmL(sess){
+            if (!sess || typeof sess !== 'object') return null;
+            const candidates = [
+                sess.consumo_km_l,
+                sess.consumo_km_l_media,
+                sess.consumo,
+                sess.media_consumo,
+                sess.consumo_medio
+            ];
+            for (const v of candidates){
+                const num = toNumber(v);
+                if (Number.isFinite(num) && num > 0) return num;
+            }
+            return null;
+        }
+
+        function getEventoDate(ev){
+            const raw = ev?.data_e_hora_do_agendamento || ev?.data_agendamento || ev?.data || ev?.date;
+            if (!raw) return null;
+            const d = new Date(raw);
+            if (Number.isNaN(d.getTime())) return null;
+            return d;
+        }
+
+        function findNextEventForLocation(sess){
+            try{
+                const raw = localStorage.getItem(ROTAS_CACHE_KEY);
+                const parsed = raw ? JSON.parse(raw) : null;
+                const events = Array.isArray(parsed?.events) ? parsed.events : Array.isArray(parsed?.data) ? parsed.data : [];
+                const agendaEvents = readAgendaCacheForLocation(sess);
+                const pool = events.length ? events : agendaEvents;
+                if (!pool.length) return null;
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const scored = pool
+                    .map(ev => {
+                        const date = getEventoDate(ev);
+                        const coords = extractDestinoCoords(ev);
+                        const hasCoords = (coords.lat !== null && coords.lon !== null) || (coords.rawLat != null && coords.rawLon != null);
+                        return { ev, date, hasCoords, coords };
+                    })
+                    .filter(item => item.date instanceof Date && !Number.isNaN(item.date.getTime()))
+                    .sort((a,b) => a.date - b.date);
+                const futureWithCoords = scored.find(item => item.date >= today && item.hasCoords);
+                const anyWithCoords = scored.find(item => item.hasCoords);
+                const futureAny = scored.find(item => item.date >= today);
+                const hit = futureWithCoords || anyWithCoords || futureAny || scored[0] || null;
+                return hit ? hit.ev : null;
+            }catch(_){
+                return null;
+            }
+        }
+
         async function sendLocationToWebhook(payload){
             const sess = sessaoAtual || getLoggedSession() || {};
+            const nextEvent = findNextEventForLocation(sess);
+            const { lat: destLat, lon: destLon, rawLat: destLatRaw, rawLon: destLonRaw } = extractDestinoCoords(nextEvent);
+            const consumoKmL = getConsumoKmL(sess);
             const u = new URL(API_AGENDA);
             u.searchParams.set('action', 'obter_localizacao');
             if (sess.id_astronomo != null) u.searchParams.set('id_astronomo', String(sess.id_astronomo));
@@ -445,6 +537,11 @@
             }
             if (payload.manualCity) u.searchParams.set('manual_city', payload.manualCity);
             if (payload.manualUf) u.searchParams.set('uf', payload.manualUf);
+            if (destLat !== null) u.searchParams.set('destino_lat', String(destLat));
+            else if (destLatRaw != null) u.searchParams.set('destino_lat', String(destLatRaw));
+            if (destLon !== null) u.searchParams.set('destino_lon', String(destLon));
+            else if (destLonRaw != null) u.searchParams.set('destino_lon', String(destLonRaw));
+            if (Number.isFinite(consumoKmL)) u.searchParams.set('consumo_km_l', String(consumoKmL));
             const resp = await fetch(u.toString(), { method:'POST', headers:{'Accept':'application/json'} });
             const txt = await resp.text().catch(()=> '');
             let json = null;

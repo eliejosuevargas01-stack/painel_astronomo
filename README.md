@@ -68,6 +68,22 @@ Formulário simples de autenticação. Redireciona para as páginas principais a
    - Ou usar `Dockerfile`/`nginx.conf` para subir um Nginx.
 3. Ajustar URLs dos webhooks se necessário (já apontam para o n8n Urania).
 
+## Como fazer deploy
+### Usando Docker/Nginx (recomendado)
+1. Build da imagem: `docker build -t urania-agenda:latest .`
+2. Subir o container: `docker run -d --name urania-agenda -p 8080:80 urania-agenda:latest`
+3. Opcional: publicar a imagem em um registry e usar em plataformas como Coolify/Render/Portainer. A imagem não requer variáveis de ambiente.
+4. Se precisar de rota base diferente, ajuste `nginx.conf` (diretiva `root`) ou o caminho de publicação na plataforma.
+
+### Sem Docker (qualquer servidor estático)
+- Copie todos os arquivos do repositório para o diretório público do servidor (ex.: `/usr/share/nginx/html`).
+- Use o `nginx.conf` como base (1 bloco simples com `try_files $uri /index.html;`).
+- Certifique-se de habilitar HTTPS e CORS conforme necessário no proxy/rede que protegerá os webhooks do n8n.
+
+### URLs externas
+- Os webhooks de produção já estão em `https://urania-planetario-n8n.mmjkgs.easypanel.host/...`.
+- Se seu ambiente exigir outros endpoints, atualize as constantes `API_AGENDA`/`API_ASTRO_BASE` nos arquivos HTML antes do build/deploy.
+
 ## Endpoints externos (n8n)
 - Astrônomos (CRUD/CSV/Imagens): `https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/novo-astronomo-1` (fallback `.../novo-astronomo`).
   - Ações POST JSON/FormData: `list`, `add`, `delete`, `import_csv`, `add_img`, `delete_img`, `get_img`.
