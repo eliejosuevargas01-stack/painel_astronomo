@@ -130,6 +130,7 @@ Opção recomendada (Docker/Nginx)
 2) Rodar: `docker run -d --name urania-agenda -p 4000:4000 urania-agenda:latest`
    - A imagem já inclui Nginx com `nginx.conf` (root em `/usr/share/nginx/html`, fallback `try_files`).
    - Não há variáveis de ambiente obrigatórias; os endpoints estão hardcoded.
+   - Config atual serve como site estático simples (sem fallback SPA): rotas inexistentes retornam 404.
 3) Opcional: envie a imagem para seu registry e use em Coolify/Render/Portainer.
 4) Se precisar mudar caminho raiz, edite `nginx.conf` antes do build (diretiva `root`) ou ajuste a publicação na plataforma.
 

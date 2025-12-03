@@ -74,6 +74,7 @@ Formulário simples de autenticação. Redireciona para as páginas principais a
 2. Subir o container: `docker run -d --name urania-agenda -p 4000:4000 urania-agenda:latest`
 3. Opcional: publicar a imagem em um registry e usar em plataformas como Coolify/Render/Portainer. A imagem não requer variáveis de ambiente.
 4. Se precisar de rota base diferente, ajuste `nginx.conf` (diretiva `root`) ou o caminho de publicação na plataforma.
+5. Para servir como página estática simples (sem fallback SPA), o `nginx.conf` já retorna 404 quando a rota não existir.
 
 ### Sem Docker (qualquer servidor estático)
 - Copie todos os arquivos do repositório para o diretório público do servidor (ex.: `/usr/share/nginx/html`).
