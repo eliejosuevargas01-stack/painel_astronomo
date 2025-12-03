@@ -25,10 +25,10 @@ COPY nginx.conf /etc/nginx/nginx.conf
 COPY . /usr/share/nginx/html
 
 # Expor porta interna do nginx
-EXPOSE 8086
+EXPOSE 4000
 
 # Healthcheck para o Coolify e Traefik
 HEALTHCHECK --interval=15s --timeout=5s \
-  CMD wget -qO- http://localhost:8086/ || exit 1
+  CMD wget -qO- http://localhost:4000/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]

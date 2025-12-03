@@ -127,7 +127,7 @@ Deploy
 ------
 Opção recomendada (Docker/Nginx)
 1) Construir imagem: `docker build -t urania-agenda:latest .`
-2) Rodar: `docker run -d --name urania-agenda -p 8080:80 urania-agenda:latest`
+2) Rodar: `docker run -d --name urania-agenda -p 4000:4000 urania-agenda:latest`
    - A imagem já inclui Nginx com `nginx.conf` (root em `/usr/share/nginx/html`, fallback `try_files`).
    - Não há variáveis de ambiente obrigatórias; os endpoints estão hardcoded.
 3) Opcional: envie a imagem para seu registry e use em Coolify/Render/Portainer.
