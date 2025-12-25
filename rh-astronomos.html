@@ -739,6 +739,47 @@
             background: var(--info-500);
         }
 
+        /* Área de imagens do evento */
+        .event-images-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .event-image-thumb {
+            width: 100%;
+            max-height: 180px;
+            aspect-ratio: 4 / 3;
+            object-fit: contain;
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            background: var(--neutral-50);
+            box-shadow: var(--shadow-sm);
+            padding: 6px;
+        }
+
+        /* Carrossel de imagens */
+        .carousel-image-wrapper {
+            background: var(--neutral-50);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            min-height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-image {
+            width: 100%;
+            max-height: 60vh;
+            object-fit: contain;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            background: white;
+        }
+
         /* Spinner moderno */
         .spinner {
             display: inline-block;
@@ -1599,6 +1640,11 @@
             return s || fallback;
         }
 
+        function getResultadoLabel(ev){
+            const raw = ev && (ev.resultado ?? ev.result ?? ev.status_resultado);
+            return textOrFallback(raw, 'Não informado');
+        }
+
         // IDs específicos das ações da agenda
         const ID_FIELD_DEFS = [
             { key: 'id_visita', label: 'ID Visita', altKeys: ['visita'] },
@@ -2334,6 +2380,7 @@
                         <div class="event-chips">
                             <span class="event-chip chip-primary">${textOrFallback(ev.tipo_da_tarefa || ev.tipo || ev.tipo_evento, 'Evento')}</span>
                             <span class="event-chip chip-success">${ev.valor_total != null ? formatCurrency(ev.valor_total) : 'Não informado'}</span>
+                            <span class="event-chip">${getResultadoLabel(ev)}</span>
                         </div>
                     </div>
                     <div class="event-body">
@@ -2518,6 +2565,10 @@
                     <div class="modal-item">
                         <div class="modal-label">Valor Total</div>
                         <div class="modal-value">${CURRENT_EVENT.valor_total != null ? formatCurrency(CURRENT_EVENT.valor_total) : 'Não informado'}</div>
+                    </div>
+                    <div class="modal-item">
+                        <div class="modal-label">Resultado</div>
+                        <div class="modal-value">${getResultadoLabel(CURRENT_EVENT)}</div>
                     </div>
                     <div class="modal-item">
                         <div class="modal-label">Cidade Origem</div>
@@ -3088,8 +3139,7 @@
             delBtn.textContent = '🗑️ Excluir';
             delBtn.style.fontSize = '0.8rem';
             delBtn.addEventListener('click', async () => {
-                const cleanUrl = (url || '').replace(/\\/g,'').split('?')[0];
-                await deleteImagemEvento(cleanUrl || name, id_evento, row, wrapper, delBtn);
+                await deleteImagemEvento(url || name, id_evento, row, wrapper, delBtn);
             });
 
             wrapper.appendChild(img);
@@ -3312,6 +3362,7 @@
                 const formData = new FormData();
                 formData.append('action', 'delete_img');
                 if (CAROUSEL_EVENT_ID) formData.append('id_evento', CAROUSEL_EVENT_ID);
+                formData.append('url', current.url);
 
                 // Envia também o nome e a linha, quando disponíveis
                 if (current.name) formData.append('name', current.name);
@@ -3368,9 +3419,7 @@
             const formData = new FormData();
             formData.append('action', 'delete_img');
             formData.append('id_evento', id_evento);
-            // remove parâmetros/thumbnail
-            const cleanUrl = (url || '').replace(/\\/g,'').split('?')[0];
-            formData.append('url', cleanUrl);
+            formData.append('url', url);
             if (row != null) {
                 formData.append('row_number', String(row));
                 formData.append('row', String(row));
@@ -3409,10 +3458,14 @@
                 btn.innerText = 'Enviando...';
             }
             try{
+                const normalizedEvent = (evento && typeof evento === 'object')
+                    ? { ...evento, finalizado: true }
+                    : { finalizado: true };
                 const body = {
                     action: 'lancar_despesas',
                     id_evento: id,
-                    evento: evento
+                    finalizado: true,
+                    evento: normalizedEvent
                 };
                 const resp = await fetch(API_AGENDA, {
                     method:'POST',

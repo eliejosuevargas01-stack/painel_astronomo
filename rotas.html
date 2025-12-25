@@ -46,22 +46,6 @@
         .astro-info{ color: var(--muted, #aeb4c5); line-height:1.4; }
         .astro-line{ display:flex; gap:6px; align-items:center; font-size:0.95rem; flex-wrap:wrap; }
         .astro-line strong{ color:#fff; }
-        /* Localização */
-        .location-modal{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.65); z-index:3500; opacity:0; pointer-events:none; transition:opacity 120ms ease-out; padding:12px; }
-        .location-modal.show{ opacity:1; pointer-events:all; }
-        .location-modal__card{ width:min(460px,100%); background:rgba(8,10,30,0.95); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:16px; position:relative; box-shadow:0 16px 48px rgba(0,0,0,0.45); }
-        .location-modal__close{ position:absolute; top:10px; right:10px; background:transparent; border:none; color:#fff; font-size:1rem; cursor:pointer; }
-        .location-actions{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
-        .location-actions .btn,
-        .location-actions .btn-secondary{ flex:1 1 160px; justify-content:center; text-align:center; }
-        .location-actions .btn-muted{ border-radius:999px; border:1px dashed rgba(255,255,255,0.25); background:transparent; color:#d1d5db; padding:8px 12px; cursor:pointer; }
-        .location-form{ display:grid; gap:10px; margin-top:12px; }
-        .location-form input{ width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.04); color:#fff; }
-        .location-form label{ font-size:0.9rem; color: var(--muted, #aeb4c5); }
-        .location-feedback{ margin-top:10px; font-size:0.9rem; color:#a5f3fc; }
-        .location-banner{ display:none; align-items:center; gap:10px; background:rgba(123,92,255,0.12); border:1px solid rgba(123,92,255,0.32); border-radius:12px; padding:8px 12px; margin:6px 0 12px 0; }
-        .location-banner__text{ font-weight:600; }
-        .location-banner__action{ border-radius:999px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.08); color:#fff; padding:6px 12px; cursor:pointer; }
     </style>
 </head>
 <body>
@@ -82,11 +66,6 @@
                 </a>
             </header>
 
-            <div class="location-banner" id="location-banner">
-                <span class="location-banner__text" id="location-text">Ative sua localização para ajustar as rotas.</span>
-                <button class="location-banner__action" id="location-change-btn" type="button">Alterar</button>
-            </div>
-
             <div class="navigation">
                 <a href="index.html" class="nav-button"><i class="fas fa-calendar-alt"></i> Agenda</a>
                 <a href="feedbacks.html" class="nav-button"><i class="fas fa-comment-dots"></i> Feedbacks</a>
@@ -100,7 +79,7 @@
             <div class="panel-card" style="margin-bottom:12px;">
                 <div class="filters-row" style="justify-content:flex-start; gap:12px;">
                     <button class="btn" onclick="carregarRotas()" id="btnCarregar">
-                        🌟 Carregar rotas do webhook
+                        🌟 Carregar rotas da agenda
                     </button>
                     <button class="btn" onclick="usarDadosDemo()" id="btnDemo">
                         🎯 Usar dados de demonstração
@@ -119,43 +98,6 @@
             <div class="panel-card">
                 <div id="rotasContainer" class="rotas-grid"></div>
             </div>
-        </div>
-    </div>
-
-    <!-- Popups de localização -->
-    <div class="location-modal" id="location-permission-modal" aria-hidden="true">
-        <div class="location-modal__card">
-            <button class="location-modal__close" data-close-location>✕</button>
-            <h3>Permitir localização</h3>
-            <p>Use sua localização atual para calcular as rotas e distâncias da agenda.</p>
-            <div class="location-actions">
-                <button class="btn" id="btn-location-allow" type="button">Permitir localização</button>
-                <button class="btn btn-secondary" id="btn-location-manual" type="button">Informar cidade</button>
-                <button class="btn-muted" id="btn-location-skip" type="button">Não mostrar novamente</button>
-            </div>
-            <div class="location-feedback" id="location-feedback"></div>
-        </div>
-    </div>
-    <div class="location-modal" id="location-manual-modal" aria-hidden="true">
-        <div class="location-modal__card">
-            <button class="location-modal__close" data-close-location>✕</button>
-            <h3>Informar cidade manualmente</h3>
-            <p>Se preferir, indique onde você está para ajustar as rotas.</p>
-            <div class="location-form">
-                <div>
-                    <label for="loc-manual-city">Cidade</label>
-                    <input id="loc-manual-city" type="text" placeholder="Ex: Florianópolis" autocomplete="address-level2">
-                </div>
-                <div>
-                    <label for="loc-manual-uf">UF</label>
-                    <input id="loc-manual-uf" type="text" placeholder="SC" maxlength="2" autocomplete="address-level1">
-                </div>
-            </div>
-            <div class="location-actions">
-                <button class="btn" id="btn-send-manual" type="button">Enviar para N8N</button>
-                <button class="btn-muted" id="btn-manual-skip" type="button">Não mostrar novamente</button>
-            </div>
-            <div class="location-feedback" id="manual-location-feedback"></div>
         </div>
     </div>
 
@@ -189,8 +131,6 @@
         })();
 
         const API_AGENDA = "https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/agenda-astronomos";
-        const LOCATION_PREF_KEY = 'astro_location_pref_v1';
-        const LOCATION_SKIP_KEY = 'astro_location_skip_v1';
         const DADOS_DEMO = [
             {
                 "astronomo": "Nathalia",
@@ -254,28 +194,10 @@
             }
         ];
 
-        const ROTAS_ENDPOINT = 'https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/rotas';
         const AGENDA_CACHE_PREFIX = 'agenda_cache_v1';
         const ROTAS_CACHE_KEY = 'rotas_cache_v1';
         const ROTA_OVERRIDE_PREFIX = 'rotas_override_v1';
         let sessaoAtual = null;
-        // Localização
-        const locationBanner = document.getElementById('location-banner');
-        const locationTextEl = document.getElementById('location-text');
-        const locationChangeBtn = document.getElementById('location-change-btn');
-        const locationPermissionModal = document.getElementById('location-permission-modal');
-        const locationManualModal = document.getElementById('location-manual-modal');
-        const btnLocationAllow = document.getElementById('btn-location-allow');
-        const btnLocationManual = document.getElementById('btn-location-manual');
-        const btnLocationSkip = document.getElementById('btn-location-skip');
-        const btnSendManual = document.getElementById('btn-send-manual');
-        const btnManualSkip = document.getElementById('btn-manual-skip');
-        const manualCityInput = document.getElementById('loc-manual-city');
-        const manualUfInput = document.getElementById('loc-manual-uf');
-        const locationFeedback = document.getElementById('location-feedback');
-        const manualLocationFeedback = document.getElementById('manual-location-feedback');
-        let locationState = null;
-        let locationPromptShown = false;
 
         function safeText(v){
             return v == null ? '' : String(v).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch] || ch));
@@ -364,91 +286,15 @@
             return null;
         }
 
-        // Localização dinâmica
-        function buildCityLabel(city, uf){
-            const c = (city || '').toString().trim();
-            const u = (uf || '').toString().trim().toUpperCase();
-            if (c && u) return `${c}, ${u}`;
-            return c || u || '';
+        function getEventoDate(ev){
+            const raw = ev?.data_e_hora_do_agendamento || ev?.data_agendamento || ev?.data || ev?.date;
+            if (!raw) return null;
+            const d = new Date(raw);
+            if (Number.isNaN(d.getTime())) return null;
+            return d;
         }
 
-        function loadLocationPref(){
-            try{
-                const raw = localStorage.getItem(LOCATION_PREF_KEY);
-                return raw ? JSON.parse(raw) : null;
-            }catch(_){ return null; }
-        }
-
-        function saveLocationPref(pref){
-            try{
-                if (pref) localStorage.setItem(LOCATION_PREF_KEY, JSON.stringify(pref));
-            }catch(_){}
-        }
-
-        function shouldSkipLocationPrompt(){
-            return localStorage.getItem(LOCATION_SKIP_KEY) === 'true';
-        }
-
-        function markSkipLocation(){
-            try{ localStorage.setItem(LOCATION_SKIP_KEY, 'true'); }catch(_){}
-            hideLocationModals();
-        }
-
-        function setLocationBanner(pref){
-            if (!locationBanner || !locationTextEl) return;
-            const label = buildCityLabel(pref?.city || pref?.manualCity, pref?.uf);
-            const coordsLabel = Number.isFinite(pref?.lat) && Number.isFinite(pref?.lng)
-                ? `Coordenadas: ${Number(pref.lat).toFixed(4)}, ${Number(pref.lng).toFixed(4)}`
-                : '';
-            if (label || coordsLabel){
-                locationBanner.style.display = 'flex';
-                locationTextEl.textContent = label ? `Estou em: ${label}` : coordsLabel;
-            } else {
-                locationBanner.style.display = 'none';
-            }
-        }
-
-        function toggleLocationModal(modal, show){
-            if (!modal) return;
-            modal.classList[show ? 'add' : 'remove']('show');
-            modal.setAttribute('aria-hidden', show ? 'false' : 'true');
-        }
-
-        function hideLocationModals(){
-            toggleLocationModal(locationPermissionModal, false);
-            toggleLocationModal(locationManualModal, false);
-        }
-
-        function setLocationFeedback(msg, isManual){
-            const el = isManual ? manualLocationFeedback : locationFeedback;
-            if (el) el.textContent = msg || '';
-        }
-
-        function parseLocationResponse(resp, fallback = {}){
-            const data = resp && typeof resp === 'object' ? resp : {};
-            const nested = data.data && typeof data.data === 'object' ? data.data : {};
-            const city = data.manual_city || data.city || data.cidade || nested.manual_city || nested.city || nested.cidade || fallback.manualCity || fallback.city || null;
-            const uf = data.uf || data.estado || nested.uf || nested.estado || fallback.manualUf || fallback.uf || null;
-            const lat = toNumber(data.current_lat ?? data.lat ?? data.latitude ?? data.origem_lat ?? nested.current_lat ?? nested.lat ?? nested.latitude ?? nested.origem_lat);
-            const lng = toNumber(data.current_lng ?? data.lng ?? data.lon ?? data.longitude ?? data.origem_lon ?? nested.current_lng ?? nested.lng ?? nested.lon ?? nested.longitude ?? nested.origem_lon);
-            return { city, uf, lat, lng, source: data.source || data.origem || fallback.source };
-        }
-
-        function extractDestinoCoords(ev){
-            if (!ev || typeof ev !== 'object') return { lat:null, lon:null, rawLat:null, rawLon:null };
-            const rawLat = ev.destino_lat ?? ev.lat_destino ?? ev.latitude_destino ?? ev.lat_dest ?? ev.latitude ?? ev.lat ?? null;
-            const rawLon = ev.destino_lon ?? ev.lon_destino ?? ev.longitude_destino ?? ev.lon_dest ?? ev.longitude ?? ev.lon ?? null;
-            const latNum = toNumber(rawLat);
-            const lonNum = toNumber(rawLon);
-            return {
-                lat: Number.isFinite(latNum) ? latNum : null,
-                lon: Number.isFinite(lonNum) ? lonNum : null,
-                rawLat,
-                rawLon
-            };
-        }
-
-        function readAgendaCacheForLocation(sess){
+        function loadAgendaEvents(sess){
             try{
                 const keys = [];
                 if (sess){
@@ -469,162 +315,42 @@
             return [];
         }
 
-        function getConsumoKmL(sess){
-            if (!sess || typeof sess !== 'object') return null;
-            const candidates = [
-                sess.consumo_km_l,
-                sess.consumo_km_l_media,
-                sess.consumo,
-                sess.media_consumo,
-                sess.consumo_medio
-            ];
-            for (const v of candidates){
-                const num = toNumber(v);
-                if (Number.isFinite(num) && num > 0) return num;
-            }
-            return null;
-        }
-
-        function getEventoDate(ev){
-            const raw = ev?.data_e_hora_do_agendamento || ev?.data_agendamento || ev?.data || ev?.date;
-            if (!raw) return null;
-            const d = new Date(raw);
-            if (Number.isNaN(d.getTime())) return null;
-            return d;
-        }
-
-        function findNextEventForLocation(sess){
+        function carregarEventosLocais(sess){
             try{
                 const raw = localStorage.getItem(ROTAS_CACHE_KEY);
                 const parsed = raw ? JSON.parse(raw) : null;
-                const events = Array.isArray(parsed?.events) ? parsed.events : Array.isArray(parsed?.data) ? parsed.data : [];
-                const agendaEvents = readAgendaCacheForLocation(sess);
-                const pool = events.length ? events : agendaEvents;
-                if (!pool.length) return null;
-                const now = new Date();
-                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                const scored = pool
-                    .map(ev => {
-                        const date = getEventoDate(ev);
-                        const coords = extractDestinoCoords(ev);
-                        const hasCoords = (coords.lat !== null && coords.lon !== null) || (coords.rawLat != null && coords.rawLon != null);
-                        return { ev, date, hasCoords, coords };
-                    })
-                    .filter(item => item.date instanceof Date && !Number.isNaN(item.date.getTime()))
-                    .sort((a,b) => a.date - b.date);
-                const futureWithCoords = scored.find(item => item.date >= today && item.hasCoords);
-                const anyWithCoords = scored.find(item => item.hasCoords);
-                const futureAny = scored.find(item => item.date >= today);
-                const hit = futureWithCoords || anyWithCoords || futureAny || scored[0] || null;
-                return hit ? hit.ev : null;
-            }catch(_){
-                return null;
-            }
-        }
-
-        async function sendLocationToWebhook(payload){
-            const sess = sessaoAtual || getLoggedSession() || {};
-            const nextEvent = findNextEventForLocation(sess);
-            const { lat: destLat, lon: destLon, rawLat: destLatRaw, rawLon: destLonRaw } = extractDestinoCoords(nextEvent);
-            const consumoKmL = getConsumoKmL(sess);
-            const u = new URL(API_AGENDA);
-            u.searchParams.set('action', 'obter_localizacao');
-            if (sess.id_astronomo != null) u.searchParams.set('id_astronomo', String(sess.id_astronomo));
-            if (sess.usuario) u.searchParams.set('usuario', String(sess.usuario));
-            if (payload.lat != null && payload.lng != null){
-                u.searchParams.set('current_lat', String(payload.lat));
-                u.searchParams.set('current_lng', String(payload.lng));
-            }
-            if (payload.manualCity) u.searchParams.set('manual_city', payload.manualCity);
-            if (payload.manualUf) u.searchParams.set('uf', payload.manualUf);
-            if (destLat !== null) u.searchParams.set('destino_lat', String(destLat));
-            else if (destLatRaw != null) u.searchParams.set('destino_lat', String(destLatRaw));
-            if (destLon !== null) u.searchParams.set('destino_lon', String(destLon));
-            else if (destLonRaw != null) u.searchParams.set('destino_lon', String(destLonRaw));
-            if (Number.isFinite(consumoKmL)) u.searchParams.set('consumo_km_l', String(consumoKmL));
-            const resp = await fetch(u.toString(), { method:'POST', headers:{'Accept':'application/json'} });
-            const txt = await resp.text().catch(()=> '');
-            let json = null;
-            try{ json = txt ? JSON.parse(txt) : null; }catch(_){}
-            if (!resp.ok) throw new Error((json && json.message) || txt || 'Falha ao enviar localização');
-            return json || {};
-        }
-
-        async function handleLocationResult(payload, isManual){
-            setLocationFeedback('Enviando localização...', isManual);
-            try{
-                const resp = await sendLocationToWebhook(payload);
-                const parsed = parseLocationResponse(resp, payload);
-                const lat = Number.isFinite(parsed.lat) ? parsed.lat : payload.lat;
-                const lng = Number.isFinite(parsed.lng) ? parsed.lng : payload.lng;
-                const city = parsed.city || payload.manualCity || payload.city || null;
-                const uf = parsed.uf || payload.manualUf || payload.uf || null;
-                locationState = {
-                    lat,
-                    lng,
-                    city,
-                    uf,
-                    source: parsed.source || payload.source || (payload.manualCity ? 'manual' : 'gps'),
-                    label: buildCityLabel(city, uf),
-                    ts: Date.now(),
-                    raw: resp
-                };
-                saveLocationPref(locationState);
-                setLocationBanner(locationState);
-                hideLocationModals();
-                if (sessaoAtual) {
-                    sessaoAtual = { ...sessaoAtual, origem_lat: lat, origem_lon: lng };
+                const cacheSess = parsed?.session || null;
+                if (sess && cacheSess && cacheSess.id_astronomo != null && sess.id_astronomo != null) {
+                    if (String(cacheSess.id_astronomo) !== String(sess.id_astronomo)) throw new Error('Cache pertence a outro usuário');
                 }
-                carregarRotas(true);
-                setLocationFeedback(isManual ? 'Cidade enviada com sucesso!' : 'Localização atualizada!', isManual);
-            }catch(err){
-                console.error('Erro ao enviar localização:', err);
-                setLocationFeedback('Erro ao enviar localização: ' + (err && err.message ? err.message : err), isManual);
-            }
+                const events = Array.isArray(parsed?.events) ? parsed.events : Array.isArray(parsed?.data) ? parsed.data : [];
+                if (events.length) return events;
+            }catch(_){}
+            return loadAgendaEvents(sess);
         }
 
-        function requestBrowserLocation(){
-            if (!navigator.geolocation){
-                setLocationFeedback('Seu navegador não suporta geolocalização.', false);
-                toggleLocationModal(locationPermissionModal, false);
-                toggleLocationModal(locationManualModal, true);
-                return;
-            }
-            setLocationFeedback('Solicitando permissão...', false);
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const { latitude, longitude } = pos.coords || {};
-                    handleLocationResult({ lat: latitude, lng: longitude, source:'gps' }, false);
-                },
-                (err) => {
-                    console.warn('Geolocalização negada ou indisponível', err);
-                    setLocationFeedback('Não foi possível obter sua localização. Informe manualmente.', false);
-                    toggleLocationModal(locationPermissionModal, false);
-                    toggleLocationModal(locationManualModal, true);
-                },
-                { enableHighAccuracy:true, timeout:10000 }
-            );
-        }
-
-        function submitManualLocation(){
-            const city = manualCityInput ? manualCityInput.value.trim() : '';
-            const uf = manualUfInput ? manualUfInput.value.trim().toUpperCase() : '';
-            if (!city || !uf){
-                setLocationFeedback('Preencha cidade e UF para continuar.', true);
-                return;
-            }
-            handleLocationResult({ manualCity: city, manualUf: uf, source:'manual' }, true);
-        }
-
-        function maybePromptLocation(forceManual = false){
-            if (locationPromptShown) return;
-            if (!forceManual && (shouldSkipLocationPrompt() || (locationState && Number.isFinite(locationState.lat) && Number.isFinite(locationState.lng)))) return;
-            locationPromptShown = true;
-            if (forceManual) {
-                toggleLocationModal(locationManualModal, true);
-            } else {
-                toggleLocationModal(locationPermissionModal, true);
-            }
+        function construirRotaDaAgenda(eventos, sess){
+            const lista = Array.isArray(eventos) ? eventos.slice() : [];
+            lista.sort((a,b) => {
+                const da = getEventoDate(a);
+                const db = getEventoDate(b);
+                if (!da && !db) return 0;
+                if (!da) return 1;
+                if (!db) return -1;
+                return da - db;
+            });
+            const inicio = lista[0] ? getEventoDate(lista[0]) : null;
+            const fim = lista[lista.length - 1] ? getEventoDate(lista[lista.length - 1]) : null;
+            const nome = sess?.nome_completo || sess?.astronomo || sess?.usuario || sess?.username || 'Agenda';
+            return {
+                astronomo: nome,
+                rota_id: 'Rota da agenda',
+                quantidade_eventos: lista.length,
+                eventos: lista,
+                data_inicio: inicio ? inicio.toISOString() : null,
+                data_fim: fim ? fim.toISOString() : null,
+                distancia_total: null
+            };
         }
 
         function pickAstronomoId(obj){
@@ -782,18 +508,6 @@
             return overrides;
         }
 
-        function rotaPertenceSessao(rota, sess){
-            if (!rota || !sess) return false;
-            const rotaId = rota.id_astronomo ?? rota.astronomo_id ?? rota.astronomer_id ?? rota.usuario_id ?? rota.user_id;
-            if (rotaId != null && sess.id_astronomo != null) {
-                return String(rotaId) === String(sess.id_astronomo);
-            }
-            const rotaNome = (rota.astronomo || rota.usuario || rota.nome || rota.nome_completo || '').toString().toLowerCase();
-            const sessNome = (sess.usuario || sess.username || sess.astronomo || '').toString().toLowerCase();
-            if (rotaNome && sessNome) return rotaNome === sessNome;
-            return true;
-        }
-
         async function carregarRotas(auto = false) {
             const loading = document.getElementById('loading');
             const btnCarregar = document.getElementById('btnCarregar');
@@ -801,9 +515,7 @@
             const demoAlert = document.getElementById('demoAlert');
             const statusText = document.getElementById('status-text');
             const sess = getLoggedSession();
-            sessaoAtual = locationState && Number.isFinite(locationState.lat) && Number.isFinite(locationState.lng)
-                ? { ...(sess || {}), origem_lat: locationState.lat, origem_lon: locationState.lng }
-                : sess;
+            sessaoAtual = sess;
             const sessVal = sessaoAtual || sess;
 
             loading.classList.remove('hidden');
@@ -826,78 +538,38 @@
             }
 
             try {
-                const buildUrl = () => {
-                    const url = new URL(ROTAS_ENDPOINT);
-                    if (sessVal?.id_astronomo != null) url.searchParams.set('id_astronomo', String(sessVal.id_astronomo));
-                    if (sessVal?.usuario) url.searchParams.set('usuario', String(sessVal.usuario));
-                    return url.toString();
-                };
-
-                let data = null;
-                let lastErr = null;
-
-                try {
-                    const url = buildUrl();
-                    const resp = await fetch(url, { method:'POST', headers:{'Accept':'application/json'} });
-                    if (resp && resp.ok) {
-                        try { data = await resp.json(); } catch (_) { data = null; }
-                    } else {
-                        const txt = resp ? await resp.text().catch(()=>'') : '';
-                        throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
-                    }
-                } catch (err) {
-                    lastErr = err;
-                }
-
-                if (!data) {
-                    try {
-                        const url = buildUrl();
-                        const resp = await fetch(url, { method:'GET', headers:{'Accept':'application/json'} });
-                        if (resp && resp.ok) {
-                            try { data = await resp.json(); } catch (_) { data = null; }
-                        } else {
-                            const txt = resp ? await resp.text().catch(()=>'') : '';
-                            throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
-                        }
-                    } catch (err) {
-                        lastErr = err;
-                    }
-                }
-
-                if (!data) {
-                    throw lastErr || new Error('Nenhuma rota encontrada no webhook');
-                }
-
-                const rotas = Array.isArray(data) ? data :
-                              Array.isArray(data.rotas) ? data.rotas :
-                              Array.isArray(data.data) ? data.data : [data];
-
-                const rotasFiltradas = rotas.filter(rota => rotaPertenceSessao(rota, sess));
-                const rotasContinuas = rotasFiltradas.filter(rota => rota.rota_id && rota.quantidade_eventos > 0);
-
-                if (rotasContinuas.length === 0) {
+                const eventos = carregarEventosLocais(sessVal);
+                if (!eventos.length) {
                     rotasContainer.innerHTML = `
                         <div class="error">
-                            Nenhuma rota contínua identificada no webhook para o astrônomo selecionado.
+                            Nenhum evento encontrado no cache da agenda. Volte para a Agenda e atualize antes de abrir Rotas.
                         </div>
                     `;
                     return;
                 }
 
-                for (const rota of rotasContinuas) {
-                    await exibirRota(rota, rotasContainer);
+                const rotaUnica = construirRotaDaAgenda(eventos, sessVal);
+                if (!rotaUnica.eventos.length) {
+                    rotasContainer.innerHTML = `
+                        <div class="error">
+                            Nenhum evento válido para montar rotas.
+                        </div>
+                    `;
+                    return;
                 }
-                statusText.textContent = `${rotasContinuas.length} rota(s) carregada(s).`;
+
+                await exibirRota(rotaUnica, rotasContainer);
+                statusText.textContent = `1 rota carregada a partir da agenda local (${rotaUnica.quantidade_eventos} evento(s)).`;
 
             } catch (error) {
                 console.error('Erro:', error);
                 rotasContainer.innerHTML = `
                     <div class="error">
-                        ❌ Erro ao carregar do webhook: ${error.message}<br><br>
+                        ❌ Erro ao carregar rotas: ${error.message}<br><br>
                         <strong>Soluções:</strong><br>
-                        1. Verifique se o webhook está acessível<br>
-                        2. Tente o botão "Usar Dados de Demonstração"<br>
-                        3. Verifique o console para mais detalhes
+                        1. Atualize a Agenda para salvar o cache local<br>
+                        2. Volte para Rotas<br>
+                        3. Ou use o botão "Usar Dados de Demonstração"
                     </div>
                 `;
             } finally {
@@ -945,15 +617,20 @@
             const totalKm = Number(((baseInfo.baseIda || 0) + distancias.reduce((s,d)=> s + (d||0),0) + (baseInfo.baseVolta || 0)).toFixed(2));
             const gastos = calcularGastosEstimados(rota, totalKm);
             const timelineHTML = criarTimelineVisual(rota.eventos);
+            const inicioDate = rota.data_inicio ? new Date(rota.data_inicio) : null;
+            const fimDate = rota.data_fim ? new Date(rota.data_fim) : null;
+            const hasInicio = inicioDate instanceof Date && !Number.isNaN(inicioDate.getTime());
+            const hasFim = fimDate instanceof Date && !Number.isNaN(fimDate.getTime());
+            const periodoLabel = hasInicio && hasFim
+                ? `${inicioDate.toLocaleDateString('pt-BR')} a ${fimDate.toLocaleDateString('pt-BR')}`
+                : 'Período não informado';
 
             rotaDiv.innerHTML = `
                 <div class="rota-header">
                     <div class="rota-info">
                         <h3 class="rota-title">${rota.astronomo} - ${rota.rota_id}</h3>
                         <div class="rota-subtitle">
-                            📅 ${new Date(rota.data_inicio).toLocaleDateString('pt-BR')} a 
-                            ${new Date(rota.data_fim).toLocaleDateString('pt-BR')} • 
-                            🎯 ${rota.quantidade_eventos} eventos
+                            📅 ${periodoLabel} • 🎯 ${rota.quantidade_eventos} eventos
                         </div>
                     </div>
                     <div class="rota-badge">
@@ -1232,32 +909,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            locationState = loadLocationPref();
-            if (locationState) {
-                setLocationBanner(locationState);
-            } else {
-                setLocationBanner(null);
-            }
-
-            document.querySelectorAll('[data-close-location]').forEach(btn => btn.addEventListener('click', hideLocationModals));
-            if (btnLocationAllow) btnLocationAllow.addEventListener('click', requestBrowserLocation);
-            if (btnLocationManual) btnLocationManual.addEventListener('click', () => {
-                toggleLocationModal(locationPermissionModal, false);
-                toggleLocationModal(locationManualModal, true);
-            });
-            if (btnLocationSkip) btnLocationSkip.addEventListener('click', markSkipLocation);
-            if (btnSendManual) btnSendManual.addEventListener('click', submitManualLocation);
-            if (btnManualSkip) btnManualSkip.addEventListener('click', markSkipLocation);
-            if (locationChangeBtn) locationChangeBtn.addEventListener('click', () => {
-                locationPromptShown = false;
-                toggleLocationModal(locationManualModal, false);
-                toggleLocationModal(locationPermissionModal, true);
-            });
-
             const sess = getLoggedSession();
-            sessaoAtual = locationState && Number.isFinite(locationState.lat) && Number.isFinite(locationState.lng)
-                ? { ...(sess || {}), origem_lat: locationState.lat, origem_lon: locationState.lng }
-                : sess;
+            sessaoAtual = sess;
             const astroInfoEl = document.getElementById('astro-info');
             if (astroInfoEl) astroInfoEl.innerHTML = describeSession(sessaoAtual);
 
@@ -1267,7 +920,6 @@
             }
 
             carregarRotas(true).catch(err => console.warn('Auto-carregamento de rotas falhou:', err));
-            setTimeout(() => { maybePromptLocation(); }, 250);
         });
     </script>
 </body>
