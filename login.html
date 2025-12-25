@@ -251,7 +251,12 @@
         // ========== PREENCHER SELECT ==========
         function populateAstronomerSelect() {
             astronomerSelect.innerHTML = '<option value="">Selecione um astrônomo...</option>';
-            astronomersData.forEach(astronomer => {
+            const sorted = (astronomersData || []).slice().sort((a, b) => {
+                const nameA = (a && (a.nome_completo || a.usuario || '')).toString().trim();
+                const nameB = (b && (b.nome_completo || b.usuario || '')).toString().trim();
+                return nameA.localeCompare(nameB, 'pt', { sensitivity: 'base' });
+            });
+            sorted.forEach(astronomer => {
                 const option = document.createElement('option');
                 option.value = astronomer.usuario;
                 option.textContent = `${astronomer.nome_completo} (${astronomer.usuario}) - ${astronomer.cidade_base}`;

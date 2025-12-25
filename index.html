@@ -256,6 +256,77 @@
             background: rgba(255,255,255,0.05);
             font-size:0.78rem;
         }
+        .day-weather{
+            margin-top: 12px;
+            border-radius: 12px;
+            border:1px solid rgba(255,255,255,0.12);
+            background: linear-gradient(150deg, rgba(15,17,36,0.85), rgba(8,11,28,0.92));
+            padding: 10px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+        }
+        .day-weather__header{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:8px;
+            margin-bottom:8px;
+            font-weight:700;
+            font-size:0.92rem;
+        }
+        .day-weather__title{
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
+        .day-weather__meta{
+            font-size:0.85rem;
+            color: var(--muted);
+        }
+        .day-weather__body{
+            display:grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap:10px;
+        }
+        .day-weather__card{
+            padding:10px;
+            border-radius:12px;
+            border:1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            display:flex;
+            flex-direction:column;
+            gap:6px;
+        }
+        .day-weather__card h5{
+            margin:0;
+            font-size:0.95rem;
+            display:flex;
+            align-items:center;
+            gap:6px;
+        }
+        .day-weather__metrics{
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+            font-size:0.85rem;
+        }
+        .day-weather__metric{
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            padding:4px 8px;
+            border-radius:10px;
+            background: rgba(255,255,255,0.06);
+            border:1px solid rgba(255,255,255,0.08);
+        }
+        .day-weather__empty{
+            grid-column:1/-1;
+            font-size:0.86rem;
+            color: var(--muted);
+            padding:10px;
+            border:1px dashed rgba(255,255,255,0.12);
+            border-radius:10px;
+            background: rgba(255,255,255,0.03);
+        }
 
         /* Filtros */
         .filters-row {
@@ -839,106 +910,6 @@
             padding: 6px 10px;
             border-radius: 10px;
         }
-        /* Popups de localização */
-        .location-modal{
-            position: fixed;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0,0,0,0.65);
-            z-index: 3500;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 120ms ease-out;
-            padding: 12px;
-        }
-        .location-modal.show{
-            opacity: 1;
-            pointer-events: all;
-        }
-        .location-modal__card{
-            width: min(480px, 100%);
-            background: rgba(8,10,30,0.95);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 12px;
-            padding: 16px;
-            position: relative;
-            box-shadow: 0 16px 48px rgba(0,0,0,0.45);
-        }
-        .location-modal__close{
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: transparent;
-            border: none;
-            color: #fff;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-        .location-actions{
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 12px;
-        }
-        .location-actions .btn,
-        .location-actions .btn-secondary{
-            flex: 1 1 160px;
-            justify-content: center;
-            text-align: center;
-        }
-        .location-actions .btn-muted{
-            border-radius: 999px;
-            border: 1px dashed rgba(255,255,255,0.25);
-            background: transparent;
-            color: #d1d5db;
-            padding: 8px 12px;
-            cursor: pointer;
-        }
-        .location-form{
-            display: grid;
-            gap: 10px;
-            margin-top: 12px;
-        }
-        .location-form label{
-            font-size: 0.9rem;
-            color: var(--muted, #aeb4c5);
-        }
-        .location-form input{
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.18);
-            background: rgba(255,255,255,0.04);
-            color: #fff;
-        }
-        .location-feedback{
-            margin-top: 10px;
-            font-size: 0.9rem;
-            color: #a5f3fc;
-        }
-        .location-banner{
-            display: none;
-            align-items: center;
-            gap: 10px;
-            background: rgba(123,92,255,0.12);
-            border: 1px solid rgba(123,92,255,0.32);
-            border-radius: 12px;
-            padding: 8px 12px;
-            margin: 6px 0 12px 0;
-        }
-        .location-banner__text{
-            font-weight: 600;
-        }
-        .location-banner__action{
-            border-radius: 999px;
-            border: 1px solid rgba(255,255,255,0.18);
-            background: rgba(255,255,255,0.08);
-            color: #fff;
-            padding: 6px 12px;
-            cursor: pointer;
-        }
         @media (max-width: 640px){
             .image-lightbox__nav{
                 width: 38px;
@@ -978,11 +949,6 @@
                     <i class="fas fa-user-astronaut"></i> Minha Conta
                 </a>
             </header>
-
-            <div class="location-banner" id="location-banner">
-                <span class="location-banner__text" id="location-text">Ative sua localização para ajustar as rotas.</span>
-                <button class="location-banner__action" id="location-change-btn" type="button">Alterar</button>
-            </div>
 
             <div class="navigation">
                 <a href="index.html" class="nav-button active"><i class="fas fa-calendar-alt"></i> Agenda</a>
@@ -1056,6 +1022,15 @@
                                 <div class="day-detail__empty">Clique em um dia do calendário para ver os eventos dessa data.</div>
                             </div>
                         </div>
+                        <div class="day-weather" id="day-weather">
+                            <div class="day-weather__header">
+                                <div class="day-weather__title"><i class="fas fa-cloud-sun"></i> Clima do dia</div>
+                                <span class="day-weather__meta" id="day-weather-meta">Carregue a agenda para ver a previsão.</span>
+                            </div>
+                            <div class="day-weather__body" id="day-weather-body">
+                                <div class="day-weather__empty">Aguardando seleção de evento para exibir clima de origem e destino.</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1099,43 +1074,6 @@
         </div>
     </div>
 
-    <!-- Popups de localização -->
-    <div class="location-modal" id="location-permission-modal" aria-hidden="true">
-        <div class="location-modal__card">
-            <button class="location-modal__close" data-close-location>✕</button>
-            <h3>Permitir localização</h3>
-            <p>Usamos sua localização para calcular rotas e distâncias a partir do seu ponto atual.</p>
-            <div class="location-actions">
-                <button class="btn" id="btn-location-allow" type="button">Permitir localização</button>
-                <button class="btn btn-secondary" id="btn-location-manual" type="button">Informar cidade</button>
-                <button class="btn-muted" id="btn-location-skip" type="button">Não mostrar novamente</button>
-            </div>
-            <div class="location-feedback" id="location-feedback"></div>
-        </div>
-    </div>
-    <div class="location-modal" id="location-manual-modal" aria-hidden="true">
-        <div class="location-modal__card">
-            <button class="location-modal__close" data-close-location>✕</button>
-            <h3>Informar cidade manualmente</h3>
-            <p>Se preferir, indique onde você está para ajustar a origem das rotas.</p>
-            <div class="location-form">
-                <div>
-                    <label for="loc-manual-city">Cidade</label>
-                    <input id="loc-manual-city" type="text" placeholder="Ex: Florianópolis" autocomplete="address-level2">
-                </div>
-                <div>
-                    <label for="loc-manual-uf">UF</label>
-                    <input id="loc-manual-uf" type="text" placeholder="SC" maxlength="2" autocomplete="address-level1">
-                </div>
-            </div>
-            <div class="location-actions">
-                <button class="btn" id="btn-send-manual" type="button">Enviar para N8N</button>
-                <button class="btn-muted" id="btn-manual-skip" type="button">Não mostrar novamente</button>
-            </div>
-            <div class="location-feedback" id="manual-location-feedback"></div>
-        </div>
-    </div>
-
     <script>
         // Limpa caches no reload (F5), preservando apenas sessões
         (function(){
@@ -1171,8 +1109,7 @@
         const AGENDA_CACHE_PREFIX = 'agenda_cache_v1';
         const ROTAS_CACHE_KEY = 'rotas_cache_v1';
         const ROTA_OVERRIDE_PREFIX = 'rotas_override_v1';
-        const LOCATION_PREF_KEY = 'astro_location_pref_v1';
-        const LOCATION_SKIP_KEY = 'astro_location_skip_v1';
+        const WEATHER_API_BASE = 'https://api.open-meteo.com/v1/forecast';
 
         function agendaCacheKey(sess){
             const ns = (sess && (sess.id_astronomo ?? sess.usuario ?? sess.username)) || 'anon';
@@ -1248,6 +1185,9 @@
         const dayDetailLabel     = document.getElementById('day-detail-label');
         const dayDetailCount     = document.getElementById('day-detail-count');
         const dayDetailBody      = document.getElementById('day-detail-body');
+        const dayWeatherEl       = document.getElementById('day-weather');
+        const dayWeatherBodyEl   = document.getElementById('day-weather-body');
+        const dayWeatherMetaEl   = document.getElementById('day-weather-meta');
         const eventModal         = document.getElementById('event-modal');
         const eventModalBody     = document.getElementById('event-modal-body');
         const eventModalClose    = document.getElementById('event-modal-close');
@@ -1261,31 +1201,16 @@
         const lightboxNext       = document.getElementById('image-lightbox-next');
         const lightboxClose      = document.getElementById('image-lightbox-close');
         const lightboxBackdrop   = document.getElementById('image-lightbox-backdrop');
-        // Localização
-        const locationBanner     = document.getElementById('location-banner');
-        const locationTextEl     = document.getElementById('location-text');
-        const locationChangeBtn  = document.getElementById('location-change-btn');
-        const locationPermissionModal = document.getElementById('location-permission-modal');
-        const locationManualModal = document.getElementById('location-manual-modal');
-        const btnLocationAllow   = document.getElementById('btn-location-allow');
-        const btnLocationManual  = document.getElementById('btn-location-manual');
-        const btnLocationSkip    = document.getElementById('btn-location-skip');
-        const btnSendManual      = document.getElementById('btn-send-manual');
-        const btnManualSkip      = document.getElementById('btn-manual-skip');
-        const manualCityInput    = document.getElementById('loc-manual-city');
-        const manualUfInput      = document.getElementById('loc-manual-uf');
-        const locationFeedback   = document.getElementById('location-feedback');
-        const manualLocationFeedback = document.getElementById('manual-location-feedback');
 
         // ==== Estado simples ====
         let eventsData = [];          // eventos normalizados
         let currentMonthDate = new Date(); // data base do mês atual
-        let selectedDate = null;      // dia clicado no calendário (ou null = todos)
+        let selectedDate = startOfDay(new Date());      // dia selecionado no calendário
         let currentTaskFilter = { type: 'visita', id: null };
         let currentSession = null;
-        let locationState = null;
-        let locationPromptShown = false;
-        let locationApplyPending = false;
+        const WEATHER_CACHE_TTL = 30 * 60 * 1000; // 30 min
+        const weatherCache = new Map();
+        let weatherRenderToken = 0;
         const INDEX_UI_STATE_KEY = 'index_ui_state_v1';
         const getSelectedTaskFilter = () => {
             if (!taskTypeFilterEl) return { type:'all', id:null };
@@ -1402,11 +1327,15 @@
         // ==== Util: normalizar tipo de tarefa em categoria (visita, pre, reserva, nao_marcar, outros) ====
         function classifyTaskType(rawTipo){
             if (!rawTipo) return 'outros';
-            const t = String(rawTipo).toLowerCase();
+            const t = String(rawTipo)
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/ñ/gi, 'n')
+                .toLowerCase()
+                .trim();
             if (t.includes('visita')) return 'visita';
-            if (t.includes('pré') || t.includes('pre ')) return 'pre';
+            if (t.includes('pre') || t.includes('pre ')) return 'pre';
             if (t.includes('reserva')) return 'reserva';
-            if (t.includes('não marcar') || t.includes('nao marcar') || t.includes('nao_marcar')) return 'nao_marcar';
+            if (t.includes('nao marcar') || t.includes('nao_marcar') || t.includes('n marcar')) return 'nao_marcar';
             return 'outros';
         }
 
@@ -1544,6 +1473,12 @@
             return isContinua ? formatted : `${formatted} (ida e volta)`;
         }
 
+        function getResultadoLabel(ev){
+            const raw = ev && (ev.resultado ?? ev.result ?? ev.status_resultado);
+            const s = raw === null || raw === undefined ? '' : String(raw).trim();
+            return s || 'Resultado não informado';
+        }
+
         function formatCoord(val){
             const n = Number(val);
             if (!Number.isFinite(n)) return '—';
@@ -1631,10 +1566,27 @@
             if (byId) return { type: byId, id: candidateStr };
 
             const userType = getUserTaskType(event, session);
-            if (userType) return { type: userType, id: candidateStr };
+            if (userType) return { type: userType, id: null };
 
-            const textType = classifyTaskType(candidateStr || fallbackTipo);
-            return { type: textType, id: candidateStr };
+            // Prefere um campo textual (com letras) para classificar o tipo
+            const pickText = (...vals) => {
+                for (const v of vals) {
+                    const s = v !== undefined && v !== null ? String(v).trim() : '';
+                    if (!s) continue;
+                    if (/[a-zA-Z\u00C0-\u017F]/.test(s)) return s;
+                }
+                return vals.find(v => v !== undefined && v !== null) || '';
+            };
+            const textSource = pickText(
+                event.tipo_da_tarefa,
+                event.tipo_evento,
+                event.tipo,
+                event.TIPO,
+                fallbackTipo,
+                candidateStr
+            );
+            const textType = classifyTaskType(textSource);
+            return { type: textType, id: null };
         }
 
         function formatTaskLabel(taskType){
@@ -1735,311 +1687,150 @@
             return `${adjustedCoordDist.toFixed(1)} km${isContinua ? '' : ' (ida e volta)'}`;
         }
 
-        // ==== Localização dinâmica (permissão + fallback manual) ====
-        function buildCityLabel(city, uf){
-            const c = (city || '').toString().trim();
-            const u = (uf || '').toString().trim().toUpperCase();
-            if (c && u) return `${c}, ${u}`;
-            return c || u || '';
-        }
-
-        function loadLocationPref(){
-            try{
-                const raw = localStorage.getItem(LOCATION_PREF_KEY);
-                return raw ? JSON.parse(raw) : null;
-            }catch(_){ return null; }
-        }
-
-        function saveLocationPref(pref){
-            try{
-                if (pref) localStorage.setItem(LOCATION_PREF_KEY, JSON.stringify(pref));
-            }catch(_){}
-        }
-
-        function shouldSkipLocationPrompt(){
-            return localStorage.getItem(LOCATION_SKIP_KEY) === 'true';
-        }
-
-        function markSkipLocation(){
-            try{ localStorage.setItem(LOCATION_SKIP_KEY, 'true'); }catch(_){}
-            hideLocationModals();
-        }
-
-        function setLocationBanner(pref){
-            if (!locationBanner || !locationTextEl) return;
-            const label = buildCityLabel(pref?.city || pref?.manualCity, pref?.uf);
-            const coordsLabel = Number.isFinite(pref?.lat) && Number.isFinite(pref?.lng)
-                ? `Coordenadas: ${Number(pref.lat).toFixed(4)}, ${Number(pref.lng).toFixed(4)}`
-                : '';
-            if (label || coordsLabel){
-                locationBanner.style.display = 'flex';
-                locationTextEl.textContent = label ? `Estou em: ${label}` : coordsLabel;
-            } else {
-                locationBanner.style.display = 'none';
-            }
-        }
-
-        function toggleLocationModal(modal, show){
-            if (!modal) return;
-            modal.classList[show ? 'add' : 'remove']('show');
-            modal.setAttribute('aria-hidden', show ? 'false' : 'true');
-        }
-
-        function hideLocationModals(){
-            toggleLocationModal(locationPermissionModal, false);
-            toggleLocationModal(locationManualModal, false);
-        }
-
-        function setLocationFeedback(msg, isManual){
-            const el = isManual ? manualLocationFeedback : locationFeedback;
-            if (el) el.textContent = msg || '';
-        }
-
-        function parseLocationResponse(resp, fallback = {}){
-            const data = resp && typeof resp === 'object' ? resp : {};
-            const nested = data.data && typeof data.data === 'object' ? data.data : {};
-            const city = data.manual_city || data.city || data.cidade || nested.manual_city || nested.city || nested.cidade || fallback.manualCity || fallback.city || null;
-            const uf = data.uf || data.estado || nested.uf || nested.estado || fallback.manualUf || fallback.uf || null;
-            const lat = toNumber(data.current_lat ?? data.lat ?? data.latitude ?? data.origem_lat ?? nested.current_lat ?? nested.lat ?? nested.latitude ?? nested.origem_lat);
-            const lng = toNumber(data.current_lng ?? data.lng ?? data.lon ?? data.longitude ?? data.origem_lon ?? nested.current_lng ?? nested.lng ?? nested.lon ?? nested.longitude ?? nested.origem_lon);
-            return { city, uf, lat, lng, source: data.source || data.origem || fallback.source };
-        }
-
-        function extractDestinoCoords(ev){
-            if (!ev || typeof ev !== 'object') return { lat:null, lon:null, rawLat:null, rawLon:null };
-            const rawLat = ev.destino_lat ?? ev.lat_destino ?? ev.latitude_destino ?? ev.lat_dest ?? ev.latitude ?? ev.lat ?? null;
-            const rawLon = ev.destino_lon ?? ev.lon_destino ?? ev.longitude_destino ?? ev.lon_dest ?? ev.longitude ?? ev.lon ?? null;
-            const latNum = toNumber(rawLat);
-            const lonNum = toNumber(rawLon);
-            return {
-                lat: Number.isFinite(latNum) ? latNum : null,
-                lon: Number.isFinite(lonNum) ? lonNum : null,
-                rawLat,
-                rawLon
+        // ==== Previsão do tempo (Open-Meteo) ====
+        function extractEventLocations(ev){
+            const origem = {
+                lat: toNumber(ev?.origem_lat ?? ev?.lat_origem ?? ev?.latitude_origem),
+                lon: toNumber(ev?.origem_lon ?? ev?.lon_origem ?? ev?.longitude_origem),
+                label: normalizeCityUF(ev?.cidade_base || ev?.origem_real || ev?.base || ev?.cidade_origem || '')
             };
+            const destino = {
+                lat: toNumber(ev?.destino_lat ?? ev?.lat_destino ?? ev?.latitude_destino ?? ev?.lat),
+                lon: toNumber(ev?.destino_lon ?? ev?.lon_destino ?? ev?.longitude_destino ?? ev?.lon),
+                label: normalizeCityUF(ev?.cidade_destino || ev?.cidade || ev?.destino || '')
+            };
+            return { origem, destino };
         }
 
-        function getConsumoKmL(sess){
-            if (!sess || typeof sess !== 'object') return null;
-            const candidates = [
-                sess.consumo_km_l,
-                sess.consumo_km_l_media,
-                sess.consumo,
-                sess.media_consumo,
-                sess.consumo_medio
-            ];
-            for (const v of candidates){
-                const num = toNumber(v);
-                if (Number.isFinite(num) && num > 0) return num;
-            }
-            return null;
+        function hasValidCoords(point){
+            return point && Number.isFinite(point.lat) && Number.isFinite(point.lon);
         }
 
-        function readAgendaCacheForLocation(sess){
-            const collected = [];
-            try{
-                const keys = [];
-                if (typeof agendaCacheKey === 'function'){
-                    const key = agendaCacheKey(sess || getLoggedSession());
-                    if (key) keys.push(key);
-                }
-                for (let i = 0; i < localStorage.length; i++){
-                    const k = localStorage.key(i);
-                    if (k && k.startsWith('agenda_cache_v1') && !keys.includes(k)) keys.push(k);
-                }
-                for (const key of keys){
-                    const raw = localStorage.getItem(key);
-                    const parsed = raw ? JSON.parse(raw) : null;
-                    const events = Array.isArray(parsed?.events) ? parsed.events : Array.isArray(parsed?.data) ? parsed.data : [];
-                    if (events.length) return events;
-                }
-            }catch(_){}
-            return collected;
+        function describeWeatherCode(code){
+            const map = {
+                0:'Céu limpo', 1:'Principalmente limpo', 2:'Parcialmente nublado', 3:'Nublado',
+                45:'Neblina', 48:'Neblina',
+                51:'Garoa leve', 53:'Garoa moderada', 55:'Garoa densa',
+                56:'Garoa congelante leve', 57:'Garoa congelante',
+                61:'Chuva fraca', 63:'Chuva moderada', 65:'Chuva forte',
+                66:'Chuva congelante', 67:'Chuva forte congelante',
+                71:'Neve fraca', 73:'Neve', 75:'Neve intensa',
+                77:'Cristais de gelo',
+                80:'Pancadas leves', 81:'Pancadas moderadas', 82:'Pancadas fortes',
+                85:'Pancadas de neve leve', 86:'Pancadas de neve forte',
+                95:'Tempestade', 96:'Tempestade com granizo', 99:'Tempestade forte com granizo'
+            };
+            return map[code] || 'Condição não informada';
         }
 
-        function findNextEventForLocation(sess){
-            const now = new Date();
-            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const pools = [];
-            if (Array.isArray(eventsData) && eventsData.length) pools.push(eventsData);
-            try{
-                const raw = localStorage.getItem(ROTAS_CACHE_KEY);
-                const parsed = raw ? JSON.parse(raw) : null;
-                if (Array.isArray(parsed?.events) && parsed.events.length) pools.push(parsed.events);
-                else if (Array.isArray(parsed?.data) && parsed.data.length) pools.push(parsed.data);
-            }catch(_){}
-            const agendaCached = readAgendaCacheForLocation(sess);
-            if (agendaCached.length) pools.push(agendaCached);
-            const combined = pools.flat().filter(Boolean);
-            if (!combined.length) return null;
-            const scored = combined
-                .map(ev => {
-                    const date = (ev._date instanceof Date && !Number.isNaN(ev._date.getTime())) ? ev._date : getEventDate(ev);
-                    const coords = extractDestinoCoords(ev);
-                    const hasCoords = (coords.lat !== null && coords.lon !== null) || (coords.rawLat != null && coords.rawLon != null);
-                    return { ev, date, hasCoords, coords };
-                })
-                .filter(item => item.date instanceof Date && !Number.isNaN(item.date.getTime()))
-                .sort((a,b) => a.date - b.date);
-            const futureWithCoords = scored.find(item => item.date >= today && item.hasCoords);
-            const anyWithCoords = scored.find(item => item.hasCoords);
-            const futureAny = scored.find(item => item.date >= today);
-            const hit = futureWithCoords || anyWithCoords || futureAny || scored[0] || null;
-            return hit ? hit.ev : null;
+        function extractPrecipitationProbability(data){
+            const times = (data && data.hourly && Array.isArray(data.hourly.time)) ? data.hourly.time : [];
+            const probs = (data && data.hourly && Array.isArray(data.hourly.precipitation_probability)) ? data.hourly.precipitation_probability : [];
+            if (!probs.length) return null;
+            const cur = data && data.current_weather && data.current_weather.time;
+            const idx = cur ? times.indexOf(cur) : -1;
+            const val = idx >= 0 ? probs[idx] : probs[0];
+            const num = toNumber(val);
+            return Number.isFinite(num) ? num : null;
         }
 
-        async function sendLocationToWebhook(payload){
-            const sess = currentSession || getLoggedSession() || {};
-            const nextEvent = findNextEventForLocation(sess);
-            const { lat: destLat, lon: destLon, rawLat: destLatRaw, rawLon: destLonRaw } = extractDestinoCoords(nextEvent);
-            const consumoKmL = getConsumoKmL(sess);
-            const u = new URL(API_AGENDA);
-            u.searchParams.set('action', 'obter_localizacao');
-            if (sess.id_astronomo != null) u.searchParams.set('id_astronomo', String(sess.id_astronomo));
-            if (sess.usuario) u.searchParams.set('usuario', String(sess.usuario));
-            if (payload.lat != null && payload.lng != null){
-                u.searchParams.set('current_lat', String(payload.lat));
-                u.searchParams.set('current_lng', String(payload.lng));
-            }
-            if (payload.manualCity) u.searchParams.set('manual_city', payload.manualCity);
-            if (payload.manualUf) u.searchParams.set('uf', payload.manualUf);
-            if (destLat !== null) u.searchParams.set('destino_lat', String(destLat));
-            else if (destLatRaw != null) u.searchParams.set('destino_lat', String(destLatRaw));
-            if (destLon !== null) u.searchParams.set('destino_lon', String(destLon));
-            else if (destLonRaw != null) u.searchParams.set('destino_lon', String(destLonRaw));
-            if (Number.isFinite(consumoKmL)) u.searchParams.set('consumo_km_l', String(consumoKmL));
-            const resp = await fetch(u.toString(), { method:'POST', headers:{'Accept':'application/json'} });
-            const txt = await resp.text().catch(()=> '');
-            let json = null;
-            try{ json = txt ? JSON.parse(txt) : null; }catch(_){}
-            if (!resp.ok) throw new Error((json && json.message) || txt || 'Falha ao enviar localização');
-            return json || {};
+        async function fetchWeather(lat, lon){
+            if (!Number.isFinite(lat) || !Number.isFinite(lon)) throw new Error('Coordenadas inválidas para clima');
+            const key = `${lat.toFixed(2)},${lon.toFixed(2)}`;
+            const cached = weatherCache.get(key);
+            if (cached && (Date.now() - cached.ts) < WEATHER_CACHE_TTL) return cached.data;
+
+            const url = `${WEATHER_API_BASE}?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,precipitation_probability&forecast_days=1&timezone=auto`;
+            const resp = await fetch(url, { headers:{'Accept':'application/json'}, method:'GET' });
+            const body = await resp.text().catch(()=> '');
+            if (!resp.ok) throw new Error(body || 'Falha ao buscar clima');
+            let data = null;
+            try{ data = body ? JSON.parse(body) : null; }catch(_){ data = null; }
+            if (!data) throw new Error('Resposta de clima vazia');
+
+            const cw = data.current_weather || {};
+            const precipitation = extractPrecipitationProbability(data);
+            const parsed = {
+                temperature: cw.temperature != null ? Number(cw.temperature) : null,
+                wind: cw.windspeed != null ? Number(cw.windspeed) : null,
+                weathercode: cw.weathercode,
+                description: describeWeatherCode(cw.weathercode),
+                precipitation,
+                time: cw.time || null
+            };
+            weatherCache.set(key, { ts: Date.now(), data: parsed });
+            return parsed;
         }
 
-        async function applyLocationToEvents(){
-            const pref = locationState || loadLocationPref();
-            if (!pref || !Number.isFinite(pref.lat) || !Number.isFinite(pref.lng)) return;
-            if (!Array.isArray(eventsData) || !eventsData.length){
-                locationApplyPending = true;
+        function pickEventForWeather(dayEvents){
+            if (!Array.isArray(dayEvents) || !dayEvents.length) return null;
+            const withCoords = dayEvents.find(ev => {
+                const locs = extractEventLocations(ev);
+                return hasValidCoords(locs.origem) || hasValidCoords(locs.destino);
+            });
+            return withCoords || dayEvents[0];
+        }
+
+        async function renderWeatherForSelection(dayEvents){
+            if (!dayWeatherEl || !dayWeatherBodyEl || !dayWeatherMetaEl) return;
+            const token = ++weatherRenderToken;
+
+            if (!Array.isArray(dayEvents) || !dayEvents.length) {
+                dayWeatherMetaEl.textContent = 'Sem eventos para esta data';
+                dayWeatherBodyEl.innerHTML = `<div class="day-weather__empty">Aguardando eventos com coordenadas para mostrar o clima.</div>`;
                 return;
             }
-            locationApplyPending = false;
-            const now = new Date(); now.setHours(0,0,0,0);
-            const sorted = eventsData
-                .map(ev => ({ ev, d: getEventDate(ev) }))
-                .filter(item => item.d)
-                .sort((a,b) => a.d - b.d);
-            const target = sorted.find(item => item.d && item.d >= now) || sorted[0] || null;
-            const event = target ? target.ev : eventsData[0];
-            if (!event) return;
-            event.origem_lat = pref.lat;
-            event.origem_lon = pref.lng;
-            event.latitude_origem = pref.lat;
-            event.longitude_origem = pref.lng;
-            if (currentSession) {
-                currentSession.origem_lat = pref.lat;
-                currentSession.origem_lon = pref.lng;
+
+            const eventTarget = pickEventForWeather(dayEvents);
+            const { origem, destino } = extractEventLocations(eventTarget || {});
+            const locations = [];
+            if (hasValidCoords(origem)) locations.push({ ...origem, role:'Origem' });
+            if (hasValidCoords(destino)) locations.push({ ...destino, role:'Destino' });
+
+            if (!locations.length) {
+                dayWeatherMetaEl.textContent = 'Evento sem coordenadas';
+                dayWeatherBodyEl.innerHTML = `<div class="day-weather__empty">Não encontramos coordenadas de origem/destino para consultar o clima.</div>`;
+                return;
             }
-            const dLat = toNumber(event.destino_lat ?? event.lat_destino ?? event.latitude_destino);
-            const dLon = toNumber(event.destino_lon ?? event.lon_destino ?? event.longitude_destino);
-            if (dLat !== null && dLon !== null){
+
+            const dateLabel = selectedDate ? formatDateBr(selectedDate) : 'dia selecionado';
+            dayWeatherMetaEl.textContent = `Previsão para ${dateLabel}`;
+            dayWeatherBodyEl.innerHTML = `<div class="day-weather__empty">Buscando previsão para origem e destino...</div>`;
+
+            const results = await Promise.all(locations.map(async (loc) => {
                 try{
-                    const r = await getRoute(pref.lat, pref.lng, dLat, dLon);
-                    if (r && Number.isFinite(r.distance_km)) event._dist_override_km = Number(r.distance_km);
-                    if (r && Number.isFinite(r.duration_h)) event._dur_override_h = Number(r.duration_h);
+                    const data = await fetchWeather(loc.lat, loc.lon);
+                    return { loc, data };
                 }catch(err){
-                    const dist = computeDistanceKm(pref.lat, pref.lng, dLat, dLon);
-                    if (Number.isFinite(dist)) {
-                        event._dist_override_km = dist;
-                        event._dur_override_h = Number((dist / 60).toFixed(2));
-                    }
-                    console.warn('Erro ao recalcular distância com localização atual:', err);
+                    return { loc, error: err };
                 }
-                if (Number.isFinite(event._dist_override_km) && !Number.isFinite(event._dur_override_h)) {
-                    event._dur_override_h = Number((event._dist_override_km / 60).toFixed(2));
+            }));
+
+            if (token !== weatherRenderToken) return;
+
+            dayWeatherBodyEl.innerHTML = results.map(res => {
+                const loc = res.loc;
+                if (res.error){
+                    const errMsg = res.error && res.error.message ? res.error.message : 'Erro ao carregar clima';
+                    return `<div class="day-weather__card"><h5><i class="fas fa-location-dot"></i> ${loc.role}</h5><div class="day-weather__empty">Erro ao carregar clima: ${errMsg}</div></div>`;
                 }
-            }
-            renderEventsList();
-            renderDayEventsDetails();
-            syncRotasCache(eventsData, currentSession || getLoggedSession());
-        }
-
-        async function handleLocationResult(payload, isManual){
-            setLocationFeedback('Enviando localização...', isManual);
-            try{
-                const resp = await sendLocationToWebhook(payload);
-                const parsed = parseLocationResponse(resp, payload);
-                const lat = Number.isFinite(parsed.lat) ? parsed.lat : payload.lat;
-                const lng = Number.isFinite(parsed.lng) ? parsed.lng : payload.lng;
-                const city = parsed.city || payload.manualCity || payload.city || null;
-                const uf = parsed.uf || payload.manualUf || payload.uf || null;
-                locationState = {
-                    lat,
-                    lng,
-                    city,
-                    uf,
-                    source: parsed.source || payload.source || (payload.manualCity ? 'manual' : 'gps'),
-                    label: buildCityLabel(city, uf),
-                    ts: Date.now(),
-                    raw: resp
-                };
-                saveLocationPref(locationState);
-                setLocationBanner(locationState);
-                hideLocationModals();
-                await applyLocationToEvents();
-                if (!isManual) {
-                    setLocationFeedback('Localização atualizada!', false);
-                } else {
-                    setLocationFeedback('Cidade enviada com sucesso!', true);
-                }
-            } catch (err){
-                console.error('Erro ao salvar localização:', err);
-                setLocationFeedback('Erro ao enviar localização: ' + (err && err.message ? err.message : err), isManual);
-            }
-        }
-
-        function requestBrowserLocation(){
-            if (!navigator.geolocation){
-                setLocationFeedback('Seu navegador não suporta geolocalização.', false);
-                toggleLocationModal(locationPermissionModal, false);
-                toggleLocationModal(locationManualModal, true);
-                return;
-            }
-            setLocationFeedback('Solicitando permissão...', false);
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const { latitude, longitude } = pos.coords || {};
-                    handleLocationResult({ lat: latitude, lng: longitude, source:'gps' }, false);
-                },
-                (err) => {
-                    console.warn('Geolocalização negada ou indisponível', err);
-                    setLocationFeedback('Não foi possível obter sua localização. Informe manualmente.', false);
-                    toggleLocationModal(locationPermissionModal, false);
-                    toggleLocationModal(locationManualModal, true);
-                },
-                { enableHighAccuracy:true, timeout:10000 }
-            );
-        }
-
-        function submitManualLocation(){
-            const city = manualCityInput ? manualCityInput.value.trim() : '';
-            const uf = manualUfInput ? manualUfInput.value.trim().toUpperCase() : '';
-            if (!city || !uf){
-                setLocationFeedback('Preencha cidade e UF para continuar.', true);
-                return;
-            }
-            handleLocationResult({ manualCity: city, manualUf: uf, source:'manual' }, true);
-        }
-
-        function maybePromptLocation(forceManual = false){
-            if (locationPromptShown) return;
-            if (!forceManual && (shouldSkipLocationPrompt() || (locationState && Number.isFinite(locationState.lat) && Number.isFinite(locationState.lng)))) return;
-            locationPromptShown = true;
-            if (forceManual) {
-                toggleLocationModal(locationManualModal, true);
-            } else {
-                toggleLocationModal(locationPermissionModal, true);
-            }
+                const temp = res.data.temperature != null ? `${res.data.temperature.toFixed(1)}°C` : '—';
+                const wind = res.data.wind != null ? `${res.data.wind.toFixed(1)} km/h` : '—';
+                const precip = res.data.precipitation != null ? `${res.data.precipitation}%` : '—';
+                const coordLabel = `${loc.lat.toFixed(2)}, ${loc.lon.toFixed(2)}`;
+                const place = loc.label || coordLabel;
+                return `
+                    <div class="day-weather__card">
+                        <h5><i class="fas fa-location-dot"></i> ${loc.role}${place ? ' · ' + place : ''}</h5>
+                        <div class="day-weather__metrics">
+                            <span class="day-weather__metric"><i class="fas fa-temperature-half"></i> ${temp}</span>
+                            <span class="day-weather__metric"><i class="fas fa-cloud"></i> ${res.data.description}</span>
+                            <span class="day-weather__metric"><i class="fas fa-umbrella"></i> Chuva: ${precip}</span>
+                            <span class="day-weather__metric"><i class="fas fa-wind"></i> Vento: ${wind}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function normalizePhone(phone){
@@ -2251,6 +2042,41 @@
             }
         }
 
+        async function deletarEvento(ev, btn){
+            const id = getEventId(ev);
+            if (!id) return;
+            if (!window.confirm('Deseja realmente deletar este evento?')) return;
+            if (btn){
+                btn.disabled = true;
+                btn.dataset.prevLabel = btn.innerHTML;
+                btn.innerHTML = 'Deletando...';
+            }
+            try{
+                const payload = { action:'delete_evento', id_evento:id };
+                const resp = await fetch(API_AGENDA, {
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                const txt = await resp.text().catch(()=> '');
+                if (!resp.ok) throw new Error(txt || `HTTP ${resp.status}`);
+                removeEventById(id);
+                renderCalendar();
+                renderEventsList();
+                renderDayEventsDetails();
+                alert('Evento deletado com sucesso.');
+                closeEventModal();
+            }catch(err){
+                console.error('Erro ao deletar evento:', err);
+                alert('Erro ao deletar evento: ' + (err && err.message));
+            }finally{
+                if (btn){
+                    btn.disabled = false;
+                    btn.innerHTML = btn.dataset.prevLabel || '🗑️ Deletar';
+                }
+            }
+        }
+
         function canonicalEventSignature(ev){
             if (!ev || typeof ev !== 'object') return '';
             const baseDate = ev._date || getEventDate(ev);
@@ -2284,14 +2110,16 @@
         function getFilteredEvents(){
             if (!Array.isArray(eventsData) || eventsData.length === 0) return [];
             if (!currentTaskFilter || currentTaskFilter.type === 'all') return eventsData;
-            return eventsData.filter(ev => {
-                const sameType = ev._taskType === currentTaskFilter.type;
-                if (!sameType) return false;
-                if (currentTaskFilter.id) {
-                    return String(ev._taskTypeId || '') === String(currentTaskFilter.id);
-                }
-                return true;
-            });
+            const sameType = ev => ev._taskType === currentTaskFilter.type;
+            const byType = eventsData.filter(sameType);
+            if (!currentTaskFilter.id) return byType;
+
+            const byId = byType.filter(ev => String(ev._taskTypeId || '') === String(currentTaskFilter.id));
+            if (byId.length) return byId;
+
+            // Fallback: se o ID não bateu (ou veio vazio do backend), mantemos apenas o tipo
+            console.warn('Filtro por ID de tarefa não encontrou eventos; aplicando somente o tipo.', currentTaskFilter);
+            return byType;
         }
 
         // ==== Render do calendário ====
@@ -2376,12 +2204,7 @@
                         const iso = td.dataset.date;
                         const d = parseDateKey(iso);
                         if (d && !Number.isNaN(d.getTime())) {
-                            // Alterna seleção: se clicar de novo no mesmo dia, limpa filtro
-                            if (selectedDate && sameDay(selectedDate, d)) {
-                                selectedDate = null;
-                            } else {
-                                selectedDate = d;
-                            }
+                            selectedDate = d;
                             saveIndexUIState();
                             renderCalendar();  // re-render para aplicar classe selected
                             renderDayEventsDetails(); // mostra eventos do dia abaixo do calendário
@@ -2395,11 +2218,8 @@
             if (!dayDetailBody || !dayDetailLabel || !dayDetailCount) return;
 
             if (!selectedDate) {
-                dayDetailLabel.textContent = 'Selecione um dia para ver os eventos';
-                dayDetailCount.textContent = '';
-                dayDetailBody.innerHTML = `<div class="day-detail__empty">Clique em um dia do calendário para abrir os eventos dessa data.</div>`;
-                saveIndexUIState();
-                return;
+                const today = startOfDay(new Date());
+                selectedDate = today;
             }
 
             const baseList = getFilteredEvents();
@@ -2407,9 +2227,11 @@
 
             dayDetailLabel.textContent = formatDateBr(selectedDate);
             dayDetailCount.textContent = `${dayEvents.length} evento(s)`;
+            saveIndexUIState();
 
             if (!dayEvents.length) {
-                dayDetailBody.innerHTML = `<div class="day-detail__empty">Nenhum evento para ${formatDateBr(selectedDate)}.</div>`;
+                dayDetailBody.innerHTML = `<div class="day-detail__empty">Clique em um dia do calendário para ver os eventos dessa data.</div>`;
+                renderWeatherForSelection([]);
                 return;
             }
 
@@ -2433,6 +2255,7 @@
                             <span class="day-detail__chip"><i class="fas fa-route"></i> ${distancia}</span>
                             <span class="day-detail__chip"><i class="fas fa-coins"></i> ${valor}</span>
                             ${duracao ? `<span class="day-detail__chip"><i class="fas fa-hourglass-half"></i> ${duracao}</span>` : ''}
+                            <span class="day-detail__chip"><i class="fas fa-clipboard-check"></i> Resultado: ${getResultadoLabel(ev)}</span>
                         </div>
                     </div>
                 `;
@@ -2687,6 +2510,7 @@
                     <span class="event-chip"><strong>Conteúdo</strong> ${conteudo}</span>
                     <span class="event-chip"><strong>Distância</strong> ${distancia}</span>
                     ${duracao ? `<span class="event-chip"><strong>Duração</strong> ${duracao}</span>` : ''}
+                    <span class="event-chip"><strong>Resultado</strong> ${getResultadoLabel(ev)}</span>
                     <span class="event-chip"><strong>destino_lat</strong> ${destLatVal}</span>
                     <span class="event-chip"><strong>destino_lon</strong> ${destLonVal}</span>
                     <span class="event-chip"><strong>origem_lat</strong> ${origLatVal}</span>
@@ -2699,6 +2523,7 @@
             const searchLinks = buildSearchLinks(ev);
             const despesasBtn = `<button class="btn btn-secondary btn-compact" data-ev-action="despesas" data-ev-id="${eventId}">💰 Lançar despesas</button>`;
             const finalizarBtn = `<button class="btn btn-secondary btn-compact" data-ev-action="finalizar" data-ev-id="${eventId}">✅ Finalizar</button>`;
+            const deletarBtn = `<button class="btn btn-danger btn-compact" data-ev-action="deletar" data-ev-id="${eventId}">🗑️ Deletar</button>`;
 
             const responsavel = ev.responsavel || ev.responsavel_visita || ev.contato_responsavel || ev.nome_responsavel || ev.responsavel_pelo_evento || ev.professor || '';
             const escola = ev.nome_da_escola || ev.nome_escola || ev.escola || '';
@@ -2718,7 +2543,7 @@
             if (routeLink) linksHtmlParts.push(`<a href="${routeLink}" target="_blank" rel="noopener noreferrer"><i class="fas fa-route"></i> Rota</a>`);
             if (searchLinks?.hotels) linksHtmlParts.push(`<a href="${searchLinks.hotels}" target="_blank" rel="noopener noreferrer"><i class="fas fa-bed"></i> Hotéis</a>`);
             if (searchLinks?.food) linksHtmlParts.push(`<a href="${searchLinks.food}" target="_blank" rel="noopener noreferrer"><i class="fas fa-utensils"></i> Restaurantes</a>`);
-            linksHtmlParts.push(`<div class="modal-actions-inline">${despesasBtn}${finalizarBtn}</div>`);
+            linksHtmlParts.push(`<div class="modal-actions-inline">${despesasBtn}${finalizarBtn}${deletarBtn}</div>`);
 
             const linksHtml = linksHtmlParts.length
                 ? `<div class="event-modal-section event-modal-links"><h4>Links úteis</h4>${linksHtmlParts.join('')}</div>`
@@ -2742,11 +2567,15 @@
 
             const detailRows = [];
             Object.entries(ev).forEach(([key, val]) => {
+                // pula metadados e campos sensíveis
                 if (key === '_taskType') return;
                 if (key === '_date') {
                     detailRows.push(`<div class="event-detail-row"><strong>Data</strong><span>${val instanceof Date ? formatDateBr(val) : String(val)}</span></div>`);
                     return;
                 }
+                const sensitiveKeys = ['senha_usuario', 'senha', 'password', 'pass'];
+                if (sensitiveKeys.includes(String(key).toLowerCase())) return;
+
                 if (typeof val === 'object') {
                     try {
                         const label = key === 'faixa_de_alunos' ? 'Número de Alunos' : prettifyKey(key);
@@ -2809,7 +2638,7 @@
                 });
             }
 
-            // Ações internas do modal (lançar despesas/finalizar)
+            // Ações internas do modal (lançar despesas/finalizar/deletar)
             eventModalBody.querySelectorAll('[data-ev-action]').forEach(btn => {
                 const action = btn.dataset.evAction;
                 btn.addEventListener('click', (e) => {
@@ -2819,6 +2648,8 @@
                         lancarDespesas(ev, btn);
                     } else if (action === 'finalizar') {
                         finalizarEvento(ev, btn);
+                    } else if (action === 'deletar') {
+                        deletarEvento(ev, btn);
                     }
                 });
             });
@@ -2913,6 +2744,7 @@
                                 <span class="chip"><i class="fas fa-coins"></i>${valor}</span>
                                     <span class="chip"><i class="fas fa-route"></i>${distancia}</span>
                                     ${diariasCount ? `<span class="chip"><i class="fas fa-bed"></i>${diariasCount} diária(s)</span>` : ''}
+                                    <span class="chip"><i class="fas fa-clipboard-check"></i>${getResultadoLabel(ev)}</span>
                                     <span class="chip"><i class="fas fa-infinity"></i>${rotaContinua ? 'Rota contínua: Sim' : 'Rota contínua: Não'}</span>
                                     <span class="chip"><i class="fas fa-flag"></i>${formatTaskLabel(ev._taskType)}</span>
                             </div>
@@ -3060,7 +2892,6 @@
                 applyRouteOverrides(eventsData, sess);
                 saveAgendaCache(eventsData, sess);
                 syncRotasCache(eventsData, sess);
-                applyLocationToEvents().catch(err => console.warn('Não foi possível aplicar localização aos eventos:', err));
                 if (btnOpenRotas) btnOpenRotas.disabled = false;
                 // redefine filtro (ids podem mudar conforme login)
                 if (taskTypeFilterEl) {
@@ -3068,7 +2899,13 @@
                 }
 
                 statusTextEl.textContent = `Agenda carregada: ${eventsData.length} evento(s).`;
-                selectedDate = null; // limpa filtro de dia
+                if (!selectedDate) {
+                    const today = startOfDay(new Date());
+                    selectedDate = today;
+                    currentMonthDate = today;
+                } else if (selectedDate instanceof Date && !Number.isNaN(selectedDate.getTime())) {
+                    selectedDate = startOfDay(selectedDate);
+                }
                 renderCalendar();
                 renderEventsList();
                 renderDayEventsDetails();
@@ -3111,14 +2948,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            locationState = loadLocationPref();
-            if (locationState) {
-                setLocationBanner(locationState);
-                locationApplyPending = true;
-            } else {
-                setLocationBanner(null);
-            }
-
             const sess = getLoggedSession();
             currentSession = sess;
             if (!sess || sess.id_astronomo == null) {
@@ -3128,22 +2957,6 @@
             }
 
             astroInfoEl.textContent = describeSession(sess);
-
-            // Configura listeners
-            document.querySelectorAll('[data-close-location]').forEach(btn => btn.addEventListener('click', hideLocationModals));
-            if (btnLocationAllow) btnLocationAllow.addEventListener('click', requestBrowserLocation);
-            if (btnLocationManual) btnLocationManual.addEventListener('click', () => {
-                toggleLocationModal(locationPermissionModal, false);
-                toggleLocationModal(locationManualModal, true);
-            });
-            if (btnLocationSkip) btnLocationSkip.addEventListener('click', markSkipLocation);
-            if (btnSendManual) btnSendManual.addEventListener('click', submitManualLocation);
-            if (btnManualSkip) btnManualSkip.addEventListener('click', markSkipLocation);
-            if (locationChangeBtn) locationChangeBtn.addEventListener('click', () => {
-                locationPromptShown = false;
-                toggleLocationModal(locationManualModal, false);
-                toggleLocationModal(locationPermissionModal, true);
-            });
 
             taskTypeFilterEl.addEventListener('change', () => {
                 currentTaskFilter = getSelectedTaskFilter();
@@ -3168,9 +2981,6 @@
                             applyRotaContinuaBlocks(eventsData);
                             applyRouteOverrides(eventsData, sess);
                             syncRotasCache(eventsData, sess);
-                            if (locationState) {
-                                applyLocationToEvents().catch(err => console.warn('Falha ao aplicar localização em cache:', err));
-                            }
                             btnOpenRotas.disabled = false;
                             computeContinuousRoutes(eventsData)
                                 .then(metrics => {
@@ -3217,17 +3027,15 @@
             currentTaskFilter = getSelectedTaskFilter();
 
             // Estado inicial do calendário (antes de ter eventos)
-            const savedMonth = savedUI && savedUI.month ? new Date(savedUI.month) : null;
-            currentMonthDate = savedMonth && !Number.isNaN(savedMonth.getTime()) ? savedMonth : new Date(); // mês atual
-            const savedSelected = savedUI && savedUI.selectedDate ? new Date(savedUI.selectedDate) : null;
-            selectedDate = savedSelected && !Number.isNaN(savedSelected.getTime()) ? savedSelected : null;
+            const today = startOfDay(new Date());
+            currentMonthDate = today;
+            selectedDate = today;
             renderCalendar();
             renderEventsList(); // mostra vazio
             renderDayEventsDetails();
 
             // Carrega agenda imediatamente
             carregarAgenda();
-            setTimeout(() => { maybePromptLocation(); }, 200);
         });
 
         // ================================

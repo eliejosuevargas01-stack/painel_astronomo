@@ -37,34 +37,74 @@
                 <button class="btn btn-secondary period-filter-button" data-period="week">Semana</button>
                 <button class="btn btn-secondary period-filter-button" data-period="month">Mês</button>
             </div>
-            <div class="summary-grid">
-                <div class="summary-card">
-                    <span class="label">⛽ Combustível (Evento - ida/volta)</span>
-                    <span class="value" id="est-cost-fuel">R$ 0,00</span>
+            <div class="summary-block">
+                <h3 class="section-title" style="margin-bottom: 10px;">Estimados</h3>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <span class="label">⛽ Combustível (Evento - ida/volta)</span>
+                        <span class="value" id="est-cost-fuel">R$ 0,00</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="label">🏨 Hospedagem (Evento)</span>
+                        <span class="value" id="est-cost-hotel">R$ 0,00</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="label">🍽️ Alimentação (Evento)</span>
+                        <span class="value" id="est-cost-food">R$ 0,00</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="label">🛣️ Pedágios (Evento)</span>
+                        <span class="value" id="est-cost-pedagios">R$ 0,00</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="label">🧑‍🏫 Monitor (Evento)</span>
+                        <span class="value" id="est-cost-monitor">R$ 0,00</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="label">💲 Faturamento Total</span>
+                        <span class="value" id="event-total-value">R$ 0,00</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="label" id="astronomer-profit-label">💸 Lucro Astrônomo</span>
+                        <span class="value" id="astronomer-profit">R$ 0,00</span>
+                    </div>
                 </div>
-                <div class="summary-card">
-                    <span class="label">🏨 Hospedagem (Evento)</span>
-                    <span class="value" id="est-cost-hotel">R$ 0,00</span>
-                </div>
-                <div class="summary-card">
-                    <span class="label">🍽️ Alimentação (Evento)</span>
-                    <span class="value" id="est-cost-food">R$ 0,00</span>
-                </div>
-                <div class="summary-card">
-                    <span class="label">🛣️ Pedágios (Evento)</span>
-                    <span class="value" id="est-cost-pedagios">R$ 0,00</span>
-                </div>
-                <div class="summary-card">
-                    <span class="label">🧑‍🏫 Monitor (Evento)</span>
-                    <span class="value" id="est-cost-monitor">R$ 0,00</span>
-                </div>
-                <div class="summary-card">
-                    <span class="label">💲 Faturamento Total</span>
-                    <span class="value" id="event-total-value">R$ 0,00</span>
-                </div>
-                <div class="summary-card">
-                    <span class="label" id="astronomer-profit-label">💸 Lucro Astrônomo</span>
-                    <span class="value" id="astronomer-profit">R$ 0,00</span>
+            </div>
+            <div class="summary-block" style="margin-top: 14px;">
+                <h3 class="section-title" style="margin-bottom: 10px;">Reais (somente finalizados)</h3>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <span class="label">⛽ Despesas reais (Combustível)</span>
+                        <span class="value" id="real-cost-fuel">R$ 0,00</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="label">🏨 Despesas reais (Hospedagem)</span>
+                        <span class="value" id="real-cost-hotel">R$ 0,00</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="label">🍽️ Despesas reais (Alimentação)</span>
+                        <span class="value" id="real-cost-food">R$ 0,00</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="label">🛣️ Despesas reais (Pedágios)</span>
+                        <span class="value" id="real-cost-pedagios">R$ 0,00</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="label">🧑‍🏫 Despesas reais (Monitor)</span>
+                        <span class="value" id="real-cost-monitor">R$ 0,00</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="label">➕ Despesas reais (Outros)</span>
+                        <span class="value" id="real-cost-outros">R$ 0,00</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="label">💲 Total despesas reais</span>
+                        <span class="value" id="real-cost-total">R$ 0,00</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="label" id="real-profit-label">💸 Lucro Astrônomo (real)</span>
+                        <span class="value" id="real-profit">R$ 0,00</span>
+                    </div>
                 </div>
             </div>
 
@@ -363,6 +403,13 @@
             const t = String(ev?.tipo_da_tarefa || ev?.tipo || ev?.tipo_evento || '').toLowerCase();
             return t.includes('visita');
         }
+        function isFinalizadoEvent(ev){
+            const v = ev?.finalizado;
+            if (v === true || v === 'true' || v === 1 || v === '1') return true;
+            const status = String(ev?.status || ev?.status_evento || ev?.resultado || ev?.result || '').toLowerCase();
+            if (status.includes('finalizado') || status === 'done') return true;
+            return false;
+        }
         function distanceKmFromEvent(ev, routeInfo){
             const override = parseRouteNumber(ev && ev._dist_override_km);
             if (override != null && override > 0) return override;
@@ -443,6 +490,34 @@
             }
         }
 
+        function extractRealExpenses(ev){
+            const sources = [ev?.despesas_reais, ev?.despesas, ev?.gastos_reais, ev?.gastos, ev];
+            const pickReal = (...keys) => {
+                for (const src of sources){
+                    if (!src || typeof src !== 'object') continue;
+                    for (const k of keys){
+                        const v = readNested(src, k) ?? src[k];
+                        const n = parseRouteNumber(v);
+                        if (Number.isFinite(n)) return n;
+                    }
+                }
+                return null;
+            };
+            const combustivel = pickReal('combustivel_real','combustivel','despesa_combustivel','custo_combustivel','gasto_combustivel');
+            const hospedagem = pickReal('hospedagem_real','hospedagem','custo_hospedagem','gasto_hospedagem','diaria_hospedagem_total');
+            const alimentacao = pickReal('alimentacao_real','alimentacao','custo_alimentacao','gasto_alimentacao');
+            const pedagios = pickReal('pedagios_real','pedagios','custo_pedagios','gasto_pedagios');
+            const monitor = pickReal('monitor_real','monitor','custo_monitor','gasto_monitor');
+            const outros = pickReal('outros','outros_gastos','outros_despesas','gastos_outros');
+            const parts = [combustivel, hospedagem, alimentacao, pedagios, monitor, outros].filter(Number.isFinite);
+            const total = parts.length ? parts.reduce((a,b)=>a+b,0) : null;
+            return { combustivel, hospedagem, alimentacao, pedagios, monitor, outros, total };
+        }
+        function hasRealExpenses(exp){
+            if (!exp || typeof exp !== 'object') return false;
+            return ['combustivel','hospedagem','alimentacao','pedagios','monitor','outros','total'].some(k => Number.isFinite(exp[k]));
+        }
+
         function normalizeEvent(ev){
             const dataRaw = ev?.data_agendamento || ev?.data_e_hora_do_agendamento || ev?.data || ev?.date;
             const d = dataRaw ? new Date(dataRaw) : null;
@@ -486,6 +561,15 @@
             const eventTotalValue = document.getElementById('event-total-value');
             const astronomerProfit = document.getElementById('astronomer-profit');
             const astronomerProfitLabel = document.getElementById('astronomer-profit-label');
+            const realCostFuel = document.getElementById('real-cost-fuel');
+            const realCostHotel = document.getElementById('real-cost-hotel');
+            const realCostFood = document.getElementById('real-cost-food');
+            const realCostPedagios = document.getElementById('real-cost-pedagios');
+            const realCostMonitor = document.getElementById('real-cost-monitor');
+            const realCostOutros = document.getElementById('real-cost-outros');
+            const realCostTotal = document.getElementById('real-cost-total');
+            const realProfit = document.getElementById('real-profit');
+            const realProfitLabel = document.getElementById('real-profit-label');
 
             let allEvents = [];
             let selectedEvent = null;
@@ -600,7 +684,8 @@
                 const pctText = Number.isFinite(pct)
                     ? pct.toLocaleString('pt-BR', { maximumFractionDigits: 2, minimumFractionDigits: pct % 1 === 0 ? 0 : 2 })
                     : '--';
-                astronomerProfitLabel.textContent = `💸 Lucro Astrônomo (${pctText}%)`;
+                astronomerProfitLabel.textContent = `💸 Lucro Astrônomo (estimado, finalizados - ${pctText}%)`;
+                if (realProfitLabel) realProfitLabel.textContent = `💸 Lucro Astrônomo (real, finalizados - ${pctText}%)`;
             }
 
             function calculateAstronomerProfit(totalValue, profitRate) {
@@ -779,6 +864,7 @@
 
             function updateSummaryCards() {
                 const eventsForSummary = getFilteredEventsByPeriod(allEvents, currentPeriodFilter);
+                const finalizedEvents = eventsForSummary.filter(isFinalizadoEvent);
                 const profitInfo = getProfitRateInfo();
                 updateProfitLabel(profitInfo);
                 
@@ -794,7 +880,9 @@
                     totalFaturamento += faturamentoEvento;
                 });
                 
-                const totalLucroAstronomo = calculateAstronomerProfit(totalFaturamento, profitInfo.rate);
+                // Lucro (estimado) considera apenas finalizados, conforme requisito
+                const faturamentoFinalizados = finalizedEvents.reduce((sum, ev) => sum + parseCurrencyBR(ev.valor_total || 0), 0);
+                const totalLucroAstronomo = calculateAstronomerProfit(faturamentoFinalizados, profitInfo.rate);
                 
                 estCostFuel.textContent = formatCurrencyBr(totalFuel);
                 estCostHotel.textContent = formatCurrencyBr(totalHotel);
@@ -803,6 +891,37 @@
                 estCostMonitor.textContent = formatCurrencyBr(totalMonitor);
                 eventTotalValue.textContent = formatCurrencyBr(totalFaturamento);
                 astronomerProfit.textContent = formatCurrencyBr(totalLucroAstronomo);
+
+                // Despesas reais — apenas eventos finalizados com valores reais
+                let realFuel = 0, realHotel = 0, realFood = 0, realPedagios = 0, realMonitor = 0, realOutros = 0, realTotal = null, realRevenue = 0;
+                finalizedEvents.forEach(ev => {
+                    const realExp = extractRealExpenses(ev);
+                    if (!hasRealExpenses(realExp)) return;
+                    if (Number.isFinite(realExp.combustivel)) realFuel += realExp.combustivel;
+                    if (Number.isFinite(realExp.hospedagem)) realHotel += realExp.hospedagem;
+                    if (Number.isFinite(realExp.alimentacao)) realFood += realExp.alimentacao;
+                    if (Number.isFinite(realExp.pedagios)) realPedagios += realExp.pedagios;
+                    if (Number.isFinite(realExp.monitor)) realMonitor += realExp.monitor;
+                    if (Number.isFinite(realExp.outros)) realOutros += realExp.outros;
+                    if (Number.isFinite(realExp.total)) {
+                        if (!Number.isFinite(realTotal)) realTotal = 0;
+                        realTotal += realExp.total;
+                    }
+                    realRevenue += parseCurrencyBR(ev.valor_total || 0);
+                });
+                // Se total não foi calculado mas houve componentes, soma componentes
+                if (!Number.isFinite(realTotal)) {
+                    const parts = [realFuel, realHotel, realFood, realPedagios, realMonitor, realOutros].filter(v => Number.isFinite(v));
+                    realTotal = parts.length ? parts.reduce((a,b)=>a+b,0) : 0;
+                }
+                realCostFuel.textContent = formatCurrencyBr(realFuel);
+                realCostHotel.textContent = formatCurrencyBr(realHotel);
+                realCostFood.textContent = formatCurrencyBr(realFood);
+                realCostPedagios.textContent = formatCurrencyBr(realPedagios);
+                realCostMonitor.textContent = formatCurrencyBr(realMonitor);
+                realCostOutros.textContent = formatCurrencyBr(realOutros);
+                realCostTotal.textContent = formatCurrencyBr(realTotal);
+                realProfit.textContent = formatCurrencyBr(calculateAstronomerProfit(realRevenue, profitInfo.rate));
             }
 
             // --- Modal de despesas ---
@@ -855,6 +974,7 @@
                 try {
                     const result = await callAgendaWebhook('lancar_despesas', {
                         id_evento,
+                        finalizado: true,
                         combustivel,
                         hospedagem,
                         alimentacao,
@@ -942,29 +1062,5 @@
         </div>
     </div>
 
-    <!-- Modal: Localização Manual -->
-    <div class="modal" id="location-modal" aria-hidden="true" role="dialog">
-        <div class="modal-content" role="document">
-            <button class="close-btn" id="location-modal-close" aria-label="Fechar">&times;</button>
-            <div class="modal-title"><i class="fas fa-location-dot"></i> Informar Localização Atual</div>
-            <p>Não foi possível obter sua localização automaticamente. Informe manualmente sua cidade e UF.</p>
-            <form id="manual-location-form" class="form-grid">
-                <input type="hidden" id="loc-id-evento" />
-                <input type="hidden" id="loc-destino" />
-                <div class="form-group">
-                    <label class="form-label" for="manual-city">Cidade atual</label>
-                    <input class="form-input" id="manual-city" type="text" placeholder="Ex: Araranguá" required />
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="manual-uf">UF</label>
-                    <input class="form-input" id="manual-uf" type="text" placeholder="Ex: SC" maxlength="2" required />
-                </div>
-                <div class="controls" style="margin-top: 8px; gap:8px; display:flex; flex-wrap: wrap;">
-                    <button type="submit" class="btn btn-secondary" id="loc-submit"><i class="fas fa-paper-plane"></i> Enviar</button>
-                    <button type="button" class="btn btn-secondary" id="loc-cancel">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
 </body>
 </html>
