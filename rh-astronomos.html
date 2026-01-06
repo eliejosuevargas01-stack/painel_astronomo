@@ -1,0 +1,3573 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel RH - Astrônomos & Agenda</title>
+    <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- <link rel="stylesheet" href="css/docs-urania.css"> -->
+    <!-- <link rel="stylesheet" href="css/rh-astronomos.css"> -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+    <!-- <style>
+        /* CSS Moderno y Profesional Mejorado */
+        :root {
+            /* Sistema de cores - Esquema profesional azul/gris */
+            --primary-50: #eff6ff;
+            --primary-100: #dbeafe;
+            --primary-200: #bfdbfe;
+            --primary-300: #93c5fd;
+            --primary-400: #60a5fa;
+            --primary-500: #3b82f6;
+            --primary-600: #2563eb;
+            --primary-700: #1d4ed8;
+            --primary-800: #1e40af;
+            --primary-900: #1e3a8a;
+            
+            --neutral-50: #f8fafc;
+            --neutral-100: #f1f5f9;
+            --neutral-200: #e2e8f0;
+            --neutral-300: #cbd5e1;
+            --neutral-400: #94a3b8;
+            --neutral-500: #64748b;
+            --neutral-600: #475569;
+            --neutral-700: #334155;
+            --neutral-800: #1e293b;
+            --neutral-900: #0f172a;
+            
+            --success-50: #f0fdf4;
+            --success-500: #22c55e;
+            --success-600: #16a34a;
+            
+            --warning-50: #fffbeb;
+            --warning-500: #f59e0b;
+            --warning-600: #d97706;
+            
+            --error-50: #fef2f2;
+            --error-500: #ef4444;
+            --error-600: #dc2626;
+            
+            --info-50: #f0f9ff;
+            --info-500: #0ea5e9;
+            --info-600: #0284c7;
+            
+            /* Tokens de diseño */
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --radius-2xl: 20px;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --spacing-xl: 24px;
+            --spacing-2xl: 32px;
+            --spacing-3xl: 48px;
+            
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--neutral-50) 0%, var(--neutral-100) 100%);
+            color: var(--neutral-800);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: var(--spacing-lg);
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        /* Container principal */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: var(--spacing-2xl);
+            text-align: center;
+            padding: var(--spacing-2xl);
+            background: var(--neutral-50);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--neutral-200);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-700));
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: var(--spacing-sm);
+            color: var(--neutral-900);
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: var(--neutral-600);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Sistema de pestañas mejorado */
+        .tabs {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-2xl);
+            background: var(--neutral-50);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-sm);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--neutral-200);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.95rem;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+            font-weight: 500;
+            color: var(--neutral-600);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+        }
+
+        .tab-btn:hover {
+            background: var(--neutral-100);
+            color: var(--primary-600);
+        }
+
+        .tab-btn.active {
+            background: var(--primary-500);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background: var(--primary-200);
+            border-radius: 2px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Panel de controles */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-lg);
+            align-items: center;
+            margin-bottom: var(--spacing-2xl);
+            padding: var(--spacing-xl);
+            border: 1px solid var(--neutral-200);
+            background: var(--neutral-50);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-box input,
+        .search-box select {
+            width: 100%;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: 1px solid var(--neutral-300);
+            font-size: 0.9rem;
+            border-radius: var(--radius-lg);
+            background: white;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .search-box input:focus,
+        .search-box select:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px var(--primary-100);
+        }
+
+        /* Sistema de botones mejorado */
+        .btn {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: 1px solid;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border-radius: var(--radius-lg);
+            transition: var(--transition);
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            white-space: nowrap;
+            font-family: inherit;
+            text-decoration: none;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-primary {
+            background: var(--primary-500);
+            border-color: var(--primary-600);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-600);
+        }
+
+        .btn-secondary {
+            background: var(--neutral-100);
+            border-color: var(--neutral-300);
+            color: var(--neutral-700);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--neutral-200);
+        }
+
+        .btn-success {
+            background: var(--success-500);
+            border-color: var(--success-600);
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: var(--success-600);
+        }
+
+        .btn-warning {
+            background: var(--warning-500);
+            border-color: var(--warning-600);
+            color: white;
+        }
+
+        .btn-warning:hover:not(:disabled) {
+            background: var(--warning-600);
+        }
+
+        .btn-danger {
+            background: var(--error-500);
+            border-color: var(--error-600);
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: var(--error-600);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border-color: var(--neutral-300);
+            color: var(--neutral-700);
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            background: var(--neutral-50);
+            border-color: var(--neutral-400);
+        }
+
+        /* Estados y notificaciones */
+        .status {
+            font-size: 0.85rem;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-lg);
+            background: white;
+            border-left: 4px solid var(--neutral-300);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .status.loading {
+            color: var(--warning-600);
+            border-left-color: var(--warning-500);
+            background: var(--warning-50);
+        }
+
+        .status.success {
+            color: var(--success-600);
+            border-left-color: var(--success-500);
+            background: var(--success-50);
+        }
+
+        .status.error {
+            color: var(--error-600);
+            border-left-color: var(--error-500);
+            background: var(--error-50);
+        }
+
+        .status.info {
+            color: var(--info-600);
+            border-left-color: var(--info-500);
+            background: var(--info-50);
+        }
+
+        /* Grid de tarjetas */
+        .astronomers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--spacing-xl);
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        /* Tarjetas modernas */
+        .astronomer-card,
+        .event-card {
+            border: 1px solid var(--neutral-200);
+            background: white;
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .astronomer-card::before,
+        .event-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-300));
+            transform: scaleX(0);
+            transition: var(--transition);
+        }
+
+        .astronomer-card:hover::before,
+        .event-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .astronomer-card:hover,
+        .event-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+        }
+
+        .card-header,
+        .event-header {
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+        }
+
+        .event-meta {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .event-date {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--primary-50);
+            color: var(--primary-700);
+            border-radius: var(--radius-lg);
+            font-weight: 700;
+        }
+
+        .event-date-icon {
+            font-size: 1rem;
+        }
+
+        .event-date-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .event-date-label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--primary-600);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 2px;
+        }
+
+        .event-date-value {
+            font-size: 0.95rem;
+            color: var(--primary-800);
+        }
+
+        .event-school {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+        }
+
+        .event-city {
+            font-size: 0.9rem;
+            color: var(--neutral-600);
+        }
+
+        .card-header h3 {
+            font-size: 1.2rem;
+            color: var(--neutral-900);
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .card-id {
+            font-size: 0.8rem;
+            color: var(--neutral-500);
+            background: var(--neutral-100);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-md);
+            font-weight: 500;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: var(--neutral-500);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .info-value {
+            font-size: 0.9rem;
+            color: var(--neutral-800);
+            font-weight: 500;
+        }
+
+        /* Sección de costos */
+        .cost-summary {
+            margin-top: var(--spacing-lg);
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        .cost-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-sm);
+            font-size: 0.85rem;
+        }
+
+        .cost-label {
+            color: var(--neutral-600);
+        }
+
+        .cost-value {
+            font-weight: 600;
+            color: var(--neutral-800);
+        }
+
+        .cost-total {
+            margin-top: var(--spacing-md);
+            padding-top: var(--spacing-md);
+            border-top: 2px solid var(--neutral-300);
+            font-weight: 700;
+            color: var(--primary-600);
+        }
+
+        /* Estados vacíos */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-3xl);
+            color: var(--neutral-500);
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm);
+            border: 2px dashed var(--neutral-300);
+        }
+
+        .empty-state h3 {
+            font-size: 1.3rem;
+            margin-bottom: var(--spacing-md);
+            color: var(--neutral-600);
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+        }
+
+        /* Sistema de modales mejorado */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-content {
+            width: min(900px, 95%);
+            max-height: 90vh;
+            overflow: auto;
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+            padding: var(--spacing-xl) var(--spacing-xl) 0;
+        }
+
+        .modal-header h2 {
+            color: var(--neutral-900);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: var(--neutral-100);
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--neutral-500);
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            background: var(--neutral-200);
+            color: var(--neutral-700);
+        }
+
+        .modal-body {
+            padding: 0 var(--spacing-xl) var(--spacing-xl);
+            font-size: 0.9rem;
+        }
+
+        .modal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .modal-item {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .modal-label {
+            font-size: 0.8rem;
+            color: var(--neutral-500);
+            margin-bottom: var(--spacing-sm);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .modal-value {
+            font-size: 0.95rem;
+            color: var(--neutral-800);
+            padding: var(--spacing-sm) 0;
+            font-weight: 500;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: 1px solid var(--neutral-300);
+            font-size: 0.9rem;
+            border-radius: var(--radius-lg);
+            background: white;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px var(--primary-100);
+        }
+
+        .modal-actions {
+            margin-top: var(--spacing-2xl);
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: flex-end;
+            padding-top: var(--spacing-xl);
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        /* Sistema de notificaciones toast */
+        .toast {
+            position: fixed;
+            bottom: var(--spacing-xl);
+            right: var(--spacing-xl);
+            background: var(--neutral-800);
+            color: white;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            font-size: 0.9rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition-slow);
+            z-index: 1100;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success {
+            background: var(--success-500);
+        }
+
+        .toast.error {
+            background: var(--error-500);
+        }
+
+        .toast.warning {
+            background: var(--warning-500);
+        }
+
+        .toast.info {
+            background: var(--info-500);
+        }
+
+        /* Área de imagens do evento */
+        .event-images-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .event-image-thumb {
+            width: 100%;
+            max-height: 180px;
+            aspect-ratio: 4 / 3;
+            object-fit: contain;
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            background: var(--neutral-50);
+            box-shadow: var(--shadow-sm);
+            padding: 6px;
+        }
+
+        /* Carrossel de imagens */
+        .carousel-image-wrapper {
+            background: var(--neutral-50);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            min-height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-image {
+            width: 100%;
+            max-height: 60vh;
+            object-fit: contain;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            background: white;
+        }
+
+        /* Spinner moderno */
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Última actualización */
+        .last-update {
+            font-size: 0.8rem;
+            color: var(--neutral-500);
+            text-align: center;
+            margin-top: var(--spacing-2xl);
+            padding: var(--spacing-lg);
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--neutral-200);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .astronomers-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: var(--spacing-md);
+            }
+
+            .header {
+                padding: var(--spacing-xl);
+            }
+
+            .header h1 {
+                font-size: 1.7rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .astronomers-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .toast {
+                left: var(--spacing-md);
+                right: var(--spacing-md);
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Utilidades */
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .mb-0 {
+            margin-bottom: 0;
+        }
+
+        .mt-2 {
+            margin-top: var(--spacing-lg);
+        }
+
+        .p-0 {
+            padding: 0;
+        }
+    </style> -->
+</head>
+<body class="presentation-page rh-page">
+    <div class="space-layer stars"></div>
+    <div class="space-layer twinkle"></div>
+    <div class="space-layer nebula"></div>
+    <div class="space-layer galaxies"></div>
+    <div class="container">
+        <div class="header">
+            <h1>👨‍🚀 Painel RH - Astrônomos & Agenda</h1>
+            <p>Gestão completa de astrônomos e agenda de eventos</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="astronomos">📋 Astrônomos</button>
+            <button class="tab-btn" data-tab="agenda">📅 Agenda do Astrônomo</button>
+        </div>
+
+        <!-- Aba Astrônomos -->
+        <div id="aba-astronomos" class="tab-content active">
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="search-astronomo" placeholder="Buscar astrônomos...">
+                </div>
+                <button type="button" class="btn" id="btn-novo-astronomo">➕ Novo Astrônomo</button>
+                <div>
+                    <input type="file" id="csv-file" accept=".csv,text/csv" style="display:none;">
+                    <button type="button" class="btn btn-secondary" id="btn-importar-csv">📂 Importar CSV</button>
+                </div>
+                <button type="button" class="btn btn-success" id="btn-atualizar-astronomos">🔄 Atualizar</button>
+                <div class="status" id="status-astronomos">
+                    Pronto para buscar dados
+                </div>
+                <button type="button" class="btn btn-danger" id="btn-excluir-todos-individual">🗑 Apagar Todos (um a um)</button>
+                <button type="button" class="btn" id="btn-editar-todos">✏️ Editar Todos</button>
+            </div>
+            <!-- Progresso removido no fluxo simples de importação -->
+
+            <div class="astronomers-grid" id="astronomersGrid">
+                <!-- Cards dos astrônomos serão inseridos aqui -->
+            </div>
+
+            <div class="empty-state" id="emptyStateAstronomers">
+                <h3>📡 Nenhum astrônomo carregado</h3>
+                <p>Clique em "Atualizar" para carregar as informações</p>
+            </div>
+
+            <div class="last-update" id="last-update-astronomos">
+                Última atualização: <span id="update-time-astronomos">--:--:--</span>
+            </div>
+        </div>
+
+        <!-- Aba Agenda -->
+        <div id="aba-agenda" class="tab-content">
+            <div class="controls">
+                <div class="search-box">
+                    <select id="select-astronomo">
+                        <option value="">Selecione um astrônomo</option>
+                    </select>
+                </div>
+                <div class="search-box">
+                    <input type="date" id="data-inicio" placeholder="Data início">
+                </div>
+                <div class="search-box">
+                    <input type="date" id="data-fim" placeholder="Data fim">
+                </div>
+                <div class="search-box">
+                    <select id="filtro-tipo-tarefa-agenda">
+                        <option value="all">Todos os eventos</option>
+                        <option value="visita">Visita</option>
+                        <option value="pre">Pré</option>
+                        <option value="reserva">Reserva</option>
+                        <option value="nao_marcar">Não marcar</option>
+                    </select>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="search-agenda" placeholder="Filtrar por escola/cidade..." list="lista-locais-agenda">
+                    <datalist id="lista-locais-agenda"></datalist>
+                </div>
+                <button type="button" class="btn" id="btn-filtrar-agenda">🔍 Filtrar</button>
+                <button type="button" class="btn btn-success" id="btn-atualizar-agenda">🔄 Atualizar</button>
+                <div class="status" id="status-agenda">
+                    Pronto para buscar dados
+                </div>
+            </div>
+
+            <div id="lista-agenda">
+                <!-- Eventos carregados via JS -->
+            </div>
+
+            <div class="last-update" id="last-update-agenda">
+                Última atualização: <span id="update-time-agenda">--:--:--</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para detalhes e edição do astrônomo -->
+    <div class="modal" id="astronomerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Editar Astrônomo</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-grid" id="modalGrid">
+                    <!-- Os dados editáveis serão inseridos aqui -->
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-danger" onclick="closeModal()">❌ Cancelar</button>
+                    <button class="btn btn-success" onclick="salvarAstronomo()">💾 Salvar Alterações</button>
+                    <button class="btn btn-danger" onclick="deletarAstronomo(CURRENT_ASTRONOMER && CURRENT_ASTRONOMER.id_astronomo)">🗑 Excluir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição em Massa -->
+    <div class="modal" id="bulkEditModal">
+        <div class="modal-content" style="max-width: 1100px;">
+            <div class="modal-header">
+                <h2>Editar Todos os Astrônomos</h2>
+                <button class="close-btn" onclick="closeBulkModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow:auto;">
+                <div id="bulkModalGrid"></div>
+                <div class="modal-actions">
+                    <button class="btn btn-danger" onclick="closeBulkModal()">❌ Cancelar</button>
+                    <button class="btn btn-success" id="btn-salvar-todos">💾 Salvar Todos</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detalhes do Evento + Imagens -->
+    <div class="modal" id="eventModal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h2 id="eventModalTitle">Detalhes do Evento</h2>
+                <button class="close-btn" onclick="closeEventModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="eventModalBody" style="max-height: 70vh; overflow:auto;">
+                <!-- Conteúdo preenchido via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Carrossel de Imagens do Evento -->
+    <div class="modal" id="imageCarouselModal">
+        <div class="modal-content carousel-modal">
+            <div class="modal-header">
+                <h2 id="carouselTitle">Imagens do Evento</h2>
+                <button class="close-btn" onclick="closeCarouselModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="carousel-body">
+                    <button type="button" class="carousel-nav" onclick="prevCarouselImage()">&#10094;</button>
+                    <div class="carousel-image-wrapper">
+                        <img id="carouselImage" class="carousel-image" src="" alt="Imagem do evento">
+                        <div id="carouselEmpty" class="carousel-empty" style="display:none;">Nenhuma imagem encontrada para este evento.</div>
+                    </div>
+                    <button type="button" class="carousel-nav" onclick="nextCarouselImage()">&#10095;</button>
+                </div>
+                <div class="carousel-footer">
+                    <span id="carouselCounter"></span>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <button type="button" class="btn btn-danger" onclick="deleteCurrentCarouselImage()">🗑️ Excluir imagem</button>
+                        <a id="carouselOpenLink" href="#" target="_blank" rel="noopener noreferrer">Abrir imagem no Drive</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Constantes e variáveis globais
+        // Endpoint principal (mesmo usado no login e em outras páginas públicas)
+        // Endpoint principal informado
+        const API_ASTRO_BASE = "https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo";
+        const API_ASTRO_FALLBACKS = [
+            API_ASTRO_BASE,
+            "https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo" // fallback alternativo
+        ];
+        const API_AGENDA = "https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo";
+        const API_IMPORT_ACTION = "add"; // envia cada item do CSV como action=add
+        
+        let ASTRONOMOS = [];
+        let EVENTOS = [];
+        let SELECTED = { 
+            id_astronomo: null, 
+            from: null, 
+            to: null, 
+            search: "",
+            taskType: 'all'
+        };
+        let CURRENT_ASTRONOMER = null;
+        let CURRENT_EVENT = null;
+        let CURRENT_EVENT_IMAGES = [];
+        let CAROUSEL_IMAGES = [];
+        let CAROUSEL_INDEX = 0;
+        let CAROUSEL_EVENT_ID = null;
+
+        // Funções principais
+        async function carregarAstronomos() {
+            setStatus('astronomos', 'Conectando com o servidor...', 'loading');
+            showSpinner('btn-atualizar-astronomos');
+            
+            try {
+                const data = await callAstroApi('list', {});
+                
+                if (Array.isArray(data)) {
+                    ASTRONOMOS = data;
+                } else if (data && typeof data === 'object' && 'id_astronomo' in data) {
+                    ASTRONOMOS = [data];
+                } else if (data && Array.isArray(data.astronomos)) {
+                    ASTRONOMOS = data.astronomos;
+                } else {
+                    ASTRONOMOS = [];
+                }
+                
+                displayAstronomersList(ASTRONOMOS);
+                preencherSelectAstronomo();
+                atualizarTimestamp('astronomos');
+                setStatus('astronomos', `${ASTRONOMOS.length} astrônomos carregados com sucesso!`, 'success');
+                toast('Astrônomos carregados com sucesso', 'success');
+            } catch (error) {
+                console.error('Erro ao carregar astrônomos:', error);
+                setStatus('astronomos', `Erro: ${error.message}`, 'error');
+                toast('Erro ao carregar astrônomos', 'error');
+                
+                document.getElementById('emptyStateAstronomers').style.display = 'block';
+                document.getElementById('astronomersGrid').innerHTML = '';
+            } finally {
+                hideSpinner('btn-atualizar-astronomos');
+            }
+        }
+
+        // Excluir um astrônomo por ID
+        async function deletarAstronomo(id){
+            const idNum = parseInt(id, 10);
+            if (!idNum || !Number.isFinite(idNum)) { toast('ID inválido para exclusão', 'error'); return; }
+            if (!confirm('Confirma excluir este astrônomo (ID '+idNum+')?')) return;
+            setStatus('astronomos', 'Excluindo astrônomo…', 'loading');
+            try{
+                // Envia comando ao backend, mas tolera erros de resposta (otimista)
+                try{ await callAstroApi('delete', { id_astronomo: idNum }); }catch(err){ console.warn('delete falhou no HTTP, validando por recarga…', err); }
+                await carregarAstronomos();
+                const removed = !Array.isArray(ASTRONOMOS) || !ASTRONOMOS.some(a => String(a.id_astronomo) === String(idNum));
+                if (removed){ toast('Astrônomo excluído', 'success'); setStatus('astronomos', 'Exclusão concluída', 'success'); }
+                else { toast('Nenhuma alteração realizada', 'error'); setStatus('astronomos', 'Falha ao excluir', 'error'); }
+            }catch(err){ console.error(err); toast('Falha ao excluir', 'error'); setStatus('astronomos', 'Erro ao excluir', 'error'); }
+        }
+
+        // Excluir todos os astrônomos
+        async function deletarTodosAstronomos(){
+            try{
+                if (!confirm('Tem certeza que deseja excluir TODOS os astrônomos?')) return;
+                if (!confirm('Esta ação é irreversível. Confirmar exclusão em massa?')) return;
+                setStatus('astronomos', 'Excluindo todos astrônomos…', 'loading');
+                try{ await callAstroApi('delete', { all: true }); }catch(err){ console.warn('delete all falhou no HTTP, validando por recarga…', err); }
+                await carregarAstronomos();
+                const count = Array.isArray(ASTRONOMOS) ? ASTRONOMOS.length : 0;
+                if (count === 0){ toast('Todos os astrônomos foram excluídos', 'success'); setStatus('astronomos', 'Exclusão em massa concluída', 'success'); }
+                else { toast('Alguns registros podem não ter sido excluídos', 'error'); setStatus('astronomos', 'Exclusão parcial', 'error'); }
+            }catch(err){ console.error(err); toast('Falha ao excluir todos', 'error'); setStatus('astronomos', 'Erro na exclusão em massa', 'error'); }
+        }
+
+        // Apagar todos um a um (envia action=delete por registro)
+        async function deletarTodosUmPorUm(){
+            try{
+                if (!Array.isArray(ASTRONOMOS) || !ASTRONOMOS.length){ toast('Não há astrônomos para apagar', 'error'); return; }
+                if (!confirm('Tem certeza que deseja APAGAR TODOS os astrônomos (um a um)?')) return;
+                if (!confirm('Confirme novamente: esta ação enviará várias remoções individuais.')) return;
+                const total = ASTRONOMOS.length;
+                const ids = ASTRONOMOS.map(a => a && a.id_astronomo).filter(v => v!=null);
+                setStatus('astronomos', `Apagando ${ids.length} astrônomo(s)…`, 'loading');
+                // Desabilita botão durante o processo
+                const btn = document.getElementById('btn-excluir-todos-individual');
+                const prevDisabled = btn ? btn.disabled : false; if (btn) btn.disabled = true;
+                try{
+                    for (let i=0;i<ids.length;i++){
+                        const id = ids[i];
+                        try{ await callAstroApi('delete', { id_astronomo: id }); }
+                        catch(err){ console.warn('Falha ao apagar id', id, err); }
+                        // pequeno atraso para não sobrecarregar
+                        await new Promise(r=> setTimeout(r, 200));
+                        if ((i+1) % 10 === 0){ setStatus('astronomos', `Apagando… ${i+1}/${ids.length}`, 'loading'); }
+                    }
+                } finally { if (btn) btn.disabled = prevDisabled; }
+
+                await carregarAstronomos();
+                const rest = Array.isArray(ASTRONOMOS) ? ASTRONOMOS.length : 0;
+                const removed = Math.max(0, total - rest);
+                if (removed > 0){ toast(`${removed} astrônomo(s) apagado(s)`, 'success'); setStatus('astronomos', 'Apagados com sucesso', 'success'); }
+                else { toast('Nenhum astrônomo apagado', 'error'); setStatus('astronomos', 'Nenhuma exclusão realizada', 'error'); }
+            }catch(err){ console.error(err); toast('Falha no apagar em massa (um a um)', 'error'); setStatus('astronomos', 'Erro no apagar em massa', 'error'); }
+        }
+
+        async function callAstroApi(action, payload) {
+            let lastError = null;
+            for (const base of API_ASTRO_FALLBACKS) {
+                try {
+                    const url = base;
+                    let res;
+                    if (payload instanceof FormData) {
+                        if (!payload.has('action')) payload.append('action', action);
+                        res = await fetch(url, { method: 'POST', body: payload });
+                    } else {
+                        res = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action, ...(payload || {}) })
+                        });
+                    }
+                    let raw = '';
+                    try { raw = await res.text(); } catch(_) { raw = ''; }
+                    if (!res.ok) {
+                        throw new Error(`HTTP ${res.status}: ${raw || 'sem corpo'}`);
+                    }
+                    if (!raw || raw.trim() === '') {
+                        // Algumas ações podem retornar vazio; tratar como sucesso sem dados
+                        return null;
+                    }
+                    try {
+                        return JSON.parse(raw);
+                    } catch(_) {
+                        // Tolerar respostas não-JSON (ex.: texto "OK")
+                        return { ok: true, raw };
+                    }
+                } catch (err) {
+                    lastError = err;
+                    console.warn(`Erro ao chamar API de Astrônomos em ${base}:`, err);
+                    // tenta o próximo endpoint
+                }
+            }
+            console.error('Erro ao chamar API de Astrônomos (todas as tentativas falharam):', lastError);
+            throw lastError;
+        }
+
+        // Importação CSV processada no frontend (sem enviar o arquivo bruto)
+
+        // Fallback seguro para leitura de arquivo como texto
+        function readFileAsText(file){
+            if (file && typeof file.text === 'function') {
+                return file.text();
+            }
+            return new Promise((resolve, reject)=>{
+                try{
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(String(reader.result||''));
+                    reader.onerror = (e) => reject(new Error('Falha ao ler arquivo'));
+                    reader.readAsText(file);
+                }catch(err){ reject(err); }
+            });
+        }
+
+        // Leitura de arquivo com fallback de encoding (UTF-8 -> ISO-8859-1)
+        async function readFileWithEncoding(file){
+            try{
+                const txt = await (file.text ? file.text() : readAsText(file, 'UTF-8'));
+                const bad = (txt.match(/�/g)||[]).length;
+                if (bad > 5) {
+                    const alt = await readAsText(file, 'ISO-8859-1');
+                    return alt || txt;
+                }
+                return txt;
+            }catch(_){
+                return readAsText(file, 'UTF-8');
+            }
+        }
+
+        function readAsText(file, encoding){
+            return new Promise((resolve, reject)=>{
+                try{
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(String(reader.result||''));
+                    reader.onerror = () => reject(new Error('Falha ao ler arquivo'));
+                    reader.readAsText(file, encoding||'UTF-8');
+                }catch(err){ reject(err); }
+            });
+        }
+
+        function sleep(ms){ return new Promise(r=> setTimeout(r, ms)); }
+
+        function extractCityUF(row){
+            let city = '';
+            let uf = '';
+
+            const cityCandidates = [
+                row.cidade_base,
+                row['cidade_base'],
+                row['cidade base'],
+                row.cidade_origem,
+                row['cidade_origem'],
+                row['cidade de origem'],
+                row.cidade,
+                row.base,
+                row.origem
+            ];
+            const ufCandidates = [
+                row.estado,
+                row.uf,
+                row['estado/uf'],
+                row.estado_uf,
+                row['estado uf']
+            ];
+
+            const raw = cityCandidates.find(v => v && String(v).trim() !== '') || '';
+            const rawUf = ufCandidates.find(v => v && String(v).trim() !== '') || '';
+
+            if (raw && String(raw).includes(' - ')) {
+                const parts = String(raw).split(' - ');
+                city = (parts[0]||'').trim();
+                uf = (parts[1]||'').trim();
+            } else {
+                city = String(raw||'').trim();
+                uf = String(rawUf||'').trim();
+            }
+            return { city, uf };
+        }
+
+        function validateRequiredFields(row){
+            const required = ['usuario','nome_completo','email'];
+            return required.filter(f => !row[f] || String(row[f]).trim()==='');
+        }
+
+        async function geocodeCityUF(city, uf, retries = 1) {
+            if (!city) {
+                console.log('❌ Nenhuma cidade fornecida');
+                return null;
+            }
+
+            const query = `${city}, ${uf}, Brasil`.trim();
+            console.log('🌍 Geocodificando:', query);
+
+            const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=br&q=${encodeURIComponent(query)}`;
+            console.log('🔗 URL:', url);
+
+            try {
+                const response = await fetch(url, { 
+                    headers: { 
+                        'Accept': 'application/json',
+                        'User-Agent': 'UraniaPlanetario/1.0'
+                    } 
+                });
+                
+                console.log('📡 Status da resposta:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                }
+                
+                const data = await response.json();
+                console.log('📦 Dados retornados:', data);
+                
+                if (Array.isArray(data) && data.length > 0 && data[0].lat && data[0].lon) {
+                    const coords = {
+                        lat: parseFloat(data[0].lat),
+                        lon: parseFloat(data[0].lon)
+                    };
+                    console.log('✅ Coordenadas obtidas:', coords);
+                    return coords;
+                } else {
+                    console.log('❌ Nenhum resultado encontrado');
+                    return null;
+                }
+            } catch (error) {
+                console.error('💥 Erro na geocodificação:', error);
+                throw error;
+            }
+        }
+
+        function parseCSV(text){
+            const lines = String(text||'').split(/\r?\n/).filter(l=> l.trim().length>0);
+            if (!lines.length) return { rows: [], rowsOriginal: [], rowsValues: [], headers: [], headersOriginal: [], columns: [], delimiter: ',' };
+
+            const detectDelimiter = (sampleLines)=>{
+                const candidates = [',',';','\t','|'];
+                let best = ',', bestScore = -1;
+                const limited = sampleLines.slice(0, 5);
+                for (const delim of candidates){
+                    let total = 0;
+                    limited.forEach(line=>{
+                        let count = 0, inQuotes = false;
+                        for (let i=0;i<line.length;i++){
+                            const ch = line[i];
+                            if (ch === '"'){
+                                if (inQuotes && line[i+1] === '"'){ i++; continue; }
+                                inQuotes = !inQuotes;
+                                continue;
+                            }
+                            if (!inQuotes && ch === delim) count++;
+                        }
+                        total += count;
+                    });
+                    if (total > bestScore){ bestScore = total; best = delim; }
+                }
+                return bestScore > 0 ? best : ',';
+            };
+
+            const splitRow = (row, delimiter)=>{
+                const out = [];
+                let cur = '';
+                let inQuotes = false;
+                for (let i=0;i<row.length;i++){
+                    const ch = row[i];
+                    if (ch === '"'){
+                        if (inQuotes && row[i+1] === '"'){ cur += '"'; i++; continue; }
+                        inQuotes = !inQuotes;
+                        continue;
+                    }
+                    if (!inQuotes && ch === delimiter){ out.push(cur); cur=''; continue; }
+                    cur += ch;
+                }
+                out.push(cur);
+                return out;
+            };
+
+            const delimiter = detectDelimiter(lines);
+            const headersRaw = splitRow(lines[0], delimiter).map(h=> String(h||'').replace(/^"|"$/g,''));
+            const headersOriginal = headersRaw.map((h,i)=> h || `col_${i+1}`);
+            const headerTrim = headersOriginal.map(h => String(h||'').trim());
+
+            const used = {};
+            const normalizeHeader = (h)=>{
+                return String(h||'')
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-zA-Z0-9]+/g, '_')
+                    .replace(/^_+|_+$/g,'')
+                    .toLowerCase();
+            };
+            const makeUnique = (base)=>{
+                let b = base || 'col';
+                if (!used[b]){ used[b]=1; return b; }
+                let idx = used[b]+1;
+                while(used[`${b}_${idx}`]) idx++;
+                used[b] = idx;
+                return `${b}_${idx}`;
+            };
+
+            const columns = headersOriginal.map((h,i)=>({
+                index: i,
+                origName: h,
+                origTrim: headerTrim[i],
+                normName: makeUnique(normalizeHeader(h) || `col_${i+1}`),
+                used: false
+            }));
+
+            const rows = [];
+            const rowsOriginal = [];
+
+            for (let i=1;i<lines.length;i++){
+                const raw = lines[i];
+                if (!raw.trim()) continue;
+                const parts = splitRow(raw, delimiter);
+                if (parts.every(v => String(v||'').trim()==='')) continue;
+
+                while (parts.length > columns.length){
+                    const idx = columns.length;
+                    const origName = `col_${idx+1}`;
+                    const normName = makeUnique(normalizeHeader(origName) || origName);
+                    columns.push({ index: idx, origName, origTrim: origName, normName, used: false });
+                }
+                while (parts.length < columns.length) parts.push('');
+
+                const obj = {};
+                const objOrig = {};
+                let hasValue = false;
+
+                for (let j=0;j<columns.length;j++){
+                    const col = columns[j];
+                    const valRaw = parts[j] ?? '';
+                    const val = String(valRaw).trim();
+                    if (!col) continue;
+                    // Se nome e valor vazios, ignora coluna
+                    if (!col.origTrim && val === '') continue;
+                    col.used = true;
+                    obj[col.normName] = val;
+                    objOrig[col.origName] = val;
+                    if (val !== '') hasValue = true;
+                }
+                if (!hasValue && Object.keys(objOrig).length === 0) continue;
+                rows.push(obj);
+                rowsOriginal.push(objOrig);
+            }
+
+            const columnsUsed = columns.filter(c => c.used || c.origTrim);
+            const headers = columnsUsed.map(c=> c.normName);
+            const headersOriginalUsed = columnsUsed.map(c=> c.origName);
+
+            const rowsValues = rows.map(r => columnsUsed.map(c => r[c.normName] != null ? r[c.normName] : ''));
+
+            return { rows, rowsOriginal, rowsValues, headers, headersOriginal: headersOriginalUsed, columns: columnsUsed, delimiter };
+        }
+
+        function buildCSV(headers, rows, delimiter){
+            const enc = (v)=>{
+                if (v == null) return "";
+                let s = String(v);
+                const mustQuote = s.includes('"') || s.includes(delimiter) || /[\n\r]/.test(s);
+                if (s.includes('"')) s = s.replace(/"/g, '""');
+                return mustQuote ? `"${s}"` : s;
+            };
+            const headerLine = headers.map(h=> enc(h)).join(delimiter);
+            const linesOut = rows.map(r=> headers.map(h=> enc(r[h])).join(delimiter));
+            return [headerLine, ...linesOut].join("\n");
+        }
+
+        function normalizeRow(row){
+            const r = { ...row };
+            Object.keys(r).forEach(k=>{ if (typeof r[k]==='string') r[k]=r[k].trim(); });
+            if (r['porcentagem do astronomo']){
+                const p = parseFloat(r['porcentagem do astronomo'].replace('%','').replace(',','.')) || 0;
+                r.porcentagem_lucro = p;
+            }
+            if (r['tipo da tarefa']) r.tipo_da_tarefa = r['tipo da tarefa'];
+            ['consumo_km_l','valor_litro','diaria_hospedagem','alimentacao_diaria','monitor','pedagios'].forEach(f=>{
+                if (r[f]) r[f] = parseFloat(String(r[f]).replace(',','.')) || 0;
+            });
+            if (r.id_astronomo) r.id_astronomo = parseInt(r.id_astronomo) || null;
+            return r;
+        }
+
+        function pickNumber(...values){
+            for (const val of values){
+                const num = Number(val);
+                if (Number.isFinite(num)) return num;
+            }
+            return null;
+        }
+
+        function hasOriginCoordinates(row){
+            const lat = pickNumber(
+                row.origem_lat,
+                row.lat_origem,
+                row.latitude_origem,
+                row['lat origem'],
+                row['latitude origem']
+            );
+            const lon = pickNumber(
+                row.origem_lon,
+                row.lon_origem,
+                row.longitude_origem,
+                row['lon origem'],
+                row['longitude origem']
+            );
+            return Number.isFinite(lat) && Number.isFinite(lon);
+        }
+
+        async function enrichRowWithCoordinates(rawRow, geoCache = {}){
+            const row = normalizeRow(rawRow || {});
+            const latInline = pickNumber(
+                row.origem_lat,
+                row.lat_origem,
+                row.latitude_origem,
+                row['lat origem'],
+                row['latitude origem']
+            );
+            const lonInline = pickNumber(
+                row.origem_lon,
+                row.lon_origem,
+                row.longitude_origem,
+                row['lon origem'],
+                row['longitude origem']
+            );
+            if (latInline !== null && lonInline !== null) {
+                row.origem_lat = latInline;
+                row.origem_lon = lonInline;
+            }
+            const { city, uf } = extractCityUF(row);
+            if (!row.cidade_base && city) row.cidade_base = city;
+            if (!row.estado && uf) row.estado = uf;
+
+            if (!hasOriginCoordinates(row) && city){
+                const cacheKey = `${city}|${uf||''}`.toLowerCase();
+                let coords = geoCache && Object.prototype.hasOwnProperty.call(geoCache, cacheKey) ? geoCache[cacheKey] : undefined;
+                if (coords === undefined){
+                    coords = null;
+                    try{
+                        coords = await geocodeCityUF(city, uf);
+                    }catch(err){
+                        console.warn('Falha ao geocodificar cidade base', city, uf, err);
+                    }
+                    if (geoCache) geoCache[cacheKey] = coords || null;
+                    if (coords) await sleep(800);
+                }
+                if (coords){
+                    row.origem_lat = coords.lat;
+                    row.origem_lon = coords.lon;
+                }
+            }
+            return row;
+        }
+
+        async function importCsvBinary(file){
+            const btn = document.getElementById('btn-importar-csv');
+            const prevDisabled = btn ? btn.disabled : false;
+            if (btn) btn.disabled = true;
+            try{
+                setStatus('astronomos', 'Enviando CSV (arquivo inteiro)...', 'loading');
+                const fd = new FormData();
+                fd.append('action', 'import_csv');
+                fd.append('file', file, file && file.name ? file.name : 'import.csv');
+
+                await callAstroApi('import_csv', fd);
+
+                toast('CSV enviado com sucesso', 'success');
+                setStatus('astronomos', 'Importação concluída. Atualizando lista…', 'success');
+                await carregarAstronomos();
+            } catch (error) {
+                console.error('Erro ao enviar CSV:', error);
+                setStatus('astronomos', 'Erro ao enviar CSV: ' + (error && error.message || error), 'error');
+                toast('Erro ao enviar CSV: ' + (error && error.message || error), 'error');
+            } finally {
+                if (btn) btn.disabled = prevDisabled;
+            }
+        }
+
+        // Normalização básica de textos para evitar "null", "undefined" etc.
+        function cleanText(value){
+            if (value === null || value === undefined) return '';
+            const s = String(value).trim();
+            if (!s) return '';
+            const lower = s.toLowerCase();
+            if (lower === 'null' || lower === 'undefined' || lower === 'nan') return '';
+            return s;
+        }
+
+        // Normaliza texto para busca (minusculo e sem acentuação)
+        function normalizeSearchText(value){
+            return cleanText(value)
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function textOrFallback(value, fallback){
+            const s = cleanText(value);
+            return s || fallback;
+        }
+
+        function getResultadoLabel(ev){
+            const raw = ev && (ev.resultado ?? ev.result ?? ev.status_resultado);
+            return textOrFallback(raw, 'Não informado');
+        }
+
+        // IDs específicos das ações da agenda
+        const ID_FIELD_DEFS = [
+            { key: 'id_visita', label: 'ID Visita', altKeys: ['visita'] },
+            { key: 'id_pre', label: 'ID Pré', altKeys: ['pre'] },
+            { key: 'id_reserva', label: 'ID Reserva', altKeys: ['reserva'] },
+            { key: 'id_n_marcar', label: 'ID Não Marcar', altKeys: ['nao_marcar', 'id_nao_marcar'] }
+        ];
+
+        function firstAvailableValue(obj, keys){
+            if (!keys || !keys.length) return '';
+            for (const k of keys){
+                if (!k) continue;
+                const raw = obj ? obj[k] : undefined;
+                const cleaned = cleanText(raw);
+                if (cleaned !== '') return cleaned;
+            }
+            return '';
+        }
+
+        function getAstronomerIdValues(astronomer){
+            const ids = {};
+            ID_FIELD_DEFS.forEach(def => {
+                ids[def.key] = firstAvailableValue(astronomer, [def.key, ...(def.altKeys || [])]);
+            });
+            return ids;
+        }
+
+        function mirrorIdFields(target){
+            if (!target || typeof target !== 'object') return;
+            ID_FIELD_DEFS.forEach(def => {
+                if (target[def.key] === undefined) return;
+                const val = target[def.key];
+                (def.altKeys || []).forEach(alt => {
+                    if (target[alt] === undefined) target[alt] = val;
+                });
+            });
+        }
+
+        function createAstronomerCard(astronomer) {
+            const card = document.createElement('div');
+            card.className = 'astronomer-card';
+            card.onclick = () => showAstronomerDetails(astronomer);
+            
+            const hasCostData = cleanText(astronomer.custo_total_medio) !== '';
+            const idValues = getAstronomerIdValues(astronomer);
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    <h3>${textOrFallback(astronomer.nome_completo, 'Nome não informado')}</h3>
+                    <div class="card-id">ID: ${textOrFallback(astronomer.id_astronomo, '—')}</div>
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Usuário</span>
+                            <span class="info-value">${textOrFallback(astronomer.usuario, 'Não informado')}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Cidade</span>
+                            <span class="info-value">${textOrFallback(astronomer.cidade_base, 'Não informada')}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Telefone</span>
+                            <span class="info-value">${textOrFallback(astronomer.telefone, 'Não informado')}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Veículo</span>
+                            <span class="info-value">${textOrFallback(astronomer.veiculo, 'Não informado')}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Consumo</span>
+                            <span class="info-value">${astronomer.consumo_km_l ? `${formatNumber(astronomer.consumo_km_l)} km/l` : 'Não informado'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Combustível</span>
+                            <span class="info-value">${astronomer.combustivel || 'Não informado'}</span>
+                        </div>
+                        ${ID_FIELD_DEFS.map(def=>{
+                            const val = textOrFallback(idValues[def.key], '');
+                            if (!val) return '';
+                            return `<div class="info-item"><span class="info-label">${def.label}</span><span class="info-value">${val}</span></div>`;
+                        }).join('')}
+                    </div>
+                    
+                    ${hasCostData ? `
+                    <div class="cost-summary">
+                        <div class="cost-item">
+                            <span class="cost-label">Custo Total Médio:</span>
+                            <span class="cost-value">${formatCurrency(astronomer.custo_total_medio)}</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Combustível:</span>
+                            <span class="cost-value">${formatCurrency(astronomer.gasto_combustivel_media)}</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Hospedagem:</span>
+                            <span class="cost-value">${formatCurrency(astronomer.diaria_hospedagem_media)}</span>
+                        </div>
+                        <div class="cost-item cost-total">
+                            <span class="cost-label">TOTAL:</span>
+                            <span class="cost-value">${formatCurrency(astronomer.custo_total_medio)}</span>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function showAstronomerDetails(astronomer) {
+            CURRENT_ASTRONOMER = astronomer;
+            const modal = document.getElementById('astronomerModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalGrid = document.getElementById('modalGrid');
+
+            const displayName = cleanText(astronomer.nome_completo) || cleanText(astronomer.usuario) || 'Astrônomo';
+            modalTitle.textContent = `Editar: ${displayName}`;
+            modalGrid.innerHTML = '';
+            
+            // Campos editáveis
+            const baseFields = [
+                { key: 'id_astronomo', label: 'ID do Astrônomo', type: 'text', readonly: true },
+                { key: 'nome_completo', label: 'Nome Completo', type: 'text' },
+                { key: 'usuario', label: 'Usuário', type: 'text' },
+                { key: 'astronomo', label: 'Nome curto/Astrônomo', type: 'text' },
+                { key: 'senha_usuario', label: 'Senha', type: 'text' },
+                { key: 'cidade_base', label: 'Cidade Base', type: 'text' },
+                { key: 'estado', label: 'Estado', type: 'text' },
+                { key: 'telefone', label: 'Telefone', type: 'text' },
+                { key: 'email', label: 'E-mail', type: 'email' },
+                { key: 'veiculo', label: 'Veículo', type: 'text' },
+                { key: 'consumo_km_l', label: 'Consumo (km/l)', type: 'number', step: '0.1' },
+                { key: 'combustivel', label: 'Combustível', type: 'text' },
+                { key: 'valor_litro', label: 'Valor do Litro', type: 'number', step: '0.01' },
+                { key: 'diaria_hospedagem', label: 'Diária Hospedagem', type: 'number', step: '0.01' },
+                { key: 'alimentacao_diaria', label: 'Alimentação Diária', type: 'number', step: '0.01' },
+                { key: 'monitor', label: 'Monitor', type: 'number', step: '0.01' },
+                { key: 'pedagios', label: 'Pedágios', type: 'number', step: '0.01' },
+                { key: 'origem_lat', label: 'Latitude Origem', type: 'number', step: '0.000001' },
+                { key: 'origem_lon', label: 'Longitude Origem', type: 'number', step: '0.000001' },
+                { key: 'tipo_da_tarefa', label: 'Tipo da Tarefa', type: 'text' },
+                { key: 'porcentagem_lucro', label: 'Porcentagem de Lucro', type: 'number', step: '0.01' }
+            ];
+            const fields = [
+                ...baseFields,
+                ...ID_FIELD_DEFS.map(def => ({ ...def, type: 'text' }))
+            ];
+            
+            // Adiciona cada campo ao modal
+            fields.forEach(field => {
+                const value = firstAvailableValue(astronomer, [field.key, ...(field.altKeys || [])]);
+                
+                const item = document.createElement('div');
+                item.className = 'modal-item';
+                
+                if (field.readonly) {
+                    item.innerHTML = `
+                        <div class="modal-label">${field.label}</div>
+                        <div class="modal-value">${value}</div>
+                    `;
+                } else {
+                    item.innerHTML = `
+                        <div class="modal-label">${field.label}</div>
+                        <input type="${field.type}" 
+                               class="modal-input" 
+                               id="modal-${field.key}" 
+                               value="${value}" 
+                               ${field.step ? `step="${field.step}"` : ''}
+                               placeholder="${field.label}">
+                    `;
+                }
+                modalGrid.appendChild(item);
+            });
+            
+            modal.style.display = 'block';
+        }
+
+        async function salvarAstronomo() {
+            if (!CURRENT_ASTRONOMER) return;
+            
+            try {
+                const updates = {};
+                const fields = [
+                    'nome_completo', 'usuario', 'astronomo', 'senha_usuario', 'cidade_base', 'estado', 
+                    'telefone', 'email', 'veiculo', 'consumo_km_l', 'combustivel', 
+                    'valor_litro', 'diaria_hospedagem', 'alimentacao_diaria', 'monitor', 
+                    'pedagios', 'origem_lat', 'origem_lon', 'tipo_da_tarefa', 'porcentagem_lucro',
+                    'id_visita', 'id_pre', 'id_reserva', 'id_n_marcar'
+                ];
+                
+                // Coletar valores dos inputs
+                fields.forEach(field => {
+                    const input = document.getElementById(`modal-${field}`);
+                    if (input) {
+                        updates[field] = input.value;
+                    }
+                });
+
+                // replica IDs para chaves legadas, se necessário
+                mirrorIdFields(updates);
+                
+                // Adicionar ID do astrônomo
+                updates.id_astronomo = CURRENT_ASTRONOMER.id_astronomo;
+                
+                // Converter campos numéricos
+                const numericFields = ['consumo_km_l', 'valor_litro', 'diaria_hospedagem', 'alimentacao_diaria', 'monitor', 'pedagios', 'origem_lat', 'origem_lon', 'porcentagem_lucro'];
+                numericFields.forEach(field => {
+                    if (updates[field] && updates[field] !== '') {
+                        updates[field] = parseFloat(updates[field]);
+                    }
+                });
+                
+                const isNew = !!(CURRENT_ASTRONOMER && CURRENT_ASTRONOMER._tempid);
+                const hasId = updates.id_astronomo !== undefined && updates.id_astronomo !== null && String(updates.id_astronomo).trim() !== '';
+                if (!isNew && !hasId) { toast('ID do astrônomo é obrigatório para editar', 'error'); return; }
+                const action = isNew ? 'add' : 'edit';
+
+                // Enviar para API
+                const result = await callAstroApi(action, updates);
+                
+                toast(isNew ? 'Astrônomo criado com sucesso' : 'Astrônomo atualizado com sucesso', 'success');
+                closeModal();
+                await carregarAstronomos(); // Recarregar lista para mostrar dados atualizados
+                
+            } catch (error) {
+                console.error('Erro ao salvar astrônomo:', error);
+                toast('Erro ao salvar astrônomo: ' + error.message, 'error');
+            }
+        }
+
+        // ===== Edição em Massa =====
+        function closeBulkModal(){ try{ document.getElementById('bulkEditModal').style.display='none'; }catch(_){ } }
+        function openBulkEditModal(){
+            try{
+                const host = document.getElementById('bulkModalGrid');
+                host.innerHTML = '';
+                const baseFields = [
+                    { key:'nome_completo', label:'Nome Completo', type:'text' },
+                    { key:'usuario', label:'Usuário', type:'text' },
+                    { key:'astronomo', label:'Nome curto/Astrônomo', type:'text' },
+                    { key:'senha_usuario', label:'Senha', type:'text' },
+                    { key:'cidade_base', label:'Cidade Base', type:'text' },
+                    { key:'estado', label:'Estado', type:'text' },
+                    { key:'telefone', label:'Telefone', type:'text' },
+                    { key:'email', label:'E-mail', type:'email' },
+                    { key:'veiculo', label:'Veículo', type:'text' },
+                    { key:'consumo_km_l', label:'Consumo (km/l)', type:'number', step:'0.1' },
+                    { key:'combustivel', label:'Combustível', type:'text' },
+                    { key:'valor_litro', label:'Valor do Litro', type:'number', step:'0.01' },
+                    { key:'diaria_hospedagem', label:'Diária Hospedagem', type:'number', step:'0.01' },
+                    { key:'alimentacao_diaria', label:'Alimentação Diária', type:'number', step:'0.01' },
+                    { key:'monitor', label:'Monitor', type:'number', step:'0.01' },
+                    { key:'pedagios', label:'Pedágios', type:'number', step:'0.01' },
+                    { key:'origem_lat', label:'Latitude Origem', type:'number', step:'0.000001' },
+                    { key:'origem_lon', label:'Longitude Origem', type:'number', step:'0.000001' },
+                    { key:'tipo_da_tarefa', label:'Tipo da Tarefa', type:'text' },
+                    { key:'porcentagem_lucro', label:'Porcentagem de Lucro', type:'number', step:'0.01' }
+                ];
+                const fields = [
+                    ...baseFields,
+                    ...ID_FIELD_DEFS.map(def => ({ ...def, type: 'text' }))
+                ];
+                const makeInput = (id, field, val)=>{
+                    return `<div class="modal-item">
+                        <div class="modal-label">${field.label}</div>
+                        <input type="${field.type}" class="modal-input" id="bulk-${id}-${field.key}" value="${val ?? ''}" ${field.step?`step=\"${field.step}\"`:''} />
+                    </div>`;
+                };
+                // Construir blocos para cada astrônomo
+                (ASTRONOMOS||[]).forEach(a=>{
+                    if (!a) return;
+                    const id = a.id_astronomo;
+                    const header = `<div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0;">
+                        <div><strong>ID ${id}</strong> — ${a.nome_completo||a.usuario||''}</div>
+                    </div>`;
+                    const inputs = fields.map(f=> makeInput(id, f, firstAvailableValue(a, [f.key, ...(f.altKeys || [])]))).join('');
+                    const block = document.createElement('div');
+                    block.className = 'modal-grid';
+                    block.style.border='1px solid #e5e7eb'; block.style.padding='10px'; block.style.borderRadius='8px'; block.style.margin='10px 0';
+                    block.innerHTML = header + inputs;
+                    host.appendChild(block);
+                });
+                document.getElementById('bulkEditModal').style.display='block';
+            }catch(err){ console.error('Falha ao abrir edição em massa', err); }
+        }
+
+        async function salvarTodosAstronomos(){
+            try{
+                if (!Array.isArray(ASTRONOMOS) || !ASTRONOMOS.length){ toast('Não há astrônomos para salvar', 'error'); return; }
+                if (!confirm('Salvar alterações de todos os astrônomos (um a um)?')) return;
+                setStatus('astronomos', 'Enviando alterações…', 'loading');
+                const numericFields = ['consumo_km_l','valor_litro','diaria_hospedagem','alimentacao_diaria','monitor','pedagios','origem_lat','origem_lon','porcentagem_lucro'];
+                const fields = ['nome_completo','usuario','astronomo','senha_usuario','cidade_base','estado','telefone','email','veiculo','consumo_km_l','combustivel','valor_litro','diaria_hospedagem','alimentacao_diaria','monitor','pedagios','origem_lat','origem_lon','tipo_da_tarefa','porcentagem_lucro','id_visita','id_pre','id_reserva','id_n_marcar'];
+                // desabilita botão
+                const btn = document.getElementById('btn-salvar-todos'); const prevDis=btn?btn.disabled:false; if(btn) btn.disabled=true;
+                let okCount = 0;
+                try{
+                    for (let i=0;i<ASTRONOMOS.length;i++){
+                        const a = ASTRONOMOS[i]; if (!a) continue;
+                        const updates = { id_astronomo: a.id_astronomo };
+                        fields.forEach(f=>{
+                            const el = document.getElementById(`bulk-${a.id_astronomo}-${f}`);
+                            if (el) updates[f] = el.value;
+                        });
+                        mirrorIdFields(updates);
+                        numericFields.forEach(f=>{ if (updates[f]!=='' && updates[f]!=null) updates[f] = parseFloat(updates[f]); });
+                        try{ await callAstroApi('edit', updates); okCount++; }catch(err){ console.warn('Falha ao editar id', a.id_astronomo, err); }
+                        await new Promise(r=> setTimeout(r, 150));
+                        if ((i+1)%10===0){ setStatus('astronomos', `Enviando alterações… ${i+1}/${ASTRONOMOS.length}`, 'loading'); }
+                    }
+                } finally { if(btn) btn.disabled=prevDis; }
+                toast(`${okCount} astrônomo(s) atualizados`, 'success');
+                closeBulkModal();
+                await carregarAstronomos();
+                setStatus('astronomos', 'Atualização concluída', 'success');
+            }catch(err){ console.error(err); toast('Falha ao salvar todos', 'error'); setStatus('astronomos', 'Erro na atualização em massa', 'error'); }
+        }
+
+        async function criarNovoAstronomo() {
+            const novoAstronomo = {
+                usuario: '',
+                senha_usuario: '',
+                nome_completo: 'Novo Astrônomo',
+                astronomo: '',
+                cidade_base: '',
+                estado: '',
+                telefone: '',
+                email: '',
+                veiculo: '',
+                consumo_km_l: '',
+                combustivel: '',
+                valor_litro: '',
+                diaria_hospedagem: '',
+                alimentacao_diaria: '',
+                monitor: '',
+                pedagios: '',
+                origem_lat: '',
+                origem_lon: '',
+                tipo_da_tarefa: '',
+                porcentagem_lucro: '',
+                id_visita: '',
+                id_pre: '',
+                id_reserva: '',
+                id_n_marcar: '',
+                // mantêm chaves legadas vazias para compatibilidade
+                visita: '',
+                nao_marcar: '',
+                pre: '',
+                reserva: ''
+            };
+            
+            // Adicionar temporariamente à lista
+            novoAstronomo._tempid = 'new-' + Date.now();
+            ASTRONOMOS.unshift(novoAstronomo);
+            displayAstronomersList(ASTRONOMOS);
+            
+            // Abrir modal para edição
+            showAstronomerDetails(novoAstronomo);
+            toast('Novo astrônomo criado. Preencha os dados e salve.', 'info');
+        }
+
+        function closeModal() {
+            document.getElementById('astronomerModal').style.display = 'none';
+            CURRENT_ASTRONOMER = null;
+        }
+
+        function displayAstronomersList(astronomers) {
+            const grid = document.getElementById('astronomersGrid');
+            const emptyState = document.getElementById('emptyStateAstronomers');
+            
+            if (!astronomers || astronomers.length === 0) {
+                emptyState.style.display = 'block';
+                grid.innerHTML = '';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            grid.innerHTML = '';
+            
+            astronomers.forEach(astronomer => {
+                grid.appendChild(createAstronomerCard(astronomer));
+            });
+        }
+
+        function normalizeTaskType(raw){
+            if (!raw) return '';
+            const t = String(raw).toLowerCase();
+            if (t.includes('visita')) return 'visita';
+            if (t.includes('pré') || t.includes('pre')) return 'pre';
+            if (t.includes('reserva')) return 'reserva';
+            if (t.includes('não marcar') || t.includes('nao marcar') || t.includes('nao_marcar')) return 'nao_marcar';
+            return t;
+        }
+
+        function applyAstronomerFilters(){
+            const searchInput = document.getElementById('search-astronomo');
+            const term = searchInput ? searchInput.value.toLowerCase() : '';
+            const filtered = ASTRONOMOS.filter(astro => {
+                return !term ||
+                    (astro.nome_completo && astro.nome_completo.toLowerCase().includes(term)) ||
+                    (astro.usuario && astro.usuario.toLowerCase().includes(term)) ||
+                    (astro.cidade_base && astro.cidade_base.toLowerCase().includes(term));
+            });
+            displayAstronomersList(filtered);
+        }
+
+        // Funções auxiliares
+        function formatCurrency(value) {
+            if (!value || value === 'null' || value === 'undefined' || value === 'Não tenho') return 'Não informado';
+            const numericValue = String(value).replace(/[^\d,.-]/g, '').replace(',', '.');
+            const number = parseFloat(numericValue);
+            return isNaN(number) ? 'Formato inválido' : new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(number);
+        }
+
+        function formatNumber(value) {
+            if (!value || value === 'null' || value === 'undefined') return 'Não informado';
+            const number = parseFloat(value);
+            return isNaN(number) ? value : new Intl.NumberFormat('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(number);
+        }
+
+        function setStatus(tipo, message, statusType = 'info') {
+            const statusEl = document.getElementById(`status-${tipo}`);
+            statusEl.textContent = message;
+            statusEl.className = `status ${statusType}`;
+        }
+
+        function toast(msg, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        function preencherSelectAstronomo() {
+            const select = document.getElementById('select-astronomo');
+            select.innerHTML = '<option value="">Selecione um astrônomo</option>';
+            
+            ASTRONOMOS.forEach(astro => {
+                const option = document.createElement('option');
+                // Enviar sempre o ID do astrônomo na query da agenda
+                option.value = astro.id_astronomo != null ? astro.id_astronomo : '';
+                const nome = cleanText(astro.nome_completo) || cleanText(astro.usuario) || cleanText(astro.astronomo) || 'Astrônomo';
+                option.textContent = nome;
+                select.appendChild(option);
+            });
+        }
+
+        // Preenche sugestões de filtros (cidade/escola) a partir da agenda carregada
+        function popularFiltroAgendaUnico(eventos) {
+            const lista = document.getElementById('lista-locais-agenda');
+            const input = document.getElementById('search-agenda');
+            if (!lista || !input) return;
+
+            const valores = new Map(); // normalizado -> original
+            (eventos || []).forEach(ev => {
+                [
+                    cleanText(ev.cidade),
+                    cleanText(ev.cidade_destino),
+                    cleanText(ev.cidade_origem),
+                    cleanText(ev.nome_da_escola),
+                    cleanText(ev.escola),
+                    cleanText(ev.nome_lead)
+                ].forEach(v => {
+                    if (!v) return;
+                    const key = normalizeSearchText(v);
+                    if (!valores.has(key)) valores.set(key, v);
+                });
+            });
+
+            lista.innerHTML = '';
+            Array.from(valores.values())
+                .sort((a, b) => a.localeCompare(b, 'pt-BR'))
+                .forEach(val => {
+                    const opt = document.createElement('option');
+                    opt.value = val;
+                    lista.appendChild(opt);
+                });
+
+            if (typeof SELECTED.search === 'string') {
+                input.value = SELECTED.search;
+            }
+        }
+
+        function atualizarTimestamp(tipo) {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('pt-BR');
+            document.getElementById(`update-time-${tipo}`).textContent = timeString;
+        }
+
+        function showSpinner(buttonId) {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                const originalText = button.innerHTML;
+                button.dataset.originalText = originalText;
+                button.disabled = true;
+                button.innerHTML = `<span class="spinner"></span> Carregando...`;
+            }
+        }
+
+        function hideSpinner(buttonId) {
+            const button = document.getElementById(buttonId);
+            if (button && button.dataset.originalText) {
+                button.disabled = false;
+                button.innerHTML = button.dataset.originalText;
+            }
+        }
+
+        // Funções para a aba Agenda
+        async function carregarAgenda() {
+            // Sempre ler filtros atuais da UI
+            const selectAstronomo = document.getElementById('select-astronomo');
+            const inputFrom = document.getElementById('data-inicio');
+            const inputTo = document.getElementById('data-fim');
+            const inputSearch = document.getElementById('search-agenda');
+            const inputTipo = document.getElementById('filtro-tipo-tarefa-agenda');
+
+            SELECTED.id_astronomo = selectAstronomo ? selectAstronomo.value : null;
+            SELECTED.from = inputFrom ? inputFrom.value : null;
+            SELECTED.to = inputTo ? inputTo.value : null;
+            SELECTED.search = inputSearch ? inputSearch.value : "";
+            SELECTED.taskType = inputTipo ? (inputTipo.value || 'all') : 'all';
+
+            if (!SELECTED.id_astronomo) {
+                toast('Selecione um astrônomo para carregar a agenda', 'warning');
+                return;
+            }
+            
+            setStatus('agenda', 'Conectando com o servidor...', 'loading');
+            showSpinner('btn-atualizar-agenda');
+            
+            try {
+                const params = new URLSearchParams({
+                    action: "atualizar_agenda",
+                    id_astronomo: SELECTED.id_astronomo,
+                    from: SELECTED.from,
+                    to: SELECTED.to,
+                    search: SELECTED.search
+                });
+                if (SELECTED.taskType && SELECTED.taskType !== 'all') {
+                    params.set('tipo', SELECTED.taskType);
+                }
+                
+                const response = await fetch(`${API_AGENDA}?${params.toString()}`);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Erro ${response.status}: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                
+                // Normaliza diferentes formatos de resposta do webhook
+                let rawEventos = [];
+                if (!data) {
+                    rawEventos = [];
+                } else if (Array.isArray(data)) {
+                    rawEventos = data;
+                } else if (Array.isArray(data.eventos)) {
+                    rawEventos = data.eventos;
+                } else if (Array.isArray(data.agenda)) {
+                    rawEventos = data.agenda;
+                } else if (Array.isArray(data.data)) {
+                    rawEventos = data.data;
+                } else if (data.evento) {
+                    rawEventos = Array.isArray(data.evento) ? data.evento : [data.evento];
+                } else {
+                    rawEventos = [data];
+                }
+
+                EVENTOS = rawEventos.map(normalizeAgendaEvent);
+                popularFiltroAgendaUnico(EVENTOS);
+                
+                renderAgenda();
+                atualizarTimestamp('agenda');
+                setStatus('agenda', `${EVENTOS.length} eventos carregados com sucesso!`, 'success');
+                toast('Agenda carregada com sucesso', 'success');
+            } catch (error) {
+                console.error('Erro ao carregar agenda:', error);
+                setStatus('agenda', `Erro: ${error.message}`, 'error');
+                toast('Erro ao carregar agenda: ' + error.message, 'error');
+                
+                document.getElementById('lista-agenda').innerHTML = `
+                    <div class="empty-state">
+                        <h3>📅 Erro ao carregar agenda</h3>
+                        <p>Verifique a conexão com a API</p>
+                    </div>
+                `;
+            } finally {
+                hideSpinner('btn-atualizar-agenda');
+            }
+        }
+
+        // Extrai uma chave de data (YYYY-MM-DD) do evento, independente do formato original
+        function getEventDateKey(ev) {
+            if (!ev) return null;
+            const raw = ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data;
+            if (!raw) return null;
+
+            const str = String(raw).trim();
+            if (!str) return null;
+
+            // Formato ISO ou similar: 2024-08-30...
+            const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+            if (isoMatch) {
+                return `${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`;
+            }
+
+            // Formato brasileiro: 30/08/2024...
+            const brMatch = str.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+            if (brMatch) {
+                return `${brMatch[3]}-${brMatch[2]}-${brMatch[1]}`;
+            }
+
+            // Fallback: tenta construir Date
+            try {
+                const d = new Date(str);
+                if (!isNaN(d.getTime())) {
+                    const y = d.getFullYear();
+                    const m = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    return `${y}-${m}-${day}`;
+                }
+            } catch (_) {}
+
+            return null;
+        }
+
+        function renderAgenda() {
+            const container = document.getElementById('lista-agenda');
+
+            // Começa da lista atual de eventos normalizados
+            let eventos = Array.isArray(EVENTOS) ? EVENTOS.slice() : [];
+
+            // Aplica filtro de datas também no frontend,
+            // para garantir que eventos anteriores/fora do intervalo não apareçam.
+            const from = SELECTED && SELECTED.from ? String(SELECTED.from).trim() : "";
+            const to = SELECTED && SELECTED.to ? String(SELECTED.to).trim() : "";
+
+            if (from || to) {
+                eventos = eventos.filter(ev => {
+                    const key = getEventDateKey(ev);
+                    // Se não conseguir interpretar a data, não removemos o evento automaticamente
+                    if (!key) return true;
+                    if (from && key < from) return false;
+                    if (to && key > to) return false;
+                    return true;
+                });
+            }
+
+            // Filtro por tipo de tarefa (frontend)
+            if (SELECTED.taskType && SELECTED.taskType !== 'all') {
+                eventos = eventos.filter(ev => {
+                    const t = normalizeTaskType(ev.tipo_da_tarefa || ev.tipo || ev.tipo_evento || '');
+                    return t === SELECTED.taskType;
+                });
+            }
+
+            // Filtro único (livre) para cidade/escola/outros campos
+            const filtroLivreRaw = (SELECTED && SELECTED.search ? SELECTED.search : '').toString().trim();
+            const filtroLivre = normalizeSearchText(filtroLivreRaw);
+            if (filtroLivre) {
+                eventos = eventos.filter(ev => {
+                    const bloco = [
+                        normalizeSearchText(ev.nome_da_escola),
+                        normalizeSearchText(ev.escola),
+                        normalizeSearchText(ev.nome_lead),
+                        normalizeSearchText(ev.cidade),
+                        normalizeSearchText(ev.cidade_destino),
+                        normalizeSearchText(ev.cidade_origem),
+                        normalizeSearchText(ev.responsavel_pelo_evento),
+                        normalizeSearchText(ev.conteudo_da_apresentacao)
+                    ].filter(Boolean).join(' ');
+                    return bloco.includes(filtroLivre);
+                });
+            }
+
+            // Ordena pela data do evento (mais antigos primeiro)
+            eventos.sort((a, b) => {
+                const aKey = getEventDateKey(a);
+                const bKey = getEventDateKey(b);
+                if (aKey && bKey) return aKey.localeCompare(bKey);
+                if (aKey) return -1;
+                if (bKey) return 1;
+                return 0;
+            });
+            
+            if (!eventos || eventos.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>📅 Nenhum evento encontrado</h3>
+                        <p>Não há eventos para os filtros selecionados</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            eventos.forEach(ev => {
+                const card = document.createElement('div');
+                card.className = 'event-card';
+                card.addEventListener('click', () => showEventDetails(ev));
+
+                const dataEvento = formatarData(ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data);
+                
+                card.innerHTML = `
+                    <div class="event-header">
+                        <div class="event-meta">
+                            <div class="event-date">
+                                <span class="event-date-icon">📅</span>
+                                <div class="event-date-text">
+                                    <span class="event-date-label">Data do evento</span>
+                                    <span class="event-date-value">${dataEvento}</span>
+                                </div>
+                            </div>
+                            <div class="event-id" style="font-size:0.85rem; opacity:0.85;">
+                                ID: ${textOrFallback(ev.id_evento || ev.id_evento_unico || ev.id, 'N/A')}
+                            </div>
+                            <div class="event-school">${textOrFallback(ev.nome_da_escola, 'Escola não informada')}</div>
+                            <div class="event-city">${textOrFallback(ev.cidade, 'Cidade não informada')}</div>
+                        </div>
+                        <div class="event-chips">
+                            <span class="event-chip chip-primary">${textOrFallback(ev.tipo_da_tarefa || ev.tipo || ev.tipo_evento, 'Evento')}</span>
+                            <span class="event-chip chip-success">${ev.valor_total != null ? formatCurrency(ev.valor_total) : 'Não informado'}</span>
+                            <span class="event-chip">${getResultadoLabel(ev)}</span>
+                        </div>
+                    </div>
+                    <div class="event-body">
+                        <div class="event-actions">
+                            <button class="btn btn-imagens" data-id="${ev.id_evento || ev.id_evento_unico || ev.id}">
+                                🖼️ Ver Imagens
+                            </button>
+                            <button class="btn btn-success btn-lancar-despesas" data-id="${ev.id_evento || ev.id_evento_unico || ev.id}">
+                                💰 Lançar despesas
+                            </button>
+                            <button class="btn btn-primary btn-finalizar-evento" data-id="${ev.id_evento || ev.id_evento_unico || ev.id}">
+                                ✅ Finalizar
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Botão "Ver Imagens" abre o carrossel em popup grande
+                const imgBtn = card.querySelector('.btn-imagens');
+                if (imgBtn) {
+                    imgBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        openImageCarouselForEvent(ev);
+                    });
+                }
+                const despBtn = card.querySelector('.btn-lancar-despesas');
+                if (despBtn) {
+                    despBtn.addEventListener('click', async function(e){
+                        e.stopPropagation();
+                        await lancarDespesasEvento(ev, despBtn);
+                    });
+                }
+                const finBtn = card.querySelector('.btn-finalizar-evento');
+                if (finBtn) {
+                    finBtn.addEventListener('click', async function(e){
+                        e.stopPropagation();
+                        await finalizarEvento(ev, finBtn);
+                    });
+                }
+                
+                container.appendChild(card);
+            });
+        }
+
+        // Normalização dos eventos da agenda (compatível com agenda principal)
+        function normalizeAgendaEvent(event) {
+            if (!event || typeof event !== 'object') return { raw: event };
+            
+            let texto_tarefa = event.texto_tarefa;
+            if (texto_tarefa && typeof texto_tarefa === 'object') {
+                texto_tarefa = texto_tarefa.texto || JSON.stringify(texto_tarefa);
+            }
+            texto_tarefa = cleanText(texto_tarefa);
+
+            const faixa_alunos = cleanText(event.faixa_de_alunos) ||
+                                 cleanText(event.numero_de_alunos) ||
+                                 'Número não informado';
+            
+            const cidadePrincipal = cleanText(event.cidade);
+            const cidadeDestino = cleanText(event.cidade_destino);
+            const cidade = cidadePrincipal || cidadeDestino || texto_tarefa || 'Cidade não informada';
+            
+            const localInstalacaoBruto = cleanText(event.local_instalacao);
+            const local_instalacao = localInstalacaoBruto ||
+                cleanText(event.endereco) ||
+                'Local a definir';
+
+            const responsavel = cleanText(event.responsavel_pelo_evento) ||
+                                cleanText(event.nome_lead) ||
+                                'Não informado';
+
+            const telefoneResp = cleanText(event.telefone_responsavel_evento) ||
+                                 cleanText(event.telefone);
+
+            const nome_escola_normalizado =
+                cleanText(event.nome_da_escola) ||
+                cleanText(event.nome_escola) ||
+                cleanText(event.escola) ||
+                cleanText(event.nome_lead) ||
+                'Escola não informada';
+
+            const conteudo = cleanText(event.conteudo_da_apresentacao) ||
+                             texto_tarefa ||
+                             'Evento Astronômico';
+
+            const dataBruta = event.data_e_hora_do_agendamento || event.data_agendamento || event.data;
+            const data_e_hora_do_agendamento = dataBruta || new Date().toISOString();
+
+            const astronomo = cleanText(event.astronomo) ||
+                              cleanText(event.astronomo_validacao) ||
+                              'A definir';
+
+            const tipo_da_tarefa = cleanText(event.tipo_da_tarefa) ||
+                                   cleanText(event.tipo_evento) ||
+                                   cleanText(event.tipo) ||
+                                   'Evento';
+
+            const valor_total = event.valor_total ?? event.valor_evento ?? event.valor ?? null;
+            
+            return {
+                ...event,
+                id: event.id || event.id_evento || event.id_evento_unico || 'N/A',
+                texto_tarefa,
+                conteudo_da_apresentacao: conteudo,
+                data_e_hora_do_agendamento,
+                cidade,
+                responsavel_pelo_evento: responsavel,
+                telefone_responsavel_evento: telefoneResp,
+                endereco: cleanText(event.endereco),
+                local_instalacao,
+                turno: cleanText(event.turno),
+                faixa_de_alunos: faixa_alunos,
+                nome_da_escola: nome_escola_normalizado,
+                valor_total,
+                astronomo,
+                tipo_da_tarefa,
+                brinde: event.brinde,
+                produtos: event.produtos,
+                finalizado: !!event.finalizado
+            };
+        }
+
+        function showEventDetails(evento) {
+            CURRENT_EVENT = normalizeAgendaEvent(evento);
+            CURRENT_EVENT_IMAGES = [];
+            const modal = document.getElementById('eventModal');
+            const titleEl = document.getElementById('eventModalTitle');
+            const bodyEl = document.getElementById('eventModalBody');
+
+            if (!modal || !titleEl || !bodyEl) return;
+
+            titleEl.textContent = textOrFallback(CURRENT_EVENT.nome_da_escola || CURRENT_EVENT.escola, 'Detalhes do Evento');
+
+            const dataAgendamento = CURRENT_EVENT.data_e_hora_do_agendamento || CURRENT_EVENT.data_agendamento || CURRENT_EVENT.data;
+
+            bodyEl.innerHTML = `
+                <div class="modal-grid">
+                    <div class="modal-item">
+                        <div class="modal-label">Data</div>
+                        <div class="modal-value">${formatarData(dataAgendamento)}</div>
+                    </div>
+                    <div class="modal-item">
+                        <div class="modal-label">ID do Evento</div>
+                        <div class="modal-value">${textOrFallback(CURRENT_EVENT.id_evento || CURRENT_EVENT.id_evento_unico || CURRENT_EVENT.id, 'N/A')}</div>
+                    </div>
+                    <div class="modal-item">
+                        <div class="modal-label">Astrônomo</div>
+                        <div class="modal-value">${textOrFallback(CURRENT_EVENT.astronomo, 'A definir')}</div>
+                    </div>
+                    <div class="modal-item">
+                        <div class="modal-label">Cidade</div>
+                        <div class="modal-value">${textOrFallback(CURRENT_EVENT.cidade, 'Cidade não informada')}</div>
+                    </div>
+                    <div class="modal-item">
+                        <div class="modal-label">Endereço</div>
+                        <div class="modal-value">${textOrFallback(CURRENT_EVENT.endereco, 'Endereço não informado')}</div>
+                    </div>
+                    <div class="modal-item">
+                        <div class="modal-label">Local de Instalação</div>
+                        <div class="modal-value">${textOrFallback(CURRENT_EVENT.local_instalacao, 'Local a definir')}</div>
+                    </div>
+                    <div class="modal-item">
+                        <div class="modal-label">Turno</div>
+                        <div class="modal-value">${textOrFallback(CURRENT_EVENT.turno, 'Não informado')}</div>
+                    </div>
+                    <div class="modal-item">
+                        <div class="modal-label">Nº de Alunos</div>
+                        <div class="modal-value">${textOrFallback(CURRENT_EVENT.faixa_de_alunos, 'Número não informado')}</div>
+                    </div>
+                    <div class="modal-item">
+                        <div class="modal-label">Conteúdo</div>
+                        <div class="modal-value">${textOrFallback(CURRENT_EVENT.conteudo_da_apresentacao, 'Evento Astronômico')}</div>
+                    </div>
+                    <div class="modal-item">
+                        <div class="modal-label">Responsável</div>
+                        <div class="modal-value">${textOrFallback(CURRENT_EVENT.responsavel_pelo_evento, 'Não informado')}</div>
+                    </div>
+                    <div class="modal-item">
+                        <div class="modal-label">Telefone Responsável</div>
+                        <div class="modal-value">${textOrFallback(CURRENT_EVENT.telefone_responsavel_evento, 'Não informado')}</div>
+                    </div>
+                    <div class="modal-item">
+                        <div class="modal-label">Valor Total</div>
+                        <div class="modal-value">${CURRENT_EVENT.valor_total != null ? formatCurrency(CURRENT_EVENT.valor_total) : 'Não informado'}</div>
+                    </div>
+                    <div class="modal-item">
+                        <div class="modal-label">Resultado</div>
+                        <div class="modal-value">${getResultadoLabel(CURRENT_EVENT)}</div>
+                    </div>
+                    <div class="modal-item">
+                        <div class="modal-label">Cidade Origem</div>
+                        <div class="modal-value">${textOrFallback(CURRENT_EVENT.cidade_origem, 'Não informado')}</div>
+                    </div>
+                    <div class="modal-item">
+                        <div class="modal-label">Cidade Destino</div>
+                        <div class="modal-value">${textOrFallback(CURRENT_EVENT.cidade_destino, 'Não informado')}</div>
+                    </div>
+                    <div class="modal-item">
+                        <div class="modal-label">Distância (km)</div>
+                        <div class="modal-value">${textOrFallback(CURRENT_EVENT.distancia_km, 'Não informada')}</div>
+                    </div>
+                    <div class="modal-item">
+                        <div class="modal-label">Google Maps</div>
+                        <div class="modal-value">
+                            ${CURRENT_EVENT.google_maps ? `<a href="${CURRENT_EVENT.google_maps}" target="_blank">Abrir rota</a>` : ''}
+                        </div>
+                    </div>
+                    <div class="modal-item" style="grid-column: 1 / -1;">
+                        <div class="modal-label">Texto da Tarefa</div>
+                        <div class="modal-value" style="white-space: pre-wrap;">${textOrFallback(CURRENT_EVENT.texto_tarefa, 'Não preenchido')}</div>
+                    </div>
+                    <div class="modal-item" style="grid-column: 1 / -1;">
+                        <div class="modal-label">Avaliação do Astrônomo</div>
+                        <div class="modal-value" style="white-space: pre-wrap;">${textOrFallback(CURRENT_EVENT.avaliacao_astronomo, 'Não preenchida')}</div>
+                    </div>
+                </div>
+
+                <hr style="margin: 20px 0;">
+
+                <div class="event-images-section">
+                    <h3 style="margin-bottom: 10px;">Imagens do Evento</h3>
+                    <div id="eventImagesDropzone" class="event-images-dropzone" style="border:2px dashed #ccc; border-radius:12px; padding:20px; min-height:200px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; cursor:pointer; background:rgba(255,255,255,0.04);">
+                        <p style="font-size: 0.95rem; color: #444; margin-bottom: 6px;">
+                            Arraste e solte imagens aqui
+                        </p>
+                        <p style="font-size: 0.85rem; color: #777;">
+                            ou clique para selecionar arquivos
+                        </p>
+                        <input type="file" id="inputImagens" accept="image/*" multiple style="display:none;">
+                    </div>
+                    <div id="eventImagesPreview" class="event-images-preview"></div>
+                    <div style="margin-top: 12px; text-align: right;">
+                        <button type="button" class="btn btn-success" id="btn-upload-imagens" onclick="enviarImagens('${CURRENT_EVENT.id_evento || CURRENT_EVENT.id_evento_unico || CURRENT_EVENT.id}')">
+                            📤 Enviar Imagens
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            setupEventImagesArea();
+            // Carrega prévia de imagens existentes para o evento
+            const preview = document.getElementById('eventImagesPreview');
+            if (preview) {
+                preview.innerHTML = '<p style="color:#555; font-size:0.9rem;">Carregando imagens do evento...</p>';
+            }
+            const idEvento = CURRENT_EVENT.id_evento || CURRENT_EVENT.id_evento_unico || CURRENT_EVENT.id;
+            if (idEvento) {
+                carregarImagensEvento(idEvento).catch(err => console.warn('Falha ao carregar imagens do evento:', err));
+            }
+
+            modal.style.display = 'block';
+        }
+
+        function setupEventImagesArea() {
+            const dropzone = document.getElementById('eventImagesDropzone');
+            const input = document.getElementById('inputImagens');
+            const preview = document.getElementById('eventImagesPreview');
+            if (!dropzone || !input || !preview) return;
+
+            dropzone.addEventListener('click', () => {
+                try { input.click(); } catch (_) {}
+            });
+
+            dropzone.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.dataTransfer) {
+                    e.dataTransfer.dropEffect = 'copy';
+                }
+                dropzone.classList.add('drag-over');
+            });
+
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.dataTransfer) {
+                    e.dataTransfer.dropEffect = 'copy';
+                }
+                dropzone.classList.add('drag-over');
+            });
+
+            dropzone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzone.classList.remove('drag-over');
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzone.classList.remove('drag-over');
+
+                const dt = e.dataTransfer;
+                let files = [];
+
+                console.log('DataTransfer no drop:', {
+                    hasDt: !!dt,
+                    types: dt && dt.types ? Array.from(dt.types) : null,
+                    itemsLength: dt && dt.items ? dt.items.length : null,
+                    filesLength: dt && dt.files ? dt.files.length : null
+                });
+
+                if (dt && dt.items && dt.items.length) {
+                    for (let i = 0; i < dt.items.length; i++) {
+                        const item = dt.items[i];
+                        if (item.kind === 'file') {
+                            const file = item.getAsFile();
+                            if (file) files.push(file);
+                        }
+                    }
+                }
+
+                if (!files.length && dt && dt.files && dt.files.length) {
+                    files = Array.from(dt.files);
+                }
+
+                if (!files.length) {
+                    console.warn('Nenhum arquivo detectado no drop (sem items.kind=\"file\" e files vazio).');
+                    return;
+                }
+
+                console.log('Arquivos recebidos no drop:', files.map(f => `${f.name} (${f.type || 'sem type'})`));
+                renderEventImagesPreview(files, preview);
+            });
+
+            input.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files || []);
+                if (!files.length) return;
+                renderEventImagesPreview(files, preview);
+            });
+        }
+
+        function renderEventImagesPreview(files, previewEl) {
+            if (!previewEl) return;
+
+            const incoming = Array.from(files || []);
+            if (!Array.isArray(CURRENT_EVENT_IMAGES)) {
+                CURRENT_EVENT_IMAGES = [];
+            }
+
+            let limiteAtingido = false;
+
+            // Adiciona novas imagens mantendo as já selecionadas (máx. 10)
+            incoming.forEach(file => {
+                if (CURRENT_EVENT_IMAGES.length >= 10) {
+                    limiteAtingido = true;
+                    return;
+                }
+
+                const exists = CURRENT_EVENT_IMAGES.some(f => 
+                    f.name === file.name && 
+                    f.size === file.size && 
+                    f.lastModified === file.lastModified
+                );
+                if (!exists) {
+                    CURRENT_EVENT_IMAGES.push(file);
+                }
+            });
+
+            if (limiteAtingido) {
+                try {
+                    toast('Limite de 10 imagens por evento. Imagens extras foram ignoradas.', 'warning');
+                } catch (_) {
+                    console.warn('Limite de 10 imagens por evento. Imagens extras foram ignoradas.');
+                }
+            }
+
+            previewEl.innerHTML = '';
+            CURRENT_EVENT_IMAGES.forEach(file => {
+                const url = URL.createObjectURL(file);
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = file.name || 'Imagem do evento';
+                img.className = 'event-image-thumb';
+                previewEl.appendChild(img);
+            });
+        }
+
+        function closeEventModal() {
+            const modal = document.getElementById('eventModal');
+            if (modal) modal.style.display = 'none';
+            CURRENT_EVENT = null;
+        }
+
+        function formatarData(dataString) {
+            if (!dataString) return 'Data não informada';
+            
+            try {
+                let data = new Date(dataString);
+                
+                if (isNaN(data.getTime())) {
+                    const parts = dataString.split('/');
+                    if (parts.length === 3) {
+                        data = new Date(parts[2], parts[1] - 1, parts[0]);
+                    }
+                }
+                
+                if (!isNaN(data.getTime())) {
+                    return data.toLocaleDateString('pt-BR');
+                }
+                
+                return dataString;
+            } catch (e) {
+                return dataString;
+            }
+        }
+
+        // Persistência simples de estado da UI (aba ativa e filtros da agenda)
+        const STORAGE_KEY_UI = 'rhAstronomosUI';
+
+        function saveUIState() {
+            try {
+                const activeTabBtn = document.querySelector('.tab-btn.active');
+                const activeTab = activeTabBtn ? activeTabBtn.dataset.tab : 'astronomos';
+
+                const selectAstronomo = document.getElementById('select-astronomo');
+                const dataInicio = document.getElementById('data-inicio');
+                const dataFim = document.getElementById('data-fim');
+                const searchAgenda = document.getElementById('search-agenda');
+                const tipoAgenda = document.getElementById('filtro-tipo-tarefa-agenda');
+
+                const state = {
+                    activeTab,
+                    agenda: {
+                        id_astronomo: selectAstronomo ? selectAstronomo.value : '',
+                        from: dataInicio ? dataInicio.value : '',
+                        to: dataFim ? dataFim.value : '',
+                        search: searchAgenda ? searchAgenda.value : '',
+                        taskType: tipoAgenda ? tipoAgenda.value : 'all'
+                    }
+                };
+
+                localStorage.setItem(STORAGE_KEY_UI, JSON.stringify(state));
+            } catch (e) {
+                console.warn('Não foi possível salvar estado da UI:', e);
+            }
+        }
+
+        function getSavedUIState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY_UI);
+                if (!raw) return null;
+                return JSON.parse(raw);
+            } catch (e) {
+                console.warn('Não foi possível ler estado salvo da UI:', e);
+                return null;
+            }
+        }
+
+        function restoreUIStateAfterAstronomosLoaded() {
+            const state = getSavedUIState();
+            if (!state) return;
+
+            // Restaura aba ativa
+            if (state.activeTab === 'agenda' || state.activeTab === 'astronomos') {
+                const tab = state.activeTab;
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                const btn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+                const content = document.getElementById(`aba-${tab}`);
+                if (btn) btn.classList.add('active');
+                if (content) content.classList.add('active');
+            }
+
+            // Restaura filtros da agenda
+            if (state.agenda) {
+                const selectAstronomo = document.getElementById('select-astronomo');
+                const dataInicio = document.getElementById('data-inicio');
+                const dataFim = document.getElementById('data-fim');
+                const searchAgenda = document.getElementById('search-agenda');
+                const tipoAgenda = document.getElementById('filtro-tipo-tarefa-agenda');
+
+                if (dataInicio && state.agenda.from) dataInicio.value = state.agenda.from;
+                if (dataFim && state.agenda.to) dataFim.value = state.agenda.to;
+                if (searchAgenda && typeof state.agenda.search === 'string') {
+                    searchAgenda.value = state.agenda.search;
+                }
+                if (tipoAgenda && state.agenda.taskType) {
+                    tipoAgenda.value = state.agenda.taskType;
+                }
+                if (selectAstronomo && state.agenda.id_astronomo) {
+                    selectAstronomo.value = state.agenda.id_astronomo;
+                }
+
+                // Não dispara fetch automático: apenas restaura filtros; use os botões para carregar
+            }
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar abas
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    document.getElementById(`aba-${this.dataset.tab}`).classList.add('active');
+                    saveUIState();
+                });
+            });
+            
+            // Configurar botões
+            document.getElementById('btn-novo-astronomo').addEventListener('click', criarNovoAstronomo);
+            // Botões de fetch manual
+            document.getElementById('btn-atualizar-astronomos').addEventListener('click', carregarAstronomos);
+            document.getElementById('btn-filtrar-agenda').addEventListener('click', carregarAgenda);
+            document.getElementById('btn-atualizar-agenda').addEventListener('click', carregarAgenda);
+            const btnExcluirTodosInd = document.getElementById('btn-excluir-todos-individual');
+            if (btnExcluirTodosInd) btnExcluirTodosInd.addEventListener('click', deletarTodosUmPorUm);
+            const btnEditarTodos = document.getElementById('btn-editar-todos');
+            if (btnEditarTodos) btnEditarTodos.addEventListener('click', openBulkEditModal);
+            const btnSalvarTodos = document.getElementById('btn-salvar-todos');
+            if (btnSalvarTodos) btnSalvarTodos.addEventListener('click', salvarTodosAstronomos);
+
+            // Configurar busca em tempo real
+            document.getElementById('search-astronomo').addEventListener('input', applyAstronomerFilters);
+
+            // Salvar estado quando filtros da agenda mudarem
+            const selectAstronomo = document.getElementById('select-astronomo');
+            const dataInicioEl = document.getElementById('data-inicio');
+            const dataFimEl = document.getElementById('data-fim');
+            const searchAgendaEl = document.getElementById('search-agenda');
+            const tipoAgendaEl = document.getElementById('filtro-tipo-tarefa-agenda');
+
+            if (selectAstronomo) {
+                selectAstronomo.addEventListener('change', () => {
+                    // Ao trocar o astrônomo, limpa filtros locais e volta para "Todos os eventos"
+                    const searchAgendaEl = document.getElementById('search-agenda');
+                    if (searchAgendaEl) {
+                        searchAgendaEl.value = '';
+                        SELECTED.search = '';
+                    }
+                    if (tipoAgendaEl) {
+                        tipoAgendaEl.value = 'all';
+                        SELECTED.taskType = 'all';
+                    }
+                    saveUIState();
+                    // Carrega automaticamente ao selecionar um astrônomo (evita alerta se limpar)
+                    if (selectAstronomo.value) {
+                        carregarAgenda().catch(err => console.error('Falha ao carregar agenda após seleção:', err));
+                    } else {
+                        // Se limpar seleção, apenas re-renderiza lista vazia/estado
+                        EVENTOS = [];
+                        renderAgenda();
+                    }
+                });
+            }
+            if (dataInicioEl) dataInicioEl.addEventListener('change', saveUIState);
+            if (dataFimEl) dataFimEl.addEventListener('change', saveUIState);
+            if (searchAgendaEl) {
+                searchAgendaEl.addEventListener('input', () => {
+                    saveUIState();
+                    // Atualiza filtro local imediatamente
+                    SELECTED.search = searchAgendaEl.value || "";
+                    renderAgenda();
+                });
+            }
+            if (tipoAgendaEl) {
+                tipoAgendaEl.addEventListener('change', () => {
+                    saveUIState();
+                    SELECTED.taskType = tipoAgendaEl.value || 'all';
+                    renderAgenda();
+                });
+            }
+
+            // Carregar lista de astrônomos automaticamente ao abrir
+            carregarAstronomos().catch(err => console.error('Falha ao carregar astrônomos automaticamente:', err));
+
+            // Importar CSV: envia o arquivo bruto (FormData) para o backend
+            (function(){
+                const btn = document.getElementById('btn-importar-csv');
+                const input = document.getElementById('csv-file');
+                if (btn && input){
+                    btn.addEventListener('click', ()=> input.click());
+                    input.addEventListener('change', async (e)=>{
+                        const file = e.target.files && e.target.files[0];
+                        if (!file) return;
+                        await importCsvBinary(file);
+                        e.target.value = '';
+                    });
+                }
+            })();
+
+            // Fechar modal clicando fora
+            window.onclick = function(event) {
+                const modal = document.getElementById('astronomerModal');
+                if (event.target === modal) {
+                    closeModal();
+                }
+            }
+
+            // Fechar modal com ESC
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeModal();
+                }
+            });
+            
+            // Definir datas padrão para a agenda (podem ser sobrescritas pelo estado salvo)
+            const today = new Date();
+            const lastMonth = new Date(today);
+            lastMonth.setDate(today.getDate() - 30);
+            const nextMonth = new Date(today);
+            nextMonth.setDate(today.getDate() + 30);
+            
+            const defaultFrom = lastMonth.toISOString().split('T')[0];
+            const defaultTo = nextMonth.toISOString().split('T')[0];
+
+            const savedState = getSavedUIState();
+            const savedFrom = savedState && savedState.agenda && savedState.agenda.from;
+            const savedTo = savedState && savedState.agenda && savedState.agenda.to;
+            const savedSearch = savedState && savedState.agenda && savedState.agenda.search;
+            const savedTaskType = savedState && savedState.agenda && savedState.agenda.taskType;
+
+            const dataInicioInput = document.getElementById('data-inicio');
+            const dataFimInput = document.getElementById('data-fim');
+            const searchAgendaInput = document.getElementById('search-agenda');
+
+            if (dataInicioInput) dataInicioInput.value = savedFrom || defaultFrom;
+            if (dataFimInput) dataFimInput.value = savedTo || defaultTo;
+            if (searchAgendaInput && typeof savedSearch === 'string') {
+                searchAgendaInput.value = savedSearch;
+            }
+            
+            SELECTED.from = savedFrom || defaultFrom;
+            SELECTED.to = savedTo || defaultTo;
+            SELECTED.search = typeof savedSearch === 'string' ? savedSearch : '';
+            SELECTED.taskType = savedTaskType || SELECTED.taskType;
+
+            // Apenas restaura o estado salvo; carregamentos agora são 100% manuais via botões
+            restoreUIStateAfterAstronomosLoaded();
+            setStatus('astronomos', 'Pronto. Use "Atualizar Astrônomos" ou "Atualizar Agenda" para buscar dados.', 'info');
+        });
+
+        // Busca e normaliza links de imagens de um evento no backend
+        async function obterLinksImagensEvento(id_evento) {
+            const formData = new FormData();
+            formData.append('action', 'get_img');
+            formData.append('id_evento', id_evento);
+
+            const response = await fetch(API_ASTRO_BASE, {
+                method: 'POST',
+                body: formData
+            });
+
+            const bodyText = await response.text().catch(() => '');
+
+            if (!response.ok) {
+                console.error('Erro ao buscar imagens:', response.status, bodyText);
+                throw new Error('Erro ao buscar imagens do evento');
+            }
+
+            let entries = [];
+            try {
+                const data = bodyText ? JSON.parse(bodyText) : null;
+                // Caso mais comum: array de objetos { row_number, name, img, id_evento }
+                if (Array.isArray(data) && data.length && data[0] && typeof data[0] === 'object' && ('img' in data[0])) {
+                    entries = data
+                        .map(item => {
+                            if (!item || typeof item.img !== 'string') return null;
+                            const url = item.img.trim();
+                            if (!url || !url.startsWith('http')) return null;
+                            const name = (item.name || '').toString().trim();
+                            const row = item.row_number != null ? Number(item.row_number) : null;
+                            return { url, name, row };
+                        })
+                        .filter(x => !!x);
+                } else if (data && Array.isArray(data.links)) {
+                    entries = data.links
+                        .map(u => {
+                            const url = String(u || '').trim();
+                            if (!url || !url.startsWith('http')) return null;
+                            return { url, name: '', row: null };
+                        })
+                        .filter(x => !!x);
+                } else if (data && Array.isArray(data.data)) {
+                    entries = data.data
+                        .map(u => {
+                            const url = String(u || '').trim();
+                            if (!url || !url.startsWith('http')) return null;
+                            return { url, name: '', row: null };
+                        })
+                        .filter(x => !!x);
+                } else if (data && typeof data === 'object') {
+                    Object.values(data).forEach(v => {
+                        if (typeof v === 'string' && v.startsWith('http')) {
+                            entries.push({ url: v, name: '', row: null });
+                        } else if (Array.isArray(v)) {
+                            v.forEach(inner => {
+                                if (typeof inner === 'string' && inner.startsWith('http')) {
+                                    entries.push({ url: inner, name: '', row: null });
+                                }
+                            });
+                        }
+                    });
+                }
+            } catch (_) {
+                // Fallback: extrai qualquer URL do texto bruto
+                const regex = /(https?:\/\/[^\s"']+)/g;
+                let match;
+                while ((match = regex.exec(bodyText)) !== null) {
+                    const url = match[1];
+                    if (url && url.startsWith('http')) {
+                        entries.push({ url, name: '', row: null });
+                    }
+                }
+            }
+
+            // Normaliza e remove duplicados por URL
+            const seen = new Set();
+            entries = entries.filter(e => {
+                const key = e && e.url ? String(e.url) : '';
+                if (!key) return false;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+
+            return entries;
+        }
+
+        function buildPreviewEntry(entry, id_evento){
+            const url = entry.url;
+            const name = entry.name || '';
+            const row = entry.row;
+            const wrapper = document.createElement('div');
+            wrapper.style.display = 'flex';
+            wrapper.style.flexDirection = 'column';
+            wrapper.style.alignItems = 'center';
+            wrapper.style.gap = '4px';
+            wrapper.dataset.entryName = name;
+            wrapper.dataset.entryUrl = url;
+
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = name || 'Imagem do evento';
+            img.className = 'event-image-thumb';
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            img.addEventListener('error', () => {
+                console.error('Falha ao carregar imagem do evento:', url);
+            });
+
+            const linkEl = document.createElement('a');
+            linkEl.href = url;
+            linkEl.target = '_blank';
+            linkEl.rel = 'noopener noreferrer';
+            linkEl.textContent = 'Abrir imagem em nova aba';
+            linkEl.style.fontSize = '0.8rem';
+
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'btn btn-danger';
+            delBtn.textContent = '🗑️ Excluir';
+            delBtn.style.fontSize = '0.8rem';
+            delBtn.addEventListener('click', async () => {
+                await deleteImagemEvento(url || name, id_evento, row, wrapper, delBtn);
+            });
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(linkEl);
+            wrapper.appendChild(delBtn);
+            return wrapper;
+        }
+
+        // Função para carregar imagens já enviadas (links do Drive) para um evento
+        async function carregarImagensEvento(id_evento) {
+            try {
+                const preview = document.getElementById('eventImagesPreview');
+                if (!preview) return;
+
+                preview.innerHTML = '<p style="color:#555; font-size:0.9rem;">Carregando imagens do evento...</p>';
+
+                const entries = await obterLinksImagensEvento(id_evento);
+
+                if (!entries.length) {
+                    preview.innerHTML = '<p style="color:#555; font-size:0.9rem;">Nenhuma imagem encontrada para este evento.</p>';
+                    return;
+                }
+
+                preview.innerHTML = '';
+                entries.forEach(entry => {
+                    const wrapper = buildPreviewEntry(entry, id_evento);
+                    preview.appendChild(wrapper);
+                });
+
+                try { toast(`${entries.length} imagem(ns) carregadas`, 'success'); } catch (_) {}
+            } catch (error) {
+                console.error('Erro inesperado ao carregar imagens do evento:', error);
+                const preview = document.getElementById('eventImagesPreview');
+                if (preview) {
+                    preview.innerHTML = '<p style="color:#a00; font-size:0.9rem;">Erro inesperado ao carregar imagens do evento.</p>';
+                }
+                try { toast('Erro inesperado ao carregar imagens do evento', 'error'); } catch (_) {}
+            }
+        }
+
+        // Função para enviar imagens do evento
+        async function enviarImagens(id_evento) {
+            try {
+                const input = document.getElementById('inputImagens');
+                if (!input) {
+                    console.error('Input de imagens "inputImagens" não encontrado.');
+                    return;
+                }
+                const preview = document.getElementById('eventImagesPreview');
+                const uploadBtn = document.getElementById('btn-upload-imagens');
+
+                // Usa primeiro o que está na prévia (drag & drop ou seleção),
+                // e se estiver vazio, cai para o input diretamente.
+                let files = Array.isArray(CURRENT_EVENT_IMAGES) ? CURRENT_EVENT_IMAGES : [];
+                if (!files.length) {
+                    files = Array.from(input.files || []);
+                }
+
+                if (!files.length) {
+                    console.warn('Nenhuma imagem selecionada em "inputImagens" / preview.');
+                    return;
+                }
+
+                console.log('Imagens que serão enviadas:', files.map(f => f.name));
+
+                if (uploadBtn) {
+                    uploadBtn.disabled = true;
+                    uploadBtn.dataset.prevLabel = uploadBtn.innerHTML;
+                    uploadBtn.innerHTML = 'Enviando...';
+                }
+                if (preview) {
+                    preview.innerHTML = '<p style="color:#555; font-size:0.9rem;">Enviando imagens, aguarde...</p>';
+                }
+
+                const formData = new FormData();
+                formData.append('action', 'add_img');
+                formData.append('id_evento', id_evento);
+
+                const maxFiles = Math.min(files.length, 10);
+                for (let i = 0; i < maxFiles; i++) {
+                    formData.append(`img${i + 1}`, files[i]);
+                }
+
+                const response = await fetch(API_ASTRO_BASE, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const bodyText = await response.text().catch(() => '');
+                console.log('Resposta do envio de imagens:', {
+                    ok: response.ok,
+                    status: response.status,
+                    body: bodyText
+                });
+
+                try{
+                    const data = bodyText ? JSON.parse(bodyText) : null;
+                    if (data && typeof data === 'object') {
+                        const entries = [];
+                        // Caso do payload único informado
+                        if (data.imagem && typeof data.imagem === 'string' && data.imagem.startsWith('http')) {
+                            entries.push({ url: data.imagem, name: data.name || '', row: data.row_number ?? data.row ?? null });
+                        }
+                        // Caso de objeto com campos "img" e "name"
+                        if (data.img && typeof data.img === 'string' && data.img.startsWith('http')) {
+                            entries.push({ url: data.img, name: data.name || '', row: data.row_number ?? data.row ?? null });
+                        }
+                        // Caso de lista em data.links ou data.data
+                        const addFromArray = (arr) => {
+                            (arr || []).forEach(u => {
+                                const url = String(u || '').trim();
+                                if (url && url.startsWith('http')) entries.push({ url, name: '', row: null });
+                            });
+                        };
+                        if (Array.isArray(data.links)) addFromArray(data.links);
+                        if (Array.isArray(data.data)) addFromArray(data.data);
+
+                        if (preview) {
+                            preview.innerHTML = '';
+                            if (entries.length) {
+                                entries.forEach(entry => {
+                                    const wrapper = buildPreviewEntry(entry, id_evento);
+                                    preview.appendChild(wrapper);
+                                });
+                            } else {
+                                await carregarImagensEvento(id_evento);
+                            }
+                        }
+                    }
+                }catch(err){
+                    console.warn('Não foi possível interpretar resposta das imagens:', err);
+                    await carregarImagensEvento(id_evento);
+                }
+            } catch (error) {
+                console.error('Erro ao enviar imagens:', error);
+            } finally {
+                const uploadBtn = document.getElementById('btn-upload-imagens');
+                if (uploadBtn) {
+                    uploadBtn.disabled = false;
+                    uploadBtn.innerHTML = uploadBtn.dataset.prevLabel || '📤 Enviar Imagens';
+                }
+            }
+        }
+
+        // ===== Carrossel de imagens em popup grande =====
+        function updateCarouselUI() {
+            const imgEl = document.getElementById('carouselImage');
+            const emptyEl = document.getElementById('carouselEmpty');
+            const counterEl = document.getElementById('carouselCounter');
+            const linkEl = document.getElementById('carouselOpenLink');
+            const navButtons = document.querySelectorAll('.carousel-nav');
+
+            if (!imgEl || !emptyEl || !counterEl || !linkEl) return;
+
+            if (!CAROUSEL_IMAGES.length) {
+                imgEl.style.display = 'none';
+                emptyEl.style.display = 'block';
+                emptyEl.textContent = 'Nenhuma imagem encontrada para este evento.';
+                counterEl.textContent = '';
+                linkEl.style.display = 'none';
+                navButtons.forEach(b => b.disabled = true);
+                return;
+            }
+
+            const maxIdx = CAROUSEL_IMAGES.length - 1;
+            if (CAROUSEL_INDEX < 0) CAROUSEL_INDEX = maxIdx;
+            if (CAROUSEL_INDEX > maxIdx) CAROUSEL_INDEX = 0;
+
+            const current = CAROUSEL_IMAGES[CAROUSEL_INDEX];
+            const url = current && current.url ? current.url : '';
+            imgEl.src = url;
+            imgEl.style.display = 'block';
+            emptyEl.style.display = 'none';
+
+            counterEl.textContent = `${CAROUSEL_INDEX + 1} / ${CAROUSEL_IMAGES.length}`;
+            if (url) {
+                linkEl.href = url;
+                linkEl.style.display = 'inline';
+            } else {
+                linkEl.style.display = 'none';
+            }
+
+            const disableNav = CAROUSEL_IMAGES.length <= 1;
+            navButtons.forEach(b => b.disabled = disableNav);
+        }
+
+        function openCarouselModal() {
+            const modal = document.getElementById('imageCarouselModal');
+            if (modal) modal.style.display = 'block';
+        }
+
+        function closeCarouselModal() {
+            const modal = document.getElementById('imageCarouselModal');
+            if (modal) modal.style.display = 'none';
+            CAROUSEL_IMAGES = [];
+            CAROUSEL_INDEX = 0;
+        }
+
+        function nextCarouselImage() {
+            if (!CAROUSEL_IMAGES.length) return;
+            CAROUSEL_INDEX = (CAROUSEL_INDEX + 1) % CAROUSEL_IMAGES.length;
+            updateCarouselUI();
+        }
+
+        function prevCarouselImage() {
+            if (!CAROUSEL_IMAGES.length) return;
+            CAROUSEL_INDEX = (CAROUSEL_INDEX - 1 + CAROUSEL_IMAGES.length) % CAROUSEL_IMAGES.length;
+            updateCarouselUI();
+        }
+
+        async function deleteCurrentCarouselImage() {
+            try {
+                if (!CAROUSEL_IMAGES.length) return;
+                const current = CAROUSEL_IMAGES[CAROUSEL_INDEX];
+                if (!current || !current.url) return;
+
+                const confirmed = window.confirm('Tem certeza que deseja excluir esta imagem?');
+                if (!confirmed) return;
+
+                const formData = new FormData();
+                formData.append('action', 'delete_img');
+                if (CAROUSEL_EVENT_ID) formData.append('id_evento', CAROUSEL_EVENT_ID);
+                formData.append('url', current.url);
+
+                // Envia também o nome e a linha, quando disponíveis
+                if (current.name) formData.append('name', current.name);
+                if (current.row != null) {
+                    formData.append('row_number', String(current.row));
+                    formData.append('row', String(current.row));
+                }
+
+                const response = await fetch(API_ASTRO_BASE, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const bodyText = await response.text().catch(() => '');
+                console.log('Resposta delete_img:', {
+                    ok: response.ok,
+                    status: response.status,
+                    body: bodyText
+                });
+
+                if (!response.ok) {
+                    try { toast('Erro ao excluir imagem', 'error'); } catch (_) {}
+                    return;
+                }
+
+                // Remove do array local e atualiza carrossel
+                CAROUSEL_IMAGES.splice(CAROUSEL_INDEX, 1);
+                if (CAROUSEL_INDEX >= CAROUSEL_IMAGES.length) {
+                    CAROUSEL_INDEX = Math.max(0, CAROUSEL_IMAGES.length - 1);
+                }
+                updateCarouselUI();
+
+                try { toast('Imagem excluída com sucesso', 'success'); } catch (_) {}
+            } catch (error) {
+                console.error('Erro ao excluir imagem do evento:', error);
+                try { toast('Erro inesperado ao excluir imagem', 'error'); } catch (_) {}
+            }
+        }
+
+        async function deleteImagemEvento(url, id_evento, row, wrapperEl, btn){
+            if (!url || !id_evento) {
+                console.warn('URL ou id_evento ausente para exclusão de imagem');
+                return;
+            }
+            const confirmed = window.confirm('Tem certeza que deseja excluir esta imagem?');
+            if (!confirmed) return;
+
+            if (btn) {
+                btn.disabled = true;
+                btn.dataset.prevLabel = btn.innerText;
+                btn.innerText = 'Apagando...';
+            }
+
+            const formData = new FormData();
+            formData.append('action', 'delete_img');
+            formData.append('id_evento', id_evento);
+            formData.append('url', url);
+            if (row != null) {
+                formData.append('row_number', String(row));
+                formData.append('row', String(row));
+            }
+
+            try{
+                const resp = await fetch(API_ASTRO_BASE, { method:'POST', body: formData });
+                const bodyText = await resp.text().catch(()=> '');
+                console.log('Resposta delete_img:', resp.status, bodyText);
+                if (!resp.ok) throw new Error(bodyText || `HTTP ${resp.status}`);
+                if (wrapperEl && wrapperEl.parentElement) {
+                    wrapperEl.remove();
+                }
+                try { toast('Imagem excluída', 'success'); } catch(_){}
+            }catch(err){
+                console.error('Falha ao excluir imagem:', err);
+                try { toast('Erro ao excluir imagem', 'error'); } catch(_){}
+            }finally{
+                if (btn){
+                    btn.disabled = false;
+                    btn.innerText = btn.dataset.prevLabel || '🗑️ Excluir';
+                }
+            }
+        }
+
+        // Envia despesas do evento ao webhook
+        async function lancarDespesasEvento(evento, btn){
+            const id = evento && (evento.id_evento || evento.id_evento_unico || evento.id);
+            if (!id) {
+                toast('ID do evento não encontrado para lançar despesas', 'error');
+                return;
+            }
+            if (btn){
+                btn.disabled = true;
+                btn.dataset.prevLabel = btn.innerText;
+                btn.innerText = 'Enviando...';
+            }
+            try{
+                const normalizedEvent = (evento && typeof evento === 'object')
+                    ? { ...evento, finalizado: true }
+                    : { finalizado: true };
+                const body = {
+                    action: 'lancar_despesas',
+                    id_evento: id,
+                    finalizado: true,
+                    evento: normalizedEvent
+                };
+                const resp = await fetch(API_AGENDA, {
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify(body)
+                });
+                const txt = await resp.text().catch(()=> '');
+                if (!resp.ok) throw new Error(txt || `HTTP ${resp.status}`);
+                toast('Despesas enviadas ao webhook', 'success');
+            }catch(err){
+                console.error('Erro ao lançar despesas:', err);
+                toast('Erro ao lançar despesas', 'error');
+            }finally{
+                if (btn){
+                    btn.disabled = false;
+                    btn.innerText = btn.dataset.prevLabel || '💰 Lançar despesas';
+                }
+            }
+        }
+
+        // Finaliza evento no webhook
+        async function finalizarEvento(evento, btn){
+            const id = evento && (evento.id_evento || evento.id_evento_unico || evento.id);
+            if (!id) {
+                toast('ID do evento não encontrado para finalizar', 'error');
+                return;
+            }
+            if (btn){
+                btn.disabled = true;
+                btn.dataset.prevLabel = btn.innerText;
+                btn.innerText = 'Finalizando...';
+            }
+            try{
+                const body = { action:'finalizar_evento', id_evento:id, finalizado:true };
+                const resp = await fetch(API_AGENDA, {
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify(body)
+                });
+                const txt = await resp.text().catch(()=> '');
+                if (!resp.ok) throw new Error(txt || `HTTP ${resp.status}`);
+                // Remove evento finalizado da lista local
+                EVENTOS = EVENTOS.filter(ev => String(ev.id_evento || ev.id_evento_unico || ev.id) !== String(id));
+                popularFiltroAgendaUnico(EVENTOS);
+                renderAgenda();
+                toast('Evento finalizado e enviado ao webhook', 'success');
+            }catch(err){
+                console.error('Erro ao finalizar evento:', err);
+                toast('Erro ao finalizar evento', 'error');
+            }finally{
+                if (btn){
+                    btn.disabled = false;
+                    btn.innerText = btn.dataset.prevLabel || '✅ Finalizar';
+                }
+            }
+        }
+
+        async function openImageCarouselForEvent(evento) {
+            try {
+                const ev = normalizeAgendaEvent(evento);
+                const idEvento = ev.id_evento || ev.id_evento_unico || ev.id;
+                if (!idEvento) {
+                    try { toast('ID do evento não encontrado para carregar imagens', 'error'); } catch (_) {}
+                    return;
+                }
+
+                const titleEl = document.getElementById('carouselTitle');
+                if (titleEl) {
+                    titleEl.textContent = ev.nome_da_escola || ev.escola || 'Imagens do Evento';
+                }
+
+                CAROUSEL_IMAGES = [];
+                CAROUSEL_INDEX = 0;
+                CAROUSEL_EVENT_ID = idEvento;
+                openCarouselModal();
+
+                const emptyEl = document.getElementById('carouselEmpty');
+                const imgEl = document.getElementById('carouselImage');
+                const counterEl = document.getElementById('carouselCounter');
+                if (emptyEl) {
+                    emptyEl.style.display = 'block';
+                    emptyEl.textContent = 'Carregando imagens do evento...';
+                }
+                if (imgEl) imgEl.style.display = 'none';
+                if (counterEl) counterEl.textContent = '';
+
+                const entries = await obterLinksImagensEvento(idEvento);
+                CAROUSEL_IMAGES = Array.isArray(entries) ? entries : [];
+                CAROUSEL_INDEX = 0;
+                updateCarouselUI();
+            } catch (error) {
+                console.error('Erro ao abrir carrossel de imagens:', error);
+                try { toast('Erro ao carregar imagens do evento', 'error'); } catch (_) {}
+                closeCarouselModal();
+            }
+        }
+    </script>
+</body>
+</html>

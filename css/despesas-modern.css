@@ -1,0 +1,232 @@
+/* public/css/despesas-modern.css - CORRIGIDO */
+
+/* --- General Layout & Summary --- */
+main {
+    padding: clamp(1rem, 3vw, 1.5rem);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: clamp(0.75rem, 2vw, 1rem);
+}
+
+.summary-card {
+    background: rgba(12, 14, 34, 0.45);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: clamp(1rem, 2vw, 1.25rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    border-color: var(--nebula-blue);
+}
+
+.summary-card .label {
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+    color: var(--text-moonlight);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.summary-card .value {
+    font-size: clamp(1.25rem, 4vw, 1.75rem);
+    font-weight: 700;
+    color: var(--comet-green);
+}
+
+/* --- Filters Section --- */
+.events-section {
+    margin-top: clamp(1.5rem, 4vw, 2.5rem);
+    background: rgba(12, 14, 34, 0.3);
+    padding: clamp(1rem, 3vw, 1.5rem);
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+.section-title {
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: clamp(1rem, 3vw, 1.5rem);
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 0.75rem;
+}
+
+.filters .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-label {
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    color: var(--text-moonlight);
+}
+
+.filter-select {
+    width: 100%;
+    padding: clamp(0.6rem, 2vw, 0.75rem) clamp(0.8rem, 2vw, 1rem);
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    cursor: pointer;
+}
+
+/* --- Event List & Cards --- */
+#despesas-events-list {
+    margin-top: clamp(1rem, 3vw, 2rem);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(1rem, 3vw, 1.5rem);
+}
+
+.event-item-despesa {
+    background: linear-gradient(180deg, rgba(12, 14, 34, 0.4), rgba(6, 8, 22, 0.5));
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: clamp(1rem, 3vw, 1.5rem);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.75rem, 2vw, 1rem);
+}
+
+.event-item-despesa.highlight {
+    border-color: var(--comet-green);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+    transform: scale(1.01);
+}
+
+.event-item-despesa .event-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+@media (min-width: 480px) {
+    .event-item-despesa .event-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+.event-item-despesa .event-title {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.event-item-despesa .event-date {
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+    color: var(--text-moonlight);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+}
+
+.event-item-despesa .event-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+}
+
+@media (min-width: 640px) {
+    .event-item-despesa .event-details {
+        flex-direction: row;
+        gap: 1.5rem;
+    }
+}
+
+.event-item-despesa .event-detail {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.expense-details .expense-title {
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+}
+
+.expense-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+
+@media (min-width: 480px) {
+    .expense-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+}
+
+.expense-item {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.75rem;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+    color: var(--text-secondary);
+}
+
+.expense-item.total {
+    background: rgba(16, 185, 129, 0.1);
+    margin-top: 0.5rem;
+}
+
+@media (min-width: 480px) {
+    .expense-item.total {
+        grid-column: 1 / -1;
+    }
+}
+
+.controls {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+@media (min-width: 768px) {
+    .controls {
+        justify-content: flex-end;
+    }
+}
+
+/* Mobile-first improvements */
+@media (max-width: 360px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .event-item-despesa {
+        padding: 0.75rem;
+    }
+}
+
+/* Ensure container uses main-responsive.css */
+.container {
+    width: min(100%, 1200px) !important;
+    margin: 0 auto !important;
+    padding: clamp(12px, 2vw, 24px) !important;
+}

@@ -1,0 +1,4154 @@
+/* ==========================================================================
+   OPCOES DESCARTADAS (Comentarios migrados de stilo test)
+   ========================================================================== */
+
+/* ==========================================================================
+   1. IMPORTAÇÃO DE FONTES E VARIÁVEIS (V3.0 - Lighter)
+   ========================================================================== */
+
+/* Cores de Fundo (Mais iluminado) */
+
+/* Azul marinho profundo ao invés de preto */
+
+/* Cartões (Efeito Vidro mais claro) */
+
+/* Neon Palette (Mais vibrante) */
+
+/* Cyan mais claro */
+
+/* Magenta vibrante */
+
+/* Azul royal brilhante */
+
+/* Texto (Alto contraste) */
+
+/* Cinza muito claro, quase branco */
+
+/* Cinza azulado para secundários */
+
+/* Efeitos de Borda e Brilho */
+
+/* Borda mais visível */
+
+/* Brilho superior */
+
+/* Layout */
+
+/* ==========================================================================
+   2. RESET & BASE
+   ========================================================================== */
+
+/* opção 1 desativada: body */
+
+/*
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-deep);
+    background-image: var(--bg-gradient);
+    color: var(--text-body);
+    line-height: 1.6;
+    overflow-x: hidden;
+    min-height: 100vh;
+    font-size: 16px;
+}*/
+
+/* opção 1 desativada: h1 */
+
+/*
+
+h1 {
+    font-size: 2.8rem;
+    
+    background: linear-gradient(120deg, #fff 30%, var(--neon-cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 40px rgba(34, 211, 238, 0.3);
+}*/
+
+/* opção 1 desativada: a */
+
+/*
+
+a { text-decoration: none; color: inherit; transition: 0.3s; }*/
+
+/* opção 1 desativada: ::-webkit-scrollbar */
+
+/*
+
+
+::-webkit-scrollbar { width: 8px; }*/
+
+/* opção 1 desativada: ::-webkit-scrollbar-track */
+
+/*
+::-webkit-scrollbar-track { background: #0f172a; }*/
+
+/* opção 1 desativada: ::-webkit-scrollbar-thumb */
+
+/*
+::-webkit-scrollbar-thumb { 
+    background: #475569; 
+    border-radius: 4px; 
+    border: 2px solid #0f172a;
+}*/
+
+/* opção 1 desativada: ::-webkit-scrollbar-thumb:hover */
+
+/*
+::-webkit-scrollbar-thumb:hover { background: var(--neon-blue); }*/
+
+/* opção 1 desativada: .space-layer */
+
+/*
+
+
+.space-layer {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}*/
+
+/* opção 1 desativada: .stars */
+
+/*
+
+
+.stars {
+    background-image: 
+        radial-gradient(1.5px 1.5px at 50px 50px, #fff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 120px 250px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 300px 100px, #fff, rgba(0,0,0,0));
+    background-size: 350px 350px;
+    opacity: 0.5; 
+    animation: stars-move 120s linear infinite;
+}*/
+
+/* opção 1 desativada: .nebula */
+
+/*
+
+
+.nebula {
+    background: 
+        radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.15), transparent 50%),
+        radial-gradient(circle at 100% 0%, rgba(217, 70, 239, 0.15), transparent 40%),
+        radial-gradient(circle at 100% 100%, rgba(34, 211, 238, 0.1), transparent 50%);
+    filter: blur(80px); 
+    opacity: 1;
+}*/
+
+/* ==========================================================================
+   4. ESTRUTURA
+   ========================================================================== */
+
+/* Header */
+
+/* opção 1 desativada: .subtitle */
+
+/*
+.subtitle { color: var(--neon-cyan); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }*/
+
+/* opção 1 desativada: .navigation */
+
+/*
+
+
+.navigation {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: rgba(15, 23, 42, 0.6); 
+    padding: 8px;
+    border-radius: 12px;
+    border: var(--glass-border);
+    margin-bottom: 40px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}*/
+
+/* opção 1 desativada: .nav-button */
+
+/*
+
+.nav-button {
+    background: transparent;
+    color: var(--text-muted);
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}*/
+
+/* opção 1 desativada: .nav-button:hover */
+
+/*
+
+.nav-button:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}*/
+
+/* opção 1 desativada: .nav-button.active */
+
+/*
+
+.nav-button.active {
+    background: rgba(34, 211, 238, 0.15); 
+    color: var(--neon-cyan);
+    border: 1px solid rgba(34, 211, 238, 0.3);
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.1); 
+}*/
+
+/* opção 1 desativada: .account-header-btn */
+
+/*
+
+.account-header-btn { margin-left: auto; }*/
+
+/* ==========================================================================
+   6. CARDS (Mais Claros e com Vidro)
+   ========================================================================== */
+
+/* Gradiente sutil para simular iluminação vindo de cima */
+
+/* Inner glow + Drop shadow */
+
+/* opção 1 desativada: HERO
+   ==========================================================================
+   7. SEÇÃO HERO (Apresentação)
+   ========================================================================== */
+
+/* Texto maior para leitura */
+
+/* Cartão Lateral da Hero (Visão Executiva) */
+
+/* opção 2: HERO */
+
+/* ==========================================================================
+   HERO SECTION (Apresentação Visual)
+   ========================================================================== */
+
+/* Container Principal do Hero */
+
+/* "Sobrancelha" (Texto pequeno acima do título) */
+
+/* Título Principal */
+
+/* Parágrafo de descrição */
+
+/* Área dos Botões */
+
+/* Área das Badges (Tags inferiores) */
+
+/* --- Painel Lateral (HUD "Visão Executiva") --- */
+
+/* Cabeçalho do painelzinho */
+
+/* Tag verde "Atualização automática" */
+
+/* Lista de dados do painel */
+
+/* ==========================================================================
+   RESPONSIVIDADE HERO
+   ========================================================================== */
+
+/* opção 1 desativada: .section-header */
+
+/*
+
+
+.section-header { text-align: center; margin-bottom: 50px; max-width: 800px; margin-left: auto; margin-right: auto; }*/
+
+/* opção 1 desativada: .stats-grid */
+
+/*
+
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 80px;
+}*/
+
+/* opção 1 desativada: .stat-card */
+
+/*
+.stat-card { padding: 30px; text-align: center; }*/
+
+/* opção 1 desativada: .stat-number */
+
+/*
+.stat-number { 
+    font-size: 3rem; 
+    font-weight: 700; 
+    color: var(--neon-purple); 
+    line-height: 1;
+    margin-bottom: 8px;
+    font-family: 'Space Grotesk', sans-serif;
+    text-shadow: 0 0 20px rgba(217, 70, 239, 0.3);
+}*/
+
+/* opção 1 desativada: .stat-card h3 */
+
+/*
+.stat-card h3 { font-size: 1rem; color: #fff; opacity: 0.9; margin-bottom: 5px; }*/
+
+/* opção 1 desativada: .stat-hint */
+
+/*
+.stat-hint { font-size: 0.85rem; color: var(--text-muted); }*/
+
+/* opção 1 desativada: BOTÕES DO HERO */
+
+/*
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+.btn-primary {
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan));
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+    filter: brightness(1.1);
+}
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(4px);
+}
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+*/
+
+/* opção 2: BOTÕES DO HERO */
+
+/* Inputs */
+
+/* ==========================================================================
+   9. AGENDA (index.html) - Ajustes Específicos
+   ========================================================================== */
+
+/* Calendário */
+
+/* Lista Lateral */
+
+/* opção 1 desativada: .event-card */
+
+/*
+.event-card {
+    background: linear-gradient(90deg, rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.4));
+    border-left: 4px solid var(--neon-cyan);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 0;
+}*/
+
+/* ==========================================================================
+   10. ROTAS & TIMELINE (Estilo Metro)
+   ========================================================================== */
+
+/* ==========================================================================
+   11. RESPONSIVIDADE
+   ========================================================================== */
+
+/* opção 1 desativada: hero responsivo */
+
+/*
+    .hero { grid-template-columns: 1fr; text-align: center; gap: 40px; }
+    .hero p { margin: 0 auto 30px auto; }
+    .hero-actions, .hero-badges { justify-content: center; }
+    .hero h1 { font-size: 2.8rem; }
+    */
+
+/* opção 1 desativada: hero responsivo */
+
+/*
+    .hero h1 { font-size: 2.2rem; }
+    */
+
+/* ==== Merged from css/main-responsive.css ==== */
+
+/* Combined CSS: main-responsive.css */
+
+/* Generated by merge: external and local styles */
+
+/* ==== External: Google Fonts (Space Grotesk) ==== */
+
+/* ==== External: Font Awesome 6.4.0 ==== */
+
+/*!
+ * Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com
+ * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
+ * Copyright 2023 Fonticons, Inc.
+ */
+
+/* opção 2: .fa-brands,.fab */
+
+/* opção 2 desativada: .fa-brands,.fab */
+
+/*.fa-brands,.fab{font-weight:400}*/
+
+/* opção 2: :host,:root */
+
+/* opção 2 desativada: :host,:root */
+
+/*:host,:root{--fa-font-regular:normal 400 1em/1 "Font Awesome 6 Free"}*/
+
+/* opção 3: :host,:root */
+
+/* ==== Base: css/main-responsive.css ==== */
+
+/* ======================================================================
+   MAIN-RESPONSIVE.CSS — Agenda do Astronauta (Neon • Mobile‑First)
+   Consolida e substitui: style.css, calendar-collapsible.css, custos.css,
+   routes.css, chatbot.css e login.css.
+   - Totalmente responsivo (prioridade: dispositivos mobile)
+   - Remoção de duplicações + variáveis unificadas
+   - Grids fluidos com clamp(), minmax() e auto-fit
+   - Componentes com tamanhos de toque confortáveis (44px+)
+   - Foco especial em "Próximos eventos" / Agenda
+   - Mantém o tema espacial/neon
+   ====================================================================== */
+
+/* =============================
+   0) NORMALIZE & BASE RESET
+   ============================= */
+
+/* opção 2: body */
+
+/* opção 2 desativada: body */
+
+/*body {
+  margin: 0;
+  font-family: "Inter", "Space Grotesk", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial;
+  line-height: 1.45;
+  color: #e6f0ff;
+  background: #030417;
+  overflow-x: hidden;
+  
+  color-scheme: dark;
+}*/
+
+/* opção 2: a */
+
+/* opção 2 desativada: a */
+
+/*a { color: inherit; text-decoration: none; }*/
+
+/* ======================================
+   1) THEME TOKENS — PALETA / ELEVATION
+   ====================================== */
+
+/* Cores base */
+
+/* Neon */
+
+/* Vidro / Borda / Sombras */
+
+/* Calendário */
+
+/* Cores de evento (aliases) */
+
+/* Tamanhos tipográficos fluidos */
+
+/* opção 2 desativada: prefers-color-scheme light */
+
+/* @media (prefers-color-scheme: light){ :root{ } } */
+
+/* opção 2 desativada: html */
+
+/*html { scroll-behavior: smooth; }*/
+
+/* opção 2: * */
+
+/*
+
+
+
+* { scrollbar-color: rgba(123,92,255,.45) rgba(8,10,26,.55); scrollbar-width: thin; }
+*/
+
+/* opção 2: ::-webkit-scrollbar */
+
+/* opção 2 desativada: ::-webkit-scrollbar */
+
+/*::-webkit-scrollbar { width: 10px; height: 10px; }*/
+
+/* opção 2: ::-webkit-scrollbar-track */
+
+/* opção 2 desativada: ::-webkit-scrollbar-track */
+
+/*::-webkit-scrollbar-track { background: rgba(8,10,26,.55); border-radius: 10px; }*/
+
+/* opção 2: ::-webkit-scrollbar-thumb */
+
+/* opção 2 desativada: ::-webkit-scrollbar-thumb */
+
+/*::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(123,92,255,.5), rgba(52,209,243,.45)); border-radius: 10px; border: 2px solid rgba(8,10,26,.55); }*/
+
+/* opção 2: ::-webkit-scrollbar-thumb:hover */
+
+/* opção 2 desativada: ::-webkit-scrollbar-thumb:hover */
+
+/*::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, rgba(123,92,255,.7), rgba(52,209,243,.65)); }*/
+
+/* opção 2: .space-layer */
+
+/* opção 2 desativada: .space-layer */
+
+/*.space-layer{ position: fixed; inset: 0; pointer-events: none; z-index: 0; }*/
+
+/* opção 2: .stars */
+
+/* opção 2 desativada: .stars */
+
+/*.stars{
+  background-image:
+    radial-gradient(#ffffff 1px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.75) 1px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.5) 0.8px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.25) 0.6px, transparent 0.8px);
+  background-size: 1100px 1100px, 600px 600px, 380px 380px, 220px 220px;
+  opacity: .32; mix-blend-mode: screen; animation: starsDrift 160s linear infinite;
+}*/
+
+/* opção 2: .nebula */
+
+/* opção 2 desativada: .nebula */
+
+/*.nebula{ background: radial-gradient(40% 30% at 20% 40%, rgba(123,92,255,0.26), transparent 20%), radial-gradient(38% 28% at 68% 62%, rgba(52,209,243,0.2), transparent 25%), radial-gradient(32% 22% at 60% 20%, rgba(255,94,196,0.18), transparent 22%); opacity: .9; mix-blend-mode: screen; animation: nebulaFloat 50s ease-in-out infinite, nebulaDrift 200s linear infinite; }*/
+
+/* =====================
+   3) LAYOUT CONTAINER
+   ===================== */
+
+/* opção 2: h1 */
+
+/* opção 2 desativada: h1 */
+
+/*h1{ font-size: var(--step-4); line-height: 1.15; }*/
+
+/* ==============
+   5) HEADER
+   ============== */
+
+/* opção 2: .btn */
+
+/* opção 2 desativada: .btn */
+
+/*.btn{ display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 14px; min-height: 44px; border-radius: 12px; border: 1px solid var(--glass-border); background: var(--glass); color: #fff; font-weight: 700; letter-spacing: .2px; transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast), filter var(--transition-fast); cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }*/
+
+/* opção 2 desativada: .btn:hover/.btn:active */
+
+/*
+.btn:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+.btn:active{ transform: translateY(0); }
+*/
+
+/* opção 2: .btn-primary */
+
+/* opção 2 desativada: .btn-primary */
+
+/*.btn-primary{ background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan)); border-color: transparent; }*/
+
+/* opção 2: .btn-secondary */
+
+/* opção 2 desativada: .btn-secondary */
+
+/*.btn-secondary{ background: var(--glass); border-color: var(--neon-outline); }*/
+
+/* ===== Period toggle (Dia/Semana/Faturamento) ===== */
+
+/* ======================
+   Generic Form Controls
+   ====================== */
+
+/* espaço para a setinha */
+
+/* Seletores globais — mantém aparência consistente mesmo fora de .form-row */
+
+/* opção 2: select */
+
+/* opção 2 desativada: select */
+
+/*select{ color: var(--text); background: rgba(255,255,255,0.05); border:1px solid var(--glass-border); border-radius: 12px; }*/
+
+/* ======================
+   Custom UI Select (paleta própria)
+   ====================== */
+
+/* opção 2: .ui-select__menu */
+
+/* opção 2 desativada: .ui-select__menu */
+
+/*.ui-select__menu{ scrollbar-width: auto; }*/
+
+/* Esconde o select nativo quando aprimorado */
+
+/* Camadas da tabela: garante que não sobreponham o dropdown */
+
+/* Portal: quando o menu é renderizado no body */
+
+/* opção 2: .stats-grid */
+
+/* opção 2 desativada: .stats-grid */
+
+/*.stats-grid{ display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px; }*/
+
+/* opção 2: .stat-card */
+
+/* opção 2 desativada: .stat-card */
+
+/*.stat-card{ background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 12px; box-shadow: var(--shadow-neon); }*/
+
+/* opção 2: .stat-card h3 */
+
+/* opção 2 desativada: .stat-card h3 */
+
+/*.stat-card h3{ color: var(--muted); font-size: var(--step--1); margin: 0 0 6px; }*/
+
+/* opção 2: .stat-number */
+
+/* opção 2 desativada: .stat-number */
+
+/*.stat-number{ font-size: var(--step-2); font-weight: 900; color: var(--accent-cyan); }*/
+
+/* ==============
+   8) CONTROLS
+   ============== */
+
+/* ============
+   9) TABS
+   ============ */
+
+/* Mobile bottom navbar (HTML opcional) */
+
+/* Debug: botão destacado quando ativo */
+
+/* =============================
+   10) CALENDÁRIO / AGENDA / HOJE
+   ============================= */
+
+/* ---------- Próximos Eventos / Lista do Dia ---------- */
+
+/* opção 2: .section-header */
+
+/* opção 2 desativada: .section-header */
+
+/*.section-header{ display:flex; align-items:center; justify-content: space-between; gap: 10px; padding-bottom: 8px; margin-bottom: 10px; border-bottom: 1px solid var(--glass-border); }*/
+
+/* opção 2: .event-card */
+
+/* opção 2 desativada: .event-card */
+
+/*.event-card{ background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow-neon); }*/
+
+/* ---------- Mini Calendário ---------- */
+
+/* Dias com todos eventos finalizados: padrão cinza com listras diagonais e ponto preto */
+
+/* círculo preto */
+
+/* =====================
+   11) (Removido) DESPESAS (CUSTOS)
+   ===================== */
+
+/* Seção de custos foi removida conforme solicitado */
+
+/* =======================
+   12) ROTAS / GOOGLE MAPS
+   ======================= */
+
+/* ================
+   13) CHATBOT UI
+   ================ */
+
+/* ============
+   14) LOGIN
+   ============ */
+
+/* ==================
+   15) UTILITÁRIOS
+   ================== */
+
+/* =====================================================
+   16) RESPONSIVE BREAKPOINTS — MOBILE FIRST!
+   ===================================================== */
+
+/* opção 2: :root */
+
+/* opção 2 desativada: :root */
+
+/*:root{
+  --easing-smooth: cubic-bezier(.21, .98, .34, .99);
+  --easing-softspring: cubic-bezier(.22, 1, .36, 1);
+  --panel-blur: 18px;
+}*/
+
+/* Header compacto para mobile */
+
+/* Unified transitions */
+
+/* opção 2: .btn:hover */
+
+/* opção 2 desativada: .btn:hover */
+
+/*.btn:hover{ transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 8px 28px rgba(123,92,255,.18); }*/
+
+/* opção 3 desativada: .btn-primary */
+
+/*
+.btn-primary{ background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan)); border-color: transparent; box-shadow: 0 0 0 0 rgba(123,92,255,.25); }
+*/
+
+/* opção 2: .btn-primary:hover */
+
+/* opção 2 desativada: .btn-primary:hover */
+
+/*.btn-primary:hover{ box-shadow: 0 0 0 6px rgba(123,92,255,.12); }*/
+
+/* Cards: neon border via double background */
+
+/* opção 3: .event-card */
+
+/* opção 3 desativada: .event-card */
+
+/*.event-card{ position: relative; overflow: hidden; }*/
+
+/* ======================================================
+   MÓDULO — PRÓXIMOS EVENTOS / EVENTOS E DESPESAS
+   (organizado e comentado — mantém visual atual)
+   ====================================================== */
+
+/* 1) CONTAINER PRINCIPAL */
+
+/* ======================================================
+   Próximos Eventos — compacto e elegante (mobile‑first)
+   ====================================================== */
+
+/* Igual à agenda diária (.calendar-minimized) */
+
+/* 2) CARDS */
+
+/* Feedbacks melhorados */
+
+/* 3) CABEÇALHO E INFORMAÇÕES */
+
+/* 4) METADADOS (FATURAMENTO / EST. / LUCRO) */
+
+/* 5) BOTÕES DE AÇÃO */
+
+/* A lista herda o padding do container da seção */
+
+/* 6) RESPONSIVIDADE */
+
+/* === inicio: usado por despesas.html === */
+
+/* ==============================================
+   Custos / Resumo de Despesas — compacto e claro
+   ============================================== */
+
+/* =====================================
+   Cards de Custos (details/summary usados)
+   ===================================== */
+
+/* Painel de evento (grid fluido tipo Pinterest) */
+
+/* Alias: .dashboard-grid aplica o mesmo layout em outros contextos */
+
+/* Card individual passa a ocupar toda a altura da célula */
+
+/* Responsividade do grid uniforme */
+
+/* Footer fixo de ações para cada evento */
+
+/* Conteúdo interno dos cards (opcional) */
+
+/* títulos e valores empilhados */
+
+/* Cores para metadados no cabeçalho expansível */
+
+/* Botões de ação com cores específicas */
+
+/* Excluir (delete) também com cor própria, porém discreta */
+
+/* Tabela de informações (estilo table) para linhas de detalhes */
+
+/* Regras genéricas para info-item (para blocos internos com título/valor) */
+
+/* Responsivo do grid fluido */
+
+/* opção 2: .dashboard-grid,.custos-details.painel-evento */
+
+/* opção 2 desativada: .dashboard-grid,.custos-details.painel-evento */
+
+/*.dashboard-grid, .custos-details.painel-evento{
+  display: block; 
+  column-count: 4;
+  column-gap: 20px;
+  padding: 20px;
+  width: 100%;
+}*/
+
+/* opção 2: .card-column,.custos-details.painel-evento .cost-box */
+
+/* opção 2 desativada: .card-column,.custos-details.painel-evento .cost-box */
+
+/*.card-column, .custos-details.painel-evento .cost-box{
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 20px;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  -moz-column-break-inside: avoid;
+}*/
+
+/* ======================================================
+   Beleza adicional (glass + neon) para o conteúdo interno
+   ====================================================== */
+
+/* Card interno com borda neon dupla e brilho sutil */
+
+/* Colunas como mini-cards (glass) com hover elegante */
+
+/* Título da coluna com barra luminosa */
+
+/* Linhas dentro de cada coluna (table feeling compacto) */
+
+/* Ícones nos títulos por coluna (cores coerentes) */
+
+/* Ações: botões com brilho suave e toque confortável */
+
+/* ======================================================
+   Cost-box (Resumo/Estimados/Reais/Formulário) — Estética
+   ====================================================== */
+
+/* Inputs em vidro com foco neon */
+
+/* Quebras responsivas do formulário de despesas */
+
+/* opção 2: .event-details */
+
+/* opção 2 desativada: .event-details */
+
+/*.event-details{
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.05));
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 8px;
+  box-shadow: var(--shadow-neon);
+}*/
+
+/* opção 2: .event-details .details-col h4 */
+
+/* opção 2 desativada: .event-details .details-col h4 */
+
+/*.event-details .details-col h4{
+  display: flex; align-items: center; gap: 6px;
+  color: var(--accent-gold);
+  font-size: clamp(0.95rem, 0.8rem + 0.4vw, 1.1rem);
+  margin: 0 0 6px 0;
+}*/
+
+/* opção 2: .event-details .details-col p */
+
+/* opção 2 desativada: .event-details .details-col p */
+
+/*.event-details .details-col p{
+  color: var(--muted);
+  font-size: clamp(0.85rem, 1vw, 0.95rem);
+  margin: 4px 0;
+  word-break: break-word;
+}*/
+
+/* opção 2: .event-details .details-actions */
+
+/* opção 2 desativada: .event-details .details-actions */
+
+/*.event-details .details-actions{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+}*/
+
+/* opção 2: .event-details .details-actions .btn */
+
+/* opção 2 desativada: .event-details .details-actions .btn */
+
+/*.event-details .details-actions .btn{
+  border-radius: 12px;
+  min-width: min(48%, 180px);
+}*/
+
+/* === fim: usado por despesas.html === */
+
+/* Títulos em histórico/feedback (event-basic-info) */
+
+/* opção 2: .event-chip */
+
+/* opção 2 desativada: .event-chip */
+
+/*.event-chip{ box-shadow: 0 6px 22px rgba(123,92,255,.08); }*/
+
+/* Status rails for cost cards */
+
+/* estilos de custos removidos */
+
+/* Motion safety */
+
+/* opção 4: .event-card */
+
+/* opção 2: .event-header */
+
+/* opção 2 desativada: .event-header */
+
+/*.event-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 0.6rem;
+  min-height: 48px;
+}*/
+
+/* opção 2: .event-header .left */
+
+/* opção 2 desativada: .event-header .left */
+
+/*.event-header .left { flex: 1; min-width: 0; overflow: hidden; }*/
+
+/* opção 2: .event-title */
+
+/* opção 2 desativada: .event-title */
+
+/*.event-title {
+  font-weight: 700;
+  color: var(--accent-gold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}*/
+
+/* opção 2: .event-meta */
+
+/* opção 2 desativada: .event-meta */
+
+/*.event-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  margin-top: 6px;
+}*/
+
+/* opção 3: .event-chip */
+
+/* opção 2: .event-chip:hover */
+
+/* opção 2 desativada: .event-chip:hover */
+
+/*.event-chip:hover { background: rgba(123, 92, 255, 0.15); border-color: var(--accent-purple); }*/
+
+/* opção 3: :root */
+
+/* opção 3 desativada: :root */
+
+/*:root{
+  --bg-deep: #030417;
+  --bg-mid: #06102a;
+  --accent-purple: #7b5cff;
+  --accent-cyan: #34d1f3;
+  --accent-magenta: #ff5ec4;
+  --accent-rose: #ff7fd1;
+  --accent-fuchsia: #d66bff;
+  --accent-iris: #a08bff;
+  --accent-gold: #ffd86b;
+  --glass: rgba(255,255,255,0.06);
+  --glass-strong: rgba(255,255,255,0.09);
+  --muted: rgba(255,255,255,0.65);
+  --muted-2: rgba(255,255,255,0.45);
+  --card-bg: linear-gradient(135deg, rgba(20,18,40,0.55), rgba(10,12,35,0.6));
+  --neon-outline: rgba(123,92,255,0.18);
+  --shadow-neon: 0 10px 30px rgba(11,9,28,0.6);
+  --glass-border: rgba(123,92,255,0.12);
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --transition-fast: 180ms cubic-bezier(.2,.9,.3,1);
+  --transition-med: 280ms cubic-bezier(.18,.9,.32,1);
+
+  
+  --calendar-bg: rgba(15, 23, 42, 0.95);
+  --calendar-border: #2d3748;
+  --calendar-primary: var(--accent-purple);
+  --calendar-secondary: var(--accent-cyan);
+  --calendar-accent: var(--accent-gold);
+  --calendar-success: #48bb78;
+  --calendar-warning: #ed8936;
+  --calendar-danger: #e53e3e;
+  --calendar-text: #e2e8f0;
+  --calendar-text-muted: #a0aec0;
+  
+  --event-color-confirmed: var(--calendar-success);
+  --event-color-pending: var(--calendar-warning);
+  --event-color-cancelled: var(--calendar-danger);
+  --event-color-travel: var(--calendar-secondary);
+  --event-color-school: var(--calendar-primary);
+}*/
+
+/* opção 3: * */
+
+/*
+
+
+
+*{box-sizing:border-box;margin:0;padding:0}
+*/
+
+/* opção 3: body */
+
+/* opção 3 desativada: body */
+
+/*body{
+  font-family: "Inter", "Space Grotesk", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial;
+  background: radial-gradient(1200px 600px at 10% 20%, rgba(123,92,255,0.06), transparent 5%),
+              radial-gradient(900px 400px at 90% 80%, rgba(52,209,243,0.05), transparent 6%),
+              var(--bg-deep);
+  color: #e6f0ff;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}*/
+
+/* Brinde badge (Agenda do Dia) */
+
+/* Estado padrão histórico (ouro) mantém compatibilidade */
+
+/* Sem brinde: neutro para evitar confusão */
+
+/* Finalizado badge (neutro/cinza) */
+
+/* cinza */
+
+/* ===== List Subtitles (Seções de eventos) ===== */
+
+/* Contêiner dos pendentes (abaixo do botão verde) */
+
+/* opção 2: .weather-widget */
+
+/* opção 2 desativada: .weather-widget */
+
+/*.weather-widget{
+  margin: 8px 0 14px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  align-items: stretch;
+}*/
+
+/* opção 2: .weather-today */
+
+/* opção 2 desativada: .weather-today */
+
+/*.weather-today{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  box-shadow: var(--shadow-neon);
+}*/
+
+/* opção 2: .weather-today .icon */
+
+/* opção 2 desativada: .weather-today .icon */
+
+/*.weather-today .icon{
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--neon-outline);
+  color: var(--accent-gold);
+}*/
+
+/* opção 2: .weather-today .label */
+
+/* opção 2 desativada: .weather-today .label */
+
+/*.weather-today .label{
+  font-weight: 600;
+}*/
+
+/* opção 2: .weather-today .meta */
+
+/* opção 2 desativada: .weather-today .meta */
+
+/*.weather-today .meta{
+  color: var(--muted);
+  font-size: 12px;
+}*/
+
+/* opção 2: .weather-next */
+
+/* opção 2 desativada: .weather-next */
+
+/*.weather-next{
+  display: flex;
+  gap: 8px;
+  grid-column: 1 / -1;
+}*/
+
+/* opção 3: .weather-next */
+
+/* opção 2: .weather-chip */
+
+/* opção 2 desativada: .weather-chip */
+
+/*.weather-chip{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--muted);
+}*/
+
+/* opção 2: .weather-chip .w-icon */
+
+/* opção 2 desativada: .weather-chip .w-icon */
+
+/*.weather-chip .w-icon{
+  color: var(--accent-cyan);
+}*/
+
+/* opção 2: .account-header-btn */
+
+/* opção 2 desativada: .account-header-btn */
+
+/*.account-header-btn{
+  margin-left: auto;
+}*/
+
+/* opção 2: .navigation */
+
+/* opção 2 desativada: .navigation */
+
+/*.navigation{
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 18px auto 24px;
+  padding: 0;
+}*/
+
+/* opção 3: .space-layer */
+
+/* opção 3 desativada: .space-layer */
+
+/*.space-layer{position:fixed;inset:0;pointer-events:none;z-index:0}*/
+
+/* opção 3: .stars */
+
+/* opção 3 desativada: .stars */
+
+/*.stars{
+  background-image:
+    radial-gradient(#ffffff 1px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.75) 1px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.5) 0.8px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.25) 0.6px, transparent 0.8px),
+    radial-gradient(rgba(255,255,255,0.18) 0.5px, transparent 0.7px);
+  background-size: 1100px 1100px, 600px 600px, 380px 380px, 220px 220px, 140px 140px;
+  background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
+  opacity: 0.32;
+  mix-blend-mode: screen;
+  animation: starsDrift 160s linear infinite;
+}*/
+
+/* opção 2: .twinkle */
+
+/* opção 2 desativada: .twinkle */
+
+/*.twinkle{
+  background-image: radial-gradient(rgba(255,255,255,0.18) 1px, transparent 2px);
+  background-size: 120px 120px;
+  background-position: 0 0;
+  opacity: 0.28;
+  animation: twinkleFade 6s ease-in-out infinite, twinkleMove 120s linear infinite;
+  mix-blend-mode: screen;
+}*/
+
+/* opção 2: .shooting-stars-2 */
+
+/* opção 2 desativada: .shooting-stars-2 */
+
+/*.shooting-stars-2{
+  background-image: repeating-linear-gradient(345deg, rgba(255,255,255,0) 0, rgba(255,255,255,0) 96%, rgba(255,255,255,0.16) 98%, rgba(255,255,255,0) 100%);
+  background-size: 7px 7px;
+  opacity: 0.08;
+  animation: shootingDrift2 14s linear infinite;
+  mix-blend-mode: screen;
+}*/
+
+/* opção 2: .shooting-stars-3 */
+
+/* opção 2 desativada: .shooting-stars-3 */
+
+/*.shooting-stars-3{
+  background-image: repeating-linear-gradient(290deg, rgba(255,255,255,0) 0, rgba(255,255,255,0) 96%, rgba(255,255,255,0.14) 98%, rgba(255,255,255,0) 100%);
+  background-size: 6px 6px;
+  opacity: 0.075;
+  animation: shootingDrift3 10s linear infinite;
+  mix-blend-mode: screen;
+}*/
+
+/* opção 3: .nebula */
+
+/* opção 3 desativada: .nebula */
+
+/*.nebula{
+  background:
+    radial-gradient(40% 30% at 20% 40%, rgba(123,92,255,0.26), transparent 20%),
+    radial-gradient(38% 28% at 68% 62%, rgba(52,209,243,0.2), transparent 25%),
+    radial-gradient(32% 22% at 60% 20%, rgba(255,94,196,0.18), transparent 22%),
+    radial-gradient(28% 20% at 30% 75%, rgba(255,127,209,0.16), transparent 20%),
+    radial-gradient(22% 18% at 80% 25%, rgba(214,107,255,0.14), transparent 24%);
+  background-position: 0 0, 0 0, 0 0;
+  opacity: 0.9;
+  mix-blend-mode: screen;
+  transform-origin:center;
+  animation: nebulaFloat 50s ease-in-out infinite, nebulaDrift 200s linear infinite;
+}*/
+
+/* Faixa sutil da Via Láctea atravessando o céu */
+
+/* opção 2: .galaxies */
+
+/* opção 2 desativada: .galaxies */
+
+/*.galaxies{
+  background:
+    radial-gradient(42vmin 28vmin at 18% 30%, rgba(255,255,255,0.05), transparent 60%),
+    radial-gradient(40vmin 26vmin at 72% 62%, rgba(160,139,255,0.09), transparent 60%),
+    radial-gradient(36vmin 24vmin at 58% 38%, rgba(255,127,209,0.08), transparent 60%),
+    radial-gradient(30vmin 20vmin at 30% 75%, rgba(214,107,255,0.07), transparent 60%),
+    radial-gradient(24vmin 16vmin at 82% 25%, rgba(123,92,255,0.06), transparent 65%);
+  opacity: 0.28;
+  mix-blend-mode: screen;
+  animation: galaxyDrift 220s linear infinite;
+}*/
+
+/* Nebula explosion trail (rose hues) */
+
+/* Background animations */
+
+/* opção 2: .container */
+
+/* opção 2 desativada: .container */
+
+/*.container{
+  max-width:1300px;
+  margin:32px auto;
+  padding:26px;
+  position:relative;
+  z-index:5;
+}*/
+
+/* opção 2: header */
+
+/* opção 2 desativada: header */
+
+/*header{
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: var(--radius-lg);
+  padding:28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  border:1px solid var(--glass-border);
+  box-shadow: var(--shadow-neon);
+  position:relative;
+  overflow:hidden;
+}*/
+
+/* opção 2: header h1 */
+
+/* opção 2 desativada: header h1 */
+
+/*header h1{
+  font-size:1.8rem;
+  color:var(--accent-gold);
+  letter-spacing:-0.6px;
+  display:flex;
+  gap:12px;
+  align-items:center;
+}*/
+
+/* opção 3: .stats-grid */
+
+/* opção 3: .stat-card */
+
+/* opção 3 desativada: .stat-card */
+
+/*.stat-card{
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(10,8,30,0.35));
+  border-radius:12px;
+  padding:20px;
+  border:1px solid var(--glass-border);
+  transition: transform var(--transition-med), box-shadow var(--transition-med);
+  position:relative;
+  overflow:hidden;
+}*/
+
+/* opção 3: .stat-card h3 */
+
+/* opção 3: .stat-number */
+
+/* opção 2: .stat-hint */
+
+/* opção 2 desativada: .stat-hint */
+
+/*.stat-hint{ margin-top:8px; font-size:0.8rem; color:var(--muted-2); letter-spacing:0.08em; text-transform:uppercase }*/
+
+/* decorative neon line */
+
+/* opção 2: .controls */
+
+/* opção 2 desativada: .controls */
+
+/*.controls{
+  margin:28px 0;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  border: none;
+  flex-wrap: wrap;
+}*/
+
+/* opção 2: #update-status */
+
+/* opção 2 desativada: #update-status */
+
+/*#update-status{ font-weight:600; color:var(--muted); min-height:20px }*/
+
+/* opção 2: .tabs */
+
+/* opção 2 desativada: .tabs */
+
+/*.tabs{
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  margin-bottom:18px;
+  flex-wrap:wrap;
+}*/
+
+/* opção 2: .tab-btn */
+
+/* opção 2 desativada: .tab-btn */
+
+/*.tab-btn{
+  background:transparent;
+  border:1px solid var(--glass-border);
+  color:var(--muted);
+  padding:12px 20px;
+  border-radius:12px;
+  cursor:pointer;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  transition: all var(--transition-fast);
+}*/
+
+/* opção 2: .tab-btn.active */
+
+/* opção 2 desativada: .tab-btn.active */
+
+/*.tab-btn.active{
+  background: linear-gradient(90deg, rgba(123,92,255,0.12), rgba(52,209,243,0.08));
+  border-color: rgba(123,92,255,0.28);
+  color:#fff;
+  box-shadow: 0 8px 28px rgba(123,92,255,0.08);
+}*/
+
+/* opção 2: .tab-content */
+
+/* opção 2 desativada: .tab-content */
+
+/*.tab-content{
+  background: linear-gradient(180deg, rgba(10,12,30,0.6), rgba(6,8,22,0.7));
+  border-radius: var(--radius-lg);
+  padding:28px;
+  border:1px solid var(--glass-border);
+  box-shadow: var(--shadow-neon);
+  display:none;
+}*/
+
+/* opção 2: .tab-content.active */
+
+/* opção 2 desativada: .tab-content.active */
+
+/*.tab-content.active{ display:block }*/
+
+/* headings inside tabs */
+
+/* opção 2: .today-highlight */
+
+/* opção 2 desativada: .today-highlight */
+
+/*.today-highlight{
+  margin-top:10px;
+  padding:16px;
+  border-radius:14px;
+  background:
+    linear-gradient(180deg, rgba(12,14,34,0.45), rgba(6,8,20,0.55)),
+    radial-gradient(800px 300px at 15% 0%, rgba(123,92,255,0.08), transparent 60%),
+    radial-gradient(600px 260px at 85% 20%, rgba(52,209,243,0.07), transparent 60%),
+    radial-gradient(500px 220px at 50% 90%, rgba(255,127,209,0.06), transparent 65%);
+  border:1px solid var(--glass-border);
+}*/
+
+/* eventos do dia atual que já passaram agora (cor sutil) */
+
+/* ===== ROUTES ===== */
+
+/* opção 2: .route-header */
+
+/* opção 2 desativada: .route-header */
+
+/*.route-header{ color:var(--accent-gold); font-weight:700; display:flex; gap:10px; align-items:center }*/
+
+/* opção 2: .route-summary p */
+
+/* opção 2 desativada: .route-summary p */
+
+/*.route-summary p{ color:var(--muted); margin:6px 0 }*/
+
+/* opção 2: .route-steps */
+
+/* opção 2 desativada: .route-steps */
+
+/*.route-steps{ margin-top:12px }*/
+
+/* opção 2: .route-step */
+
+/* opção 2 desativada: .route-step */
+
+/*.route-step{ display:flex; align-items:center; gap:12px; padding:10px; border-radius:10px; background: rgba(255,255,255,0.01) }*/
+
+/* opção 2: .step-number */
+
+/* opção 2 desativada: .step-number */
+
+/*.step-number{ width:34px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg,var(--accent-purple),var(--accent-cyan)); color:white; font-weight:700 }*/
+
+/* hotels */
+
+/* ===== CHATBOT ===== */
+
+/* Removido daqui para evitar conflitos: o estilo do chatbot vive em `css/chatbot.css`. */
+
+/* typing indicator */
+
+/* ===== MODAL ===== */
+
+/* ===== TOASTS ===== */
+
+/* ===== FOOTER ===== */
+
+/* opção 2: .hidden */
+
+/* opção 2 desativada: .hidden */
+
+/*.hidden{ display:none !important }*/
+
+/* opção 2: .center */
+
+/* opção 2 desativada: .center */
+
+/*.center{ display:flex; align-items:center; justify-content:center }*/
+
+/* opção 2: .shooting-stars */
+
+/* opção 2 desativada: .shooting-stars */
+
+/*.shooting-stars { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }*/
+
+/* instâncias (tempos/posições escalonados) */
+
+/* Poeira estelar sutil (nova camada space-layer stardust) */
+
+/* opção 4: .space-layer */
+
+/* opção 4: .stars */
+
+/* opção 3: .twinkle */
+
+/* opção 4: .nebula */
+
+/* opção 3: .galaxies */
+
+/* Animações novas/sincronizadas */
+
+/* ===== AGENDA DO DIA — LAYOUT CENTRALIZADO ===== */
+
+/* opção 3: .today-highlight */
+
+/* opção 3 desativada: .today-highlight */
+
+/*.today-highlight{ text-align:center }*/
+
+/* ===== AGENDA DO DIA — CARD POR EVENTO ===== */
+
+/* Astronaut vibe accent on hover */
+
+/* Canceled/minimized styles */
+
+/* ===== AGENDA DO DIA — BANNERS ===== */
+
+/* opção 2: .route-summary */
+
+/* opção 2 desativada: .route-summary */
+
+/*.route-summary{ display:flex; gap:12px; flex-wrap:wrap }*/
+
+/* opção 2: .route-stat */
+
+/* opção 2 desativada: .route-stat */
+
+/*.route-stat{ display:flex; gap:6px; align-items:center; color:var(--muted) }*/
+
+/* ===== CUSTOS — Resumos claros (Estimados/Reais) ===== */
+
+/* ===== FRASES SAZONAIS ===== */
+
+/* Empty state subtle card */
+
+/* ===== Responsive tweaks for <=640px ===== */
+
+/*
+@media (max-width: 640px){
+  .container{ margin:16px auto; padding:16px; }
+  header{ padding:16px; flex-direction: column; align-items:flex-start; gap:12px; }
+  .stats-grid{ grid-template-columns: 1fr 1fr; gap:10px; }
+  .stat-card{ padding:12px; }
+  .stat-card h3{ font-size:0.78rem; }
+  .stat-number{ font-size:1.4rem; margin-top:4px; }
+  .stat-hint{ margin-top:4px; font-size:0.75rem; }
+  .controls{ margin:16px 0; padding:12px; }
+}
+@media (max-width: 420px){
+  .stats-grid{ grid-template-columns: 1fr; }
+}
+*/
+
+/* actions (globais para botões) */
+
+/* opção 3 desativada: .btn */
+
+/*
+.btn{ padding:10px 14px; border-radius:10px; border:none; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px }
+*/
+
+/* opção 3 desativada: .btn-secondary */
+
+/*
+.btn-secondary{ background: rgba(255,255,255,0.03); color:var(--muted) }
+*/
+
+/* ===== Override: remover fundos animados (estrelas/galáxias/nébula) para um visual simples ===== */
+
+/* ==== css/despesas-modern.css ==== */
+
+/* public/css/despesas-modern.css - CORRIGIDO */
+
+/* --- General Layout & Summary --- */
+
+/* opção 2: .summary-grid */
+
+/* opção 2 desativada: .summary-grid */
+
+/*.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: clamp(0.75rem, 2vw, 1rem);
+}*/
+
+/* opção 2: .summary-card */
+
+/* opção 2 desativada: .summary-card */
+
+/*.summary-card {
+    background: rgba(12, 14, 34, 0.45);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: clamp(1rem, 2vw, 1.25rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}*/
+
+/* --- Filters Section --- */
+
+/* --- Event List & Cards --- */
+
+/* opção 3: .controls */
+
+/* opção 3 desativada: .controls */
+
+/*.controls {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+}*/
+
+/* Mobile-first improvements */
+
+/* opção 3: .container */
+
+/* opção 3 desativada: .container */
+
+/*.container {
+    width: min(100%, 1200px) !important;
+    margin: 0 auto !important;
+    padding: clamp(12px, 2vw, 24px) !important;
+}*/
+
+/* opção 4: body */
+
+/* opção 2: .subtitle */
+
+/* opção 2 desativada: .subtitle */
+
+/*.subtitle{ color: var(--muted) }*/
+
+/* opção 4: .container */
+
+/* opção 3: header h1 */
+
+/* opção 3: .navigation */
+
+/* opção 2: .nav-button */
+
+/* opção 2 desativada: .nav-button */
+
+/*.nav-button{
+  background: transparent;
+  border:1px solid var(--glass-border);
+  color: var(--muted);
+  padding: 10px 18px;
+  border-radius: 12px;
+  cursor:pointer;
+  display:flex; align-items:center; gap:8px;
+  text-decoration:none;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}*/
+
+/* opção 2: .nav-button:hover */
+
+/* opção 2 desativada: .nav-button:hover */
+
+/*.nav-button:hover{ transform: translateY(-3px); border-color: var(--neon-outline); color: #fff }*/
+
+/* opção 2: .nav-button.active */
+
+/* opção 2 desativada: .nav-button.active */
+
+/*.nav-button.active{
+  background: linear-gradient(90deg, rgba(123,92,255,0.12), rgba(52,209,243,0.10));
+  border-color: rgba(123,92,255,0.28);
+  color:#fff;
+  box-shadow: 0 8px 28px rgba(123,92,255,0.08);
+}*/
+
+/* Seções em cartão (substitui caixas escuras inline) */
+
+/* evita overflow em grids quando há textos longos */
+
+/* opção 2: .section-title */
+
+/* opção 2 desativada: .section-title */
+
+/*.section-title{
+  color: var(--accent-gold);
+  margin-bottom: 16px;
+  display:flex; align-items:center; gap:10px;
+  font-size: 1.25rem;
+}*/
+
+/* Layout principal para seções lado a lado */
+
+/* opção 2: .calendar-header */
+
+/* opção 2 desativada: .calendar-header */
+
+/*.calendar-header{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom: 16px }*/
+
+/* Cartões genéricos dentro das seções */
+
+/* Grid de estatísticas dos docs */
+
+/* opção 4: .stat-card */
+
+/* Campos de filtro e formulários */
+
+/* Status do Webhook / avisos */
+
+/* impede alargamento por strings enormes */
+
+/* Quebra segura de URLs e textos longos */
+
+/* Resultados e resumos (genéricos) */
+
+/* Lista com rolagem agradável */
+
+/* Botões diversos dos docs */
+
+/* Filtros e grupos */
+
+/* Calendário compacto (docs index.html) */
+
+/* opção 3: .event-header */
+
+/* opção 3 desativada: .event-header */
+
+/*.event-header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom: 10px }*/
+
+/* opção 3: .event-title */
+
+/* ===== MODAL DE EVENTO (DETALHES) ===== */
+
+/* Badges/flags abaixo do título do modal e nos cards */
+
+/* opção 2: .empty-state */
+
+/* opção 2 desativada: .empty-state */
+
+/*.empty-state{ background: linear-gradient(180deg, rgba(12,14,34,0.45), rgba(6,8,22,0.55)); border:1px solid var(--glass-border); color: var(--muted); border-radius: 14px }*/
+
+/* opção 2: .empty-state i */
+
+/* opção 2 desativada: .empty-state i */
+
+/*.empty-state i{ color: var(--accent-cyan) }*/
+
+/* Notificações toasts simples (compatível com os docs) */
+
+/* Responsividade básica */
+
+/* ===== Login (coeso com tema) ===== */
+
+/* opção 2: .login-card */
+
+/* opção 2 desativada: .login-card */
+
+/*.login-card{
+  width:min(520px, 100%);
+  background: linear-gradient(180deg, rgba(12,14,34,0.55), rgba(6,8,22,0.7));
+  border:1px solid var(--glass-border);
+  border-radius: 16px; padding: 20px; box-shadow: var(--shadow-neon);
+}*/
+
+/* opção 2: .login-form */
+
+/* opção 2 desativada: .login-form */
+
+/*.login-form{ display:flex; flex-direction:column; gap:12px }*/
+
+/* Botões de ação maiores */
+
+/* opção 2: .expense-grid */
+
+/* opção 2 desativada: .expense-grid */
+
+/*.expense-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px }*/
+
+/* opção 4: .controls */
+
+/* Feedbacks */
+
+/* === inicio: usado por historico.html === */
+
+/* Histórico */
+
+/* === fim: usado por historico.html === */
+
+/* Spinner utilitário */
+
+/* ==== css/agenda.css ==== */
+
+/* ===== Apresentacao ===== */
+
+/* === inicio: usado por apresentacao.html === */
+
+/* === inicio: opções descartadas (apresentacao.html) === */
+
+/* opção 1 desativada: apresentação hero */
+
+/*
+.presentation-page .hero {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  align-items: center;
+  margin: 12px 0 32px;
+}
+.presentation-page .hero h1 {
+  margin: 12px 0 0;
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  line-height: 1.15;
+}
+.presentation-page .hero-eyebrow {
+  color: var(--accent-gold);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+.presentation-page .hero p { color: var(--muted); margin-top: 12px; }
+.presentation-page .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+.presentation-page .hero-badges { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.presentation-page .hero-badge {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(123, 92, 255, 0.28);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-strong, #e6f0ff);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.presentation-page .panel-card {
+  background: linear-gradient(180deg, rgba(10, 12, 30, 0.88), rgba(7, 9, 24, 0.95));
+  border: 1px solid rgba(123, 92, 255, 0.22);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: 0 16px 40px rgba(6, 8, 20, 0.55);
+}
+*/
+
+/* opção 1 desativada: cards da seção (feature-card) */
+
+/*
+.presentation-page .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.presentation-page .feature-card {
+  background: linear-gradient(180deg, rgba(12, 14, 34, 0.72), rgba(7, 9, 24, 0.88));
+  border: 1px solid rgba(123, 92, 255, 0.18);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: var(--shadow-neon);
+  position: relative;
+  overflow: hidden;
+}
+.presentation-page .feature-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-top: 3px solid rgba(52, 209, 243, 0.35);
+  opacity: 0.8;
+  pointer-events: none;
+}
+.presentation-page .feature-card i { color: var(--accent-cyan); font-size: 1.2rem; }
+.presentation-page .feature-card h3 { margin: 12px 0 8px; }
+.presentation-page .feature-card p { color: var(--muted); }
+*/
+
+/* === fim: opções descartadas (apresentacao.html) === */
+
+/* opção 2: cards da seção (feature-card) */
+
+/* opção 2: cards de estatísticas */
+
+/* opção 2: responsividade dos cards */
+
+/* === fim: usado por apresentacao.html === */
+
+/* ===== Agenda (index) ===== */
+
+/* === inicio: usado por index.html === */
+
+/* === inicio: opções descartadas (index.html) === */
+
+/* opção 1 desativada: calendário e detalhes do dia */
+
+/*
+.agenda-page .calendar-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.agenda-page .calendar-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+}
+.agenda-page .calendar-month-label {
+  font-weight: 600;
+  text-transform: capitalize;
+  font-size: 0.95rem;
+}
+.agenda-page table.calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+.agenda-page .calendar-table th,
+.agenda-page .calendar-table td {
+  text-align: center;
+  padding: 4px;
+  height: 32px;
+}
+.agenda-page .calendar-table thead th {
+  font-weight: 600;
+  opacity: 0.9;
+}
+.agenda-page .calendar-day {
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.1s ease-out, transform 0.1s ease-out;
+}
+.agenda-page .calendar-day.empty {
+  cursor: default;
+}
+.agenda-page .calendar-day:hover:not(.empty) {
+  background: rgba(255, 255, 255, 0.06);
+}
+.agenda-page .calendar-day.selected {
+  background: rgba(88, 101, 242, 0.35);
+  transform: translateY(-1px);
+}
+.agenda-page .calendar-day.has-events .day-number {
+  font-weight: 700;
+}
+.agenda-page .day-number {
+  font-size: 0.8rem;
+}
+.agenda-page .calendar-day.has-events {
+  border-left: 3px solid var(--day-color, rgba(0, 224, 255, 0.8));
+}
+.agenda-page .day-event-chip-container {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.agenda-page .day-event-chip {
+  all: unset;
+  display: block;
+  padding: 4px 6px;
+  border-radius: 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-align: center;
+  color: #0b0d1c;
+  background: var(--ev-color, #7b5cff);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.agenda-page .day-event-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.45);
+}
+.agenda-page .day-event-chip.more {
+  background: transparent;
+  color: var(--muted);
+  border: 1px dashed rgba(255, 255, 255, 0.35);
+}
+.agenda-page .day-detail {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+.agenda-page .day-detail__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.agenda-page .day-detail__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.agenda-page .day-detail__count {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.agenda-page .day-detail__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.agenda-page .day-detail__empty {
+  font-size: 0.85rem;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px;
+}
+.agenda-page .day-detail__card {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(150deg, rgba(15, 17, 36, 0.85), rgba(8, 11, 28, 0.92));
+  padding: 10px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.agenda-page .day-detail__card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+}
+.agenda-page .day-detail__card h4 {
+  margin: 0 0 6px;
+  font-size: 0.98rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.agenda-page .day-detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.agenda-page .day-detail__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.agenda-page .day-detail__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 0.78rem;
+}
+*/
+
+/* opção 2 desativada: calendário tático (Nebula Pro) */
+
+/*
+.agenda-page .calendar-panel .panel-card {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.agenda-page .calendar-header-row {
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.6);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.agenda-page .calendar-nav-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+}
+
+.agenda-page .calendar-nav-btn:hover {
+  color: #fff;
+  border-color: var(--neon-cyan);
+  background: rgba(34, 211, 238, 0.1);
+}
+
+.agenda-page .calendar-month-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  text-transform: capitalize;
+}
+
+.agenda-page .calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.agenda-page .calendar-table th {
+  padding: 12px;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.agenda-page .calendar-day {
+  height: 110px;
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: top;
+  padding: 8px;
+  transition: background 0.2s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+.agenda-page .calendar-day:last-child {
+  border-right: none;
+}
+
+.agenda-page .calendar-day:not(.empty):hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.agenda-page .calendar-day.selected {
+  background: rgba(34, 211, 238, 0.08);
+  box-shadow: inset 0 0 0 2px var(--neon-cyan);
+}
+
+.agenda-page .calendar-day.empty {
+  background: rgba(0, 0, 0, 0.2);
+  cursor: default;
+}
+
+.agenda-page .day-number {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.agenda-page .calendar-day.selected .day-number {
+  color: var(--neon-cyan);
+  font-weight: 700;
+}
+
+.agenda-page .day-event-chip-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-content: flex-start;
+}
+
+.agenda-page .day-event-chip {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--ev-color, var(--neon-purple));
+  box-shadow: 0 0 6px var(--ev-color);
+  transition: transform 0.2s;
+}
+
+.agenda-page .day-event-chip.more {
+  width: auto;
+  height: auto;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  box-shadow: none;
+  padding: 0 2px;
+}
+
+.agenda-page .day-event-chip:hover {
+  transform: scale(1.3);
+  z-index: 2;
+}
+
+.agenda-page .day-detail {
+  padding: 20px;
+  border-top: 1px solid var(--border-color);
+  background: rgba(15, 23, 42, 0.3);
+}
+
+.agenda-page .day-detail__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.agenda-page .day-detail__title {
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.agenda-page .day-detail__title i {
+  color: var(--neon-cyan);
+  font-size: 0.8rem;
+}
+
+.agenda-page .day-detail__count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.agenda-page .day-detail__card {
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.agenda-page .day-detail__card:hover {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: var(--neon-cyan);
+  transform: translateX(4px);
+}
+
+.agenda-page .day-detail__card h4 {
+  margin: 0 0 4px 0;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.agenda-page .day-detail__meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.agenda-page .day-detail__chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+  .agenda-page .calendar-day {
+    height: 70px;
+    padding: 4px;
+  }
+
+  .agenda-page .day-number {
+    font-size: 0.75rem;
+  }
+
+  .agenda-page .day-event-chip {
+    width: 6px;
+    height: 6px;
+    box-shadow: none;
+  }
+}
+*/
+
+/* opção 3 desativada: calendário compacto */
+
+/*
+.agenda-page .main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(300px, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.agenda-page .calendar-panel .panel-card {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.agenda-page .calendar-header-row {
+  padding: 10px 15px;
+  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.agenda-page .calendar-month-label {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.agenda-page .calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.agenda-page .calendar-table th {
+  padding: 8px 4px;
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(15, 23, 42, 0.4);
+  text-align: center;
+}
+
+.agenda-page .calendar-day {
+  height: auto;
+  min-height: 70px;
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-left: none;
+  vertical-align: top;
+  padding: 6px;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.agenda-page .calendar-day:last-child {
+  border-right: none;
+}
+
+.agenda-page .calendar-day:not(.empty):hover {
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+}
+
+.agenda-page .calendar-day.selected {
+  background: rgba(59, 130, 246, 0.1);
+  box-shadow: inset 0 0 0 1px var(--neon-cyan);
+}
+
+.agenda-page .calendar-day.empty {
+  background: rgba(0, 0, 0, 0.2);
+  cursor: default;
+}
+
+.agenda-page .day-number {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-bottom: 4px;
+  text-align: right;
+}
+
+.agenda-page .day-event-chip-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  justify-content: flex-end;
+}
+
+.agenda-page .day-event-chip {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--ev-color, var(--neon-cyan));
+  box-shadow: 0 0 4px var(--ev-color);
+}
+
+.agenda-page .day-event-chip.more {
+  width: auto;
+  height: auto;
+  border-radius: 2px;
+  font-size: 0.6rem;
+  padding: 0 2px;
+  background: transparent;
+  color: var(--text-dim);
+  box-shadow: none;
+}
+
+@media (max-width: 1200px) {
+  .agenda-page .calendar-day {
+    min-height: 60px;
+  }
+}
+
+@media (max-width: 900px) {
+  .agenda-page .main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .agenda-page .calendar-panel {
+    margin-bottom: 20px;
+  }
+}
+*/
+
+/* opção 4 desativada: calendário compacto & responsivo */
+
+/*
+.agenda-page .main-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
+}
+
+.agenda-page .calendar-panel .panel-card {
+  padding: 0;
+  overflow-x: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.agenda-page .calendar-header-row {
+  padding: 10px 15px;
+  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.agenda-page .calendar-month-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.agenda-page .calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  min-width: 500px;
+}
+
+.agenda-page .calendar-table th {
+  padding: 8px 0;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(15, 23, 42, 0.3);
+  text-align: center;
+}
+
+.agenda-page .calendar-day {
+  height: 80px;
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: top;
+  padding: 6px;
+  transition: background 0.2s;
+  position: relative;
+  cursor: pointer;
+}
+
+.agenda-page .calendar-day:last-child {
+  border-right: none;
+}
+
+.agenda-page .calendar-day:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.agenda-page .calendar-day.selected {
+  background: rgba(59, 130, 246, 0.1);
+  box-shadow: inset 0 0 0 1px var(--brand-primary);
+}
+
+.agenda-page .day-number {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-bottom: 4px;
+  text-align: right;
+}
+
+.agenda-page .day-event-chip-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  justify-content: flex-end;
+}
+
+.agenda-page .day-event-chip {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--ev-color, var(--neon-cyan));
+  box-shadow: 0 0 4px var(--ev-color);
+}
+
+.agenda-page .day-detail {
+  padding: 15px;
+  border-top: 1px solid var(--border-color);
+  background: rgba(15, 23, 42, 0.2);
+}
+
+@media (max-width: 1200px) {
+  .agenda-page .main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .agenda-page .calendar-panel {
+    margin-bottom: 20px;
+  }
+
+  .agenda-page .calendar-day {
+    height: 60px;
+  }
+}
+
+.agenda-page .events-panel .panel-card {
+  max-height: 600px;
+  display: flex;
+  flex-direction: column;
+}
+
+.agenda-page .events-list {
+  overflow-y: auto;
+  padding-right: 5px;
+}
+*/
+
+/* opção 5 desativada: calendário equilibrado */
+
+/*
+.agenda-page .main-grid {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.agenda-page .calendar-panel .panel-card {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.agenda-page .calendar-header-row {
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.agenda-page .calendar-month-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.agenda-page .calendar-nav-btn {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+}
+
+.agenda-page .calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.agenda-page .calendar-table th {
+  padding: 6px 0;
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(15, 23, 42, 0.3);
+  text-align: center;
+}
+
+.agenda-page .calendar-day {
+  height: 55px;
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: top;
+  padding: 4px;
+  transition: background 0.2s;
+  position: relative;
+  cursor: pointer;
+}
+
+.agenda-page .calendar-day:last-child {
+  border-right: none;
+}
+
+.agenda-page .calendar-day:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.agenda-page .calendar-day.selected {
+  background: rgba(59, 130, 246, 0.1);
+  box-shadow: inset 0 0 0 1px var(--brand-primary);
+}
+
+.agenda-page .day-number {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-bottom: 2px;
+  text-align: right;
+}
+
+.agenda-page .day-event-chip-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  justify-content: flex-end;
+}
+
+.agenda-page .day-event-chip {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--ev-color, var(--neon-cyan));
+}
+
+.agenda-page .day-detail {
+  padding: 12px;
+  border-top: 1px solid var(--border-color);
+  background: rgba(15, 23, 42, 0.2);
+}
+
+@media (max-width: 992px) {
+  .agenda-page .main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .agenda-page .calendar-day {
+    height: 50px;
+  }
+}
+
+.agenda-page .events-panel .panel-card {
+  height: 100%;
+  max-height: 600px;
+  display: flex;
+  flex-direction: column;
+}
+
+.agenda-page .events-list {
+  overflow-y: auto;
+  padding-right: 5px;
+}
+*/
+
+/* === fim: opções descartadas (index.html) === */
+
+/* opção 6 ativa: calendário ultra compacto */
+
+/* Filtros */
+
+/* Lista de eventos */
+
+/* opção 2: .agenda-page .event-section */
+
+/* opção 2 desativada: .agenda-page .event-section */
+
+/*.agenda-page .event-section {
+  display: flex;
+  flex-direction: column;
+  max-height: 72vh;
+  min-height: 220px;
+  background: linear-gradient(145deg, rgba(19, 22, 48, 0.82), rgba(9, 12, 32, 0.9));
+  border: 1px solid rgba(123, 92, 255, 0.2);
+  border-radius: 14px;
+  padding: 10px;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(6px);
+}*/
+
+/* Cores por bloco de rota continua */
+
+/* Novo layout de blocos independentes (proximos / pendentes) */
+
+/* Modal de detalhes do evento */
+
+/* Carrossel de imagens no modal */
+
+/* Lightbox fullscreen para imagens (mobile first) */
+
+/* opção 2: .calendar-minimized */
+
+/* opção 2 desativada: .calendar-minimized */
+
+/*.calendar-minimized {
+    background: var(--calendar-bg);
+    border-radius: 20px;
+    padding: 25px;
+    border: 1px solid var(--calendar-border);
+    backdrop-filter: blur(20px);
+    margin-bottom: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}*/
+
+/* opção 3: .calendar-header */
+
+/* opção 2: .calendar-title */
+
+/* opção 2 desativada: .calendar-title */
+
+/*.calendar-title {
+    color: var(--calendar-secondary);
+    font-size: 1.8em;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}*/
+
+/* opção 2: .calendar-controls */
+
+/* opção 2 desativada: .calendar-controls */
+
+/*.calendar-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-left: auto;
+    flex-wrap: wrap;
+}*/
+
+/* opção 2: .view-toggle */
+
+/* opção 2 desativada: .view-toggle */
+
+/*.view-toggle { display: flex; gap: 8px; align-items: center; margin-right: 8px; }*/
+
+/* opção 4: .today-highlight */
+
+/* Semana */
+
+/* opção 2: .today-highlight h2 */
+
+/* opção 2 desativada: .today-highlight h2 */
+
+/*.today-highlight h2 {
+    color: var(--calendar-primary);
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}*/
+
+/* opção 2: #current-date */
+
+/* opção 2 desativada: #current-date */
+
+/*#current-date {
+    font-size: 1.1em;
+    font-weight: 300;
+    color: var(--calendar-text-muted);
+}*/
+
+/* opção 2: .mini-calendar */
+
+/* opção 2 desativada: .mini-calendar */
+
+/*.mini-calendar {
+    background: rgba(26, 32, 44, 0.8);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid var(--calendar-border);
+}*/
+
+/* opção 2: .mini-calendar-nav */
+
+/* opção 2 desativada: .mini-calendar-nav */
+
+/*.mini-calendar-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--calendar-border);
+}*/
+
+/* opção 2: .mini-calendar-month */
+
+/* opção 2 desativada: .mini-calendar-month */
+
+/*.mini-calendar-month {
+    color: var(--calendar-secondary);
+    font-size: 1.2em;
+    font-weight: 600;
+}*/
+
+/* opção 2: .mini-calendar-days-header */
+
+/* opção 2 desativada: .mini-calendar-days-header */
+
+/*.mini-calendar-days-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 10px;
+}*/
+
+/* opção 2: .mini-calendar-day-header */
+
+/* opção 2 desativada: .mini-calendar-day-header */
+
+/*.mini-calendar-day-header {
+    text-align: center;
+    font-weight: 700;
+    color: var(--calendar-primary);
+    font-size: 0.9em;
+    padding: 8px 0;
+}*/
+
+/* opção 2: .mini-calendar-grid */
+
+/* opção 2 desativada: .mini-calendar-grid */
+
+/*.mini-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}*/
+
+/* opção 2: .mini-calendar-day */
+
+/* opção 2 desativada: .mini-calendar-day */
+
+/*.mini-calendar-day {
+    background: var(--calendar-bg);
+    border-radius: 8px;
+    padding: 10px 5px;
+    text-align: center;
+    font-size: 0.9em;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    min-height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--calendar-text);
+}*/
+
+/* opção 2: .mini-calendar-day.empty */
+
+/* opção 2 desativada: .mini-calendar-day.empty */
+
+/*.mini-calendar-day.empty {
+    background: transparent;
+    cursor: default;
+    border: none;
+    opacity: 0.3;
+}*/
+
+/* opção 2: .mini-calendar-day.today */
+
+/* opção 2 desativada: .mini-calendar-day.today */
+
+/*.mini-calendar-day.today {
+    border: 2px solid var(--calendar-primary);
+    background: rgba(123, 92, 255, 0.12);
+}*/
+
+/* opção 2: .mini-calendar-day.selected */
+
+/* opção 2 desativada: .mini-calendar-day.selected */
+
+/*.mini-calendar-day.selected {
+    background: rgba(107, 70, 193, 0.3);
+    border: 2px solid var(--calendar-primary);
+}*/
+
+/* ===== INDICADORES DE EVENTOS COM PONTOS COLORIDOS ===== */
+
+/* Diferenciar passado x futuro com evento (sem interferir em faixas multi‑diárias) */
+
+/* Dias passados e dia atual diferenciados */
+
+/* passado continua clicável */
+
+/* opção 2: .mini-calendar-day.current-day */
+
+/* opção 2 desativada: .mini-calendar-day.current-day */
+
+/*.mini-calendar-day.current-day{
+    background: linear-gradient(180deg, rgba(52,209,243,0.18), rgba(123,92,255,0.16));
+    border: 2px solid rgba(52,209,243,0.55);
+    box-shadow: 0 0 18px rgba(52,209,243,0.25);
+}*/
+
+/* Faixas de eventos multi-diários (efeito nebulosa/interestelar) */
+
+/* Cores parametrizadas por variáveis para permitir uma cor por evento */
+
+/* Variante especial para eventos de exatamente 2 diárias */
+
+/* opção 2: .event-indicators */
+
+/* opção 2 desativada: .event-indicators */
+
+/*.event-indicators {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 80%;
+}*/
+
+/* opção 2: .event-indicator */
+
+/* opção 2 desativada: .event-indicator */
+
+/*.event-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}*/
+
+/* opção 2: .event-indicator.confirmed */
+
+/* opção 2 desativada: .event-indicator.confirmed */
+
+/*.event-indicator.confirmed {
+    background: var(--event-color-confirmed);
+    animation: pulse-green 2s infinite;
+}*/
+
+/* opção 2: .event-indicator.pending */
+
+/* opção 2 desativada: .event-indicator.pending */
+
+/*.event-indicator.pending {
+    background: var(--event-color-pending);
+    animation: pulse-orange 2s infinite;
+}*/
+
+/* opção 2: .event-indicator.cancelled */
+
+/* opção 2 desativada: .event-indicator.cancelled */
+
+/*.event-indicator.cancelled {
+    background: var(--event-color-cancelled);
+}*/
+
+/* opção 2: .event-indicator.travel */
+
+/* opção 2 desativada: .event-indicator.travel */
+
+/*.event-indicator.travel {
+    background: var(--event-color-travel);
+    animation: pulse-blue 2s infinite;
+}*/
+
+/* opção 2: .event-indicator.school */
+
+/* opção 2 desativada: .event-indicator.school */
+
+/*.event-indicator.school {
+    background: var(--event-color-school);
+    animation: pulse-purple 2s infinite;
+}*/
+
+/* Animações para os pontos */
+
+/* ===== TOOLTIP DE EVENTOS ===== */
+
+/* Chips/meta dentro do tooltip */
+
+/* Upcoming/Agenda event styles removed; kept only calendar + tooltip. */
+
+/* opção 4: .event-header */
+
+/* opção 2: .event-date */
+
+/* opção 2 desativada: .event-date */
+
+/*.event-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, var(--calendar-primary), var(--calendar-secondary));
+    color: white;
+    border-radius: 10px;
+    padding: 12px;
+    min-width: 60px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(107, 70, 193, 0.4);
+}*/
+
+/* ===== METADADOS DO EVENTO ===== */
+
+/* opção 3: .event-details */
+
+/* opção 3 desativada: .event-details */
+
+/*.event-details {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(107, 70, 193, 0.2);
+    display: none;
+}*/
+
+/* opção 2: .detail-item */
+
+/* opção 2 desativada: .detail-item */
+
+/*.detail-item {
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+}*/
+
+/* opção 2: .event-actions */
+
+/* opção 2 desativada: .event-actions */
+
+/*.event-actions {
+    display: flex;
+    gap: 14px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+}*/
+
+/* Botões usam o estilo global .btn definido em css/style.css */
+
+/* ===== LEGENDA DOS PONTOS COLORIDOS ===== */
+
+/* ===== ESTADO VAZIO ===== */
+
+/* Empty state usa o estilo global .empty-state do css/style.css */
+
+/* ===== RESPONSIVIDADE ===== */
+
+/* Extra compact layout under 640px to avoid deformation and large gaps */
+
+/* Upcoming-list styles commented out to use alternative block in css/style.css */
+
+/* Extra ajustes para telas muito estreitas */
+
+/* ===== ANIMAÇÕES ===== */
+
+/* opção 4: .event-details */
+
+/* opção 3: .hidden */
+
+/* ===== AGENDA SEMANAL — ocupar largura total ===== */
+
+/* Upcoming/Agenda event styles removed; kept only calendar + tooltip. */
+
+/* === fim: usado por index.html === */
+
+/* === filtros globais (todas as paginas) === */
+
+/* ===== Feedbacks ===== */
+
+/* === inicio: usado por feedbacks.html === */
+
+/* PÁGINA DE FEEDBACKS (Estilo Communications Log) */
+
+/* === fim: usado por feedbacks.html === */
+
+/* ===== Despesas ===== */
+
+/* === inicio: usado por despesas.html === */
+
+/* === fim: usado por despesas.html === */
+
+/* ===== Minha Conta ===== */
+
+/* === inicio: usado por account.html === */
+
+/* === fim: usado por account.html === */
+
+/* ==== css/chatbot.css ==== */
+
+/* ===== CHATBOT.CSS - ESTILOS DO ASSISTENTE VIRTUAL ===== */
+
+/* Escopo local das variáveis: evita poluir :root e conflitos globais */
+
+/* opção 2: .chatbot-container */
+
+/* opção 2 desativada: .chatbot-container */
+
+/*.chatbot-container {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 400px;
+    height: 650px;
+    background: linear-gradient(160deg, var(--chatbot-gradient-start) 0%, var(--chatbot-gradient-end) 100%);
+    border-radius: 18px;
+    box-shadow: var(--chatbot-glow-outer);
+    z-index: 1001;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--chatbot-border);
+    backdrop-filter: blur(25px);
+}*/
+
+/* opção 2: .chatbot-container.open */
+
+/* opção 2 desativada: .chatbot-container.open */
+
+/*.chatbot-container.open {
+    display: flex;
+    animation: slideUp 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}*/
+
+/* opção 2: .chatbot-header */
+
+/* opção 2 desativada: .chatbot-header */
+
+/*.chatbot-header {
+    background: linear-gradient(130deg, rgba(123, 92, 255, 0.12) 0%, rgba(52, 209, 243, 0.1) 100%);
+    color: var(--chatbot-text);
+    padding: 18px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    flex-shrink: 0;
+    box-shadow: 0 10px 24px rgba(8, 6, 22, 0.6);
+    position: relative;
+    overflow: hidden;
+}*/
+
+/* opção 2: .chatbot-title */
+
+/* opção 2 desativada: .chatbot-title */
+
+/*.chatbot-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--chatbot-accent);
+    text-shadow: none;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}*/
+
+/* opção 2: .chatbot-close */
+
+/* opção 2 desativada: .chatbot-close */
+
+/*.chatbot-close {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--chatbot-text);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}*/
+
+/* opção 2: .quick-actions */
+
+/* opção 2 desativada: .quick-actions */
+
+/*.quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 15px 20px;
+    background: var(--chatbot-panel-strong);
+    border-bottom: 1px solid var(--chatbot-border-soft);
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+}*/
+
+/* opção 2: .quick-btn */
+
+/* opção 2 desativada: .quick-btn */
+
+/*.quick-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--chatbot-text-muted);
+    flex: 1;
+    min-width: calc(50% - 8px);
+    backdrop-filter: blur(10px);
+    text-align: center;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}*/
+
+/* opção 2: .chatbot-messages */
+
+/* opção 2 desativada: .chatbot-messages */
+
+/*.chatbot-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: linear-gradient(180deg, rgba(20, 12, 48, 0.72) 0%, rgba(9, 5, 24, 0.88) 100%);
+    background-image:
+        radial-gradient(rgba(255, 45, 156, 0.18), transparent 70%),
+        radial-gradient(rgba(155, 92, 255, 0.12), transparent 65%);
+    background-repeat: no-repeat;
+    min-height: 0; 
+    border-top: 1px solid var(--chatbot-border-soft);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}*/
+
+/* opção 2: .chat-message */
+
+/* opção 2 desativada: .chat-message */
+
+/*.chat-message {
+    display: flex;
+    margin-bottom: 20px;
+    animation: messageSlide 0.3s ease;
+}*/
+
+/* opção 2: .user-message */
+
+/* opção 2 desativada: .user-message */
+
+/*.user-message {
+    justify-content: flex-end;
+}*/
+
+/* opção 2: .bot-message */
+
+/* opção 2 desativada: .bot-message */
+
+/*.bot-message {
+    justify-content: flex-start;
+}*/
+
+/* opção 2: .message-avatar */
+
+/* opção 2 desativada: .message-avatar */
+
+/*.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 12px;
+    flex-shrink: 0;
+    border: 2px solid;
+    font-size: 1.2rem;
+    font-weight: bold;
+}*/
+
+/* opção 2: .user-message .message-avatar */
+
+/* opção 2 desativada: .user-message .message-avatar */
+
+/*.user-message .message-avatar {
+    background: linear-gradient(135deg, rgba(255, 45, 156, 0.9), rgba(255, 188, 255, 0.95));
+    color: #2b001a;
+    border-color: rgba(255, 188, 255, 0.8);
+    order: 2;
+}*/
+
+/* opção 2: .bot-message .message-avatar */
+
+/* opção 2 desativada: .bot-message .message-avatar */
+
+/*.bot-message .message-avatar {
+    background: linear-gradient(135deg, rgba(155, 92, 255, 0.9), rgba(82, 43, 210, 0.95));
+    color: var(--chatbot-text);
+    border-color: rgba(155, 92, 255, 0.75);
+}*/
+
+/* opção 2: .message-content */
+
+/* opção 2 desativada: .message-content */
+
+/*.message-content {
+    max-width: 85%;
+    padding: 14px 18px;
+    border-radius: 15px;
+    line-height: 1.5;
+    font-size: 0.95rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}*/
+
+/* opção 2: .user-message .message-content */
+
+/* opção 2 desativada: .user-message .message-content */
+
+/*.user-message .message-content {
+    background: linear-gradient(135deg, rgba(123, 92, 255, 0.2), rgba(52, 209, 243, 0.16));
+    color: var(--chatbot-text);
+    border-bottom-right-radius: 8px;
+    border-color: var(--chatbot-border);
+    box-shadow: 0 10px 25px rgba(11, 9, 28, 0.45);
+}*/
+
+/* opção 2: .bot-message .message-content */
+
+/* opção 2 desativada: .bot-message .message-content */
+
+/*.bot-message .message-content {
+    background: var(--chatbot-bot-bg);
+    color: var(--chatbot-text);
+    border-color: var(--chatbot-border);
+    border-bottom-left-radius: 8px;
+    box-shadow: 0 10px 25px rgba(35, 12, 60, 0.45);
+}*/
+
+/* ===== FORMULÁRIOS DO CHATBOT ===== */
+
+/* opção 2: .form-grid */
+
+/* opção 2 desativada: .form-grid */
+
+/*.form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}*/
+
+/* Importante para responsividade */
+
+/* Previne overflow */
+
+/* Preferências em grid responsivo */
+
+/* Ações do formulário */
+
+/* ===== ÁREA DE INPUT ===== */
+
+/* opção 2: .chatbot-input */
+
+/* opção 2 desativada: .chatbot-input */
+
+/*.chatbot-input {
+    flex: 1;
+    padding: 14px 18px;
+    border: 1px solid var(--chatbot-border-soft);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--chatbot-text);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    min-width: 0; 
+}*/
+
+/* ===== BOTÃO TOGGLE ===== */
+
+/* ===== SCROLLBAR PERSONALIZADA ===== */
+
+/* ===== RESPONSIVIDADE ===== */
+
+/* opção 2: .typing-indicator */
+
+/* opção 2 desativada: .typing-indicator */
+
+/*.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, rgba(28, 16, 56, 0.92), rgba(18, 10, 40, 0.95));
+    border-radius: 15px;
+    border: 1px solid var(--chatbot-border-soft);
+    max-width: 75%;
+    margin-bottom: 20px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}*/
+
+/* opção 2: .typing-dot */
+
+/* opção 2 desativada: .typing-dot */
+
+/*.typing-dot {
+    width: 8px;
+    height: 8px;
+    background: linear-gradient(135deg, var(--chatbot-primary), var(--chatbot-secondary));
+    border-radius: 50%;
+    animation: typingBounce 1.4s infinite ease-in-out;
+}*/
+
+/* opção 2: .typing-dot:nth-child(2) */
+
+/* opção 2 desativada: .typing-dot:nth-child(2) */
+
+/*.typing-dot:nth-child(2) { animation-delay: -0.16s; }*/
+
+/* ===== MELHORIAS DE ACESSIBILIDADE ===== */
+
+/* ===== ESTADOS DE FOCUS VISÍVEL ===== */
+
+/* ==== css/rh-astronomos.css ==== */
+
+/* Forçar rolagem horizontal em telas menores */
+
+/* opção 4: :root */
+
+/* opção 4: * */
+
+/*
+
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+*/
+
+/* opção 5: body */
+
+/*
+
+
+body {
+  font-family: "Space Grotesk", "Segoe UI", Tahoma, sans-serif;
+  background: var(--bg-deep);
+  color: #eaf4ff;
+  overflow: hidden;
+  min-height: 100vh;
+  position: relative;
+}
+*/
+
+/* ===== FUNDO GALÁCTICO ===== */
+
+/* opção 5: .stars */
+
+/*
+
+
+
+.stars {
+  background-image:
+    radial-gradient(#ffffff 1.2px, transparent 1.2px),
+    radial-gradient(rgba(255,255,255,0.9) 0.8px, transparent 0.8px),
+    radial-gradient(rgba(255,255,255,0.7) 0.6px, transparent 0.6px);
+  background-size: 800px 800px, 500px 500px, 300px 300px;
+  background-position: 0 0, 200px 300px, 400px 100px;
+  animation: starsMove 120s linear infinite;
+  opacity: 0.3;
+}
+*/
+
+/* opção 5: .nebula */
+
+/*
+
+
+
+.nebula {
+  background:
+    radial-gradient(circle at 20% 40%, rgba(123,92,255,0.25), transparent 60%),
+    radial-gradient(circle at 80% 70%, rgba(52,209,243,0.22), transparent 70%),
+    radial-gradient(circle at 50% 80%, rgba(255,94,196,0.2), transparent 80%);
+  mix-blend-mode: screen;
+  animation: nebulaFloat 40s ease-in-out infinite alternate;
+}
+*/
+
+/* opção 3: .shooting-stars */
+
+/* opção 3 desativada: .shooting-stars */
+
+/*.shooting-stars { overflow: hidden; }*/
+
+/* opção 2: .shooting-star */
+
+/* opção 2 desativada: .shooting-star */
+
+/*.shooting-star {
+  position: absolute;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.9) 30%,
+    rgba(255,255,255,0.9) 70%,
+    rgba(255,255,255,0) 100%);
+  height: 2px;
+  border-radius: 50%;
+  filter: blur(0.5px);
+  animation: shootingStar linear forwards;
+}*/
+
+/* opção 2: .shooting-star:nth-child(1) */
+
+/* opção 2 desativada: .shooting-star:nth-child(1) */
+
+/*.shooting-star:nth-child(1) { top: 20%; left: -100px; width: 120px; animation-duration: 2.5s; animation-delay: 0s; }*/
+
+/* opção 2: .shooting-star:nth-child(2) */
+
+/* opção 2 desativada: .shooting-star:nth-child(2) */
+
+/*.shooting-star:nth-child(2) { top: 40%; left: -150px; width: 180px; animation-duration: 3s; animation-delay: 5s; }*/
+
+/* opção 2: .shooting-star:nth-child(3) */
+
+/* opção 2 desativada: .shooting-star:nth-child(3) */
+
+/*.shooting-star:nth-child(3) { top: 70%; left: -120px; width: 150px; animation-duration: 2s; animation-delay: 10s; }*/
+
+/* opção 2: .shooting-star:nth-child(4) */
+
+/* opção 2 desativada: .shooting-star:nth-child(4) */
+
+/*.shooting-star:nth-child(4) { top: 30%; left: -180px; width: 200px; animation-duration: 3.5s; animation-delay: 15s; }*/
+
+/* opção 2: .login-container */
+
+/* opção 2 desativada: .login-container */
+
+/*.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  position: relative;
+  z-index: 2;
+  padding: 20px;
+}*/
+
+/* opção 3: .login-card */
+
+/* opção 3 desativada: .login-card */
+
+/*.login-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-glow);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 0 40px rgba(11,9,28,0.8);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.8s ease-out;
+}*/
+
+/* Reflexo animado */
+
+/* opção 2: .login-header */
+
+/* opção 2 desativada: .login-header */
+
+/*.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}*/
+
+/* opção 2: .logo */
+
+/* opção 2 desativada: .logo */
+
+/*.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}*/
+
+/* opção 2: .logo i */
+
+/* opção 2 desativada: .logo i */
+
+/*.logo i {
+  font-size: 2.3em;
+  color: var(--accent-gold);
+  text-shadow: 0 0 20px rgba(255,216,107,0.5);
+  animation: floatIcon 3s ease-in-out infinite;
+}*/
+
+/* opção 2: .logo h1 */
+
+/* opção 2 desativada: .logo h1 */
+
+/*.logo h1 {
+  color: var(--accent-gold);
+  font-size: 1.8em;
+  font-weight: 700;
+}*/
+
+/* opção 3: .login-form */
+
+/* opção 3 desativada: .login-form */
+
+/*.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}*/
+
+/* opção 2: .form-group label */
+
+/* opção 2 desativada: .form-group label */
+
+/*.form-group label {
+  color: var(--muted);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95em;
+}*/
+
+/* opção 2: .form-group input::placeholder */
+
+/* opção 2 desativada: .form-group input::placeholder */
+
+/*.form-group input::placeholder { color: var(--muted-2); }*/
+
+/* opção 2: .form-options */
+
+/* opção 2 desativada: .form-options */
+
+/*.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9em;
+  color: var(--muted-2);
+}*/
+
+/* opção 2: .login-btn */
+
+/* opção 2 desativada: .login-btn */
+
+/*.login-btn {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+  border: none;
+  padding: 16px 28px;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(123,92,255,0.2);
+  position: relative;
+  overflow: hidden;
+}*/
+
+/* ===== MENSAGENS ===== */
+
+/* controlado por JS */
+
+/* exibido via JS */
+
+/* exibido via JS */
+
+/* ===== FOOTER ===== */
+
+/* ===== RESPONSIVO ===== */
+
+/* opção 5: :root */
+
+/*
+
+
+
+:root {
+  --bg-deep: #030417;
+  --accent-purple: #7b5cff;
+  --accent-cyan: #34d1f3;
+  --accent-magenta: #ff5ec4;
+  --accent-gold: #ffd86b;
+  --muted: rgba(255,255,255,0.7);
+  --muted-2: rgba(255,255,255,0.45);
+  --border-glow: rgba(123,92,255,0.2);
+  --card-bg: rgba(10,12,35,0.65);
+  --radius-md: 14px;
+  --radius-lg: 18px;
+}
+*/
+
+/* opção 5: * */
+
+/*
+
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+*/
+
+/* opção 6: body */
+
+/*
+
+
+body {
+  font-family: "Space Grotesk", "Segoe UI", Tahoma, sans-serif;
+  background: var(--bg-deep);
+  color: #eaf4ff;
+  overflow: hidden;
+  min-height: 100vh;
+  position: relative;
+}
+*/
+
+/* ===== FUNDO GALÁCTICO DO LOGIN ===== */
+
+/* opção 6: .stars */
+
+/*
+
+
+
+.stars {
+  background-image:
+    radial-gradient(#ffffff 1.2px, transparent 1.2px),
+    radial-gradient(rgba(255,255,255,0.9) 0.8px, transparent 0.8px),
+    radial-gradient(rgba(255,255,255,0.7) 0.6px, transparent 0.6px);
+  background-size: 800px 800px, 500px 500px, 300px 300px;
+  background-position: 0 0, 200px 300px, 400px 100px;
+  animation: starsMove 120s linear infinite;
+  opacity: 0.3;
+}
+*/
+
+/* opção 6: .nebula */
+
+/*
+
+
+
+.nebula {
+  background:
+    radial-gradient(circle at 20% 40%, rgba(123,92,255,0.25), transparent 60%),
+    radial-gradient(circle at 80% 70%, rgba(52,209,243,0.22), transparent 70%),
+    radial-gradient(circle at 50% 80%, rgba(255,94,196,0.2), transparent 80%);
+  mix-blend-mode: screen;
+  animation: nebulaFloat 40s ease-in-out infinite alternate;
+}
+*/
+
+/* opção 4: .shooting-stars */
+
+/* opção 3: .shooting-star */
+
+/* opção 3: .shooting-star:nth-child(1) */
+
+/* opção 3: .shooting-star:nth-child(2) */
+
+/* opção 3: .shooting-star:nth-child(3) */
+
+/* opção 3: .shooting-star:nth-child(4) */
+
+/* opção 3: .login-container */
+
+/* opção 4: .login-card */
+
+/* Efeito de brilho na borda */
+
+/* opção 2: .login-card::after */
+
+/* opção 2 desativada: .login-card::after */
+
+/*.login-card::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  animation: shimmer 4s infinite;
+}*/
+
+/* opção 3: .login-header */
+
+/* opção 3: .logo */
+
+/* opção 3: .logo i */
+
+/* opção 3: .logo h1 */
+
+/* opção 2: .login-header p */
+
+/* opção 2 desativada: .login-header p */
+
+/*.login-header p {
+  color: var(--muted);
+  font-size: 1rem;
+}*/
+
+/* opção 4: .login-form */
+
+/* opção 3: .form-group label */
+
+/* opção 2: .form-group input */
+
+/* opção 2 desativada: .form-group input */
+
+/*.form-group input {
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: #eaf4ff;
+  font-size: 1em;
+  transition: all 0.3s ease;
+}*/
+
+/* opção 2: .form-group input:focus */
+
+/* opção 2 desativada: .form-group input:focus */
+
+/*.form-group input:focus {
+  outline: none;
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 10px rgba(123,92,255,0.3);
+  background: rgba(255,255,255,0.07);
+}*/
+
+/* opção 3: .form-group input::placeholder */
+
+/* opção 3: .login-btn */
+
+/* opção 2: .login-btn:hover */
+
+/* opção 2 desativada: .login-btn:hover */
+
+/*.login-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 35px rgba(52,209,243,0.3);
+}*/
+
+/* opção 2: .login-btn:active */
+
+/* opção 2 desativada: .login-btn:active */
+
+/*.login-btn:active { transform: translateY(0); }*/
+
+/* opção 2: .login-message */
+
+/* opção 2 desativada: .login-message */
+
+/*.login-message {
+  margin-top: 20px;
+  padding: 14px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  display: none; 
+}*/
+
+/* opção 2: .login-message.success */
+
+/* opção 2 desativada: .login-message.success */
+
+/*.login-message.success {
+  
+  background: rgba(52,209,243,0.2);
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+}*/
+
+/* opção 2: .login-message.error */
+
+/* opção 2 desativada: .login-message.error */
+
+/*.login-message.error {
+  
+  background: rgba(255,94,196,0.15);
+  border: 1px solid var(--accent-magenta);
+  color: var(--accent-magenta);
+}*/
+
+/* opção 2: .login-footer */
+
+/* opção 2 desativada: .login-footer */
+
+/*.login-footer {
+  margin-top: 25px;
+  text-align: center;
+  color: var(--muted-2);
+  font-size: 0.9em;
+}*/
+
+/* ===== RESPONSIVO ===== */
+
+/* ===== LISTA DE ASTRÔNOMOS (SELECT) ===== */
+
+/* Tornar a lista mais escura e legível no tema escuro */
+
+/* seta custom à direita */
+
+/* Estado hover para melhor indicação de interação */
+
+/* opção 2: .form-group select,#astronomer-select */
+
+/* opção 2 desativada: .form-group select,#astronomer-select */
+
+/*.form-group select,
+#astronomer-select {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}*/
+
+/* Remove seta padrão no IE/Edge legado */
+
+/* Opções do dropdown em tom mais escuro para legibilidade */
+
+/* escuro sólido para a lista */
+
+/* pode não ser suportado em todos navegadores */
+
+/* Placeholder/primeira opção */
+
+/* Realce do item selecionado na lista (quando aplicável) */
+
+/* Estado desabilitado */
+
+/* Mobile: aumentar ainda mais a legibilidade e área de toque */
+
+/* opção 7: body */
+
+/*
+
+
+
+body {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+*/
+
+/* opção 1 desativada: .navigation */
+
+/*
+.navigation {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 8px;
+  border-radius: 12px;
+  border: var(--glass-border);
+  margin-bottom: 40px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  justify-content: flex-start;
+  align-items: center;
+}
+*/
+
+/* opção 1 desativada: .nav-button */
+
+/*
+.nav-button {
+  background: transparent;
+  color: var(--text-muted);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+*/
+
+/* opção 1 desativada: .nav-button:hover */
+
+/*
+.nav-button:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+*/
+
+/* opção 1 desativada: .nav-button.active */
+
+/*
+.nav-button.active {
+  background: rgba(34, 211, 238, 0.15);
+  color: var(--neon-cyan);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  box-shadow: 0 0 15px rgba(34, 211, 238, 0.1);
+}
+*/
+
+/* opção 1 desativada: .account-header-btn */
+
+/*
+.account-header-btn {
+  margin-left: auto;
+}
+*/
+
+/* opção 2 desativada: .navigation */
+
+/*
+.navigation {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 8px;
+  border-radius: 12px;
+  border: var(--glass-border);
+  margin-bottom: 40px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  justify-content: flex-start;
+  align-items: center;
+}
+*/
+
+/* opção 3 desativada: .navigation */
+
+/*
+.navigation {
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  width:fit-content;
+  max-width:100%;
+  margin:18px auto 24px;
+}
+*/
+
+/* opção 4: .navigation */
+
+/* opção 4: .nav-button */
+
+/* opção 4: .nav-button:hover */
+
+/* opção 4: .nav-button.active */
+
+/* opção 4: .nav-button i */
+
+/* opção 4: .account-header-btn */
+
+/* opção 4: .account-header-btn:hover */
+
+/* opção 4: @media (max-width: 768px) */

@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rotas - Agenda do Astrônomo</title>
+    <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
+    <!-- <link rel="stylesheet" href="css/style.css"> -->
+    <!-- <link rel="stylesheet" href="css/docs-urania.css"> -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+    <!-- <style>
+        body{ margin:0; }
+        .page-wrapper{ position:relative; min-height:100vh; z-index:1; }
+        .page-container{ max-width:1200px; margin:0 auto; padding:16px; }
+        .navigation{ display:flex; flex-wrap:wrap; gap:12px; justify-content:center; align-items:center; width:fit-content; max-width:100%; margin:18px auto 24px; }
+        .panel-card{ border-radius:12px; padding:12px; background: rgba(8, 10, 30, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+        .filters-row{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+        .btn{ border-radius:999px; border:1px solid rgba(255,255,255,0.15); padding:8px 14px; background: linear-gradient(135deg, rgba(123,92,255,0.2), rgba(52,209,243,0.2)); color:#fff; cursor:pointer; }
+        .btn:disabled{ opacity:0.55; cursor:not-allowed; }
+        .status-text{ font-size:0.9rem; opacity:0.8; }
+        .rotas-grid{ display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+        .rota-card{ background: rgba(8,10,30,0.9); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px; box-shadow:0 10px 26px rgba(0,0,0,0.3); }
+        .rota-header{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding-bottom:10px; margin-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.08); }
+        .rota-title{ margin:0; font-size:1.1rem; font-weight:700; }
+        .rota-subtitle{ color: var(--muted, #aeb4c5); font-size:0.9rem; }
+        .rota-badge{ background: linear-gradient(135deg, #7b5cff, #34d1f3); color:#050815; padding:6px 12px; border-radius:10px; font-weight:700; }
+        .rota-visual{ background: rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.08); border-radius:10px; padding:12px; margin:12px 0; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; }
+        .rota-visual-title{ display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:0.85rem; color: var(--muted, #aeb4c5); margin-bottom:8px; }
+        .rota-visual-title strong{ color:#fff; font-weight:600; }
+        .rota-visual-note{ color: var(--muted, #aeb4c5); font-weight:500; }
+        .rota-visual-hint{ font-size:0.75rem; color: var(--muted-2, rgba(255,255,255,0.5)); }
+        .rota-visual::-webkit-scrollbar{ height:8px; }
+        .rota-visual::-webkit-scrollbar-thumb{ background: rgba(123,92,255,0.5); border-radius:6px; }
+        .rota-visual::-webkit-scrollbar-track{ background: rgba(8,10,26,.55); border-radius:6px; }
+        .rota-timeline{ display:inline-flex; align-items:center; justify-content:space-between; position:relative; min-height:84px; padding:6px 18px 26px; gap:24px; min-width:100%; }
+        .rota-timeline.timeline-compact{ gap:30px; justify-content:flex-start; }
+        .timeline-line{ position:absolute; top:50%; left:18px; right:18px; height:3px; background: linear-gradient(90deg, #7b5cff, #34d1f3); transform: translateY(-50%); }
+        .timeline-point{ width:38px; height:38px; border-radius:50%; background:#0b0f1d; border:2px solid #7b5cff; display:flex; align-items:center; justify-content:center; font-weight:700; color:#e6e9f5; position:relative; box-shadow:0 8px 18px rgba(0,0,0,0.35); flex:0 0 auto; }
+        .point-label{ position:absolute; top:100%; left:50%; transform: translateX(-50%); margin-top:4px; font-size:0.75rem; color: var(--muted, #aeb4c5); white-space:nowrap; max-width:80px; text-overflow:ellipsis; overflow:hidden; text-align:center; }
+        .rota-timeline.timeline-compact .point-label{ max-width:60px; }
+        .evento-item{ background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px; display:flex; gap:12px; align-items:flex-start; }
+        .evento-icon{ width:32px; height:32px; border-radius:50%; background: linear-gradient(135deg, #7b5cff, #34d1f3); display:flex; align-items:center; justify-content:center; font-weight:700; color:#050815; }
+        .evento-cidade{ margin:0; font-size:1rem; }
+        .evento-detalhes{ color: var(--muted, #aeb4c5); font-size:0.85rem; display:flex; gap:10px; flex-wrap:wrap; }
+        .distancias-section{ background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; margin-top:12px; }
+        .distancia-item{ display:flex; justify-content:space-between; align-items:center; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:10px; margin-bottom:8px; }
+        .distancia-rota{ font-weight:600; }
+        .distancia-valor{ font-weight:700; color:#34d1f3; }
+        .distancia-total{ margin-top:10px; text-align:center; padding:10px; border-radius:10px; background: linear-gradient(135deg, #7b5cff, #34d1f3); color:#050815; font-weight:800; }
+        .error, .demo-data{ border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:12px; margin:12px 0; background: rgba(255,255,255,0.03); }
+        .loading{ text-align:center; color: var(--muted, #aeb4c5); }
+        .spinner{ border:3px solid rgba(255,255,255,0.12); border-top:3px solid #7b5cff; border-radius:50%; width:32px; height:32px; animation: spin 1s linear infinite; margin:0 auto 8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .hidden{ display:none; }
+        .astro-info{ color: var(--muted, #aeb4c5); line-height:1.4; }
+        .astro-line{ display:flex; gap:6px; align-items:center; font-size:0.95rem; flex-wrap:wrap; }
+        .astro-line strong{ color:#fff; }
+    </style> -->
+</head>
+<body class="presentation-page rotas-page">
+    <div class="space-layer stars"></div>
+    <div class="space-layer twinkle"></div>
+    <div class="space-layer nebula"></div>
+    <div class="space-layer galaxies"></div>
+
+    <div class="page-wrapper">
+        <div class="page-container">
+            <header class="page-header">
+                <div>
+                    <h1>Rotas do Astrônomo</h1>
+                    <p class="subtitle">Agenda Inteligente Urânia</p>
+                </div>
+                <a href="account.html" class="nav-button">
+                    <i class="fas fa-user-astronaut"></i> Minha Conta
+                </a>
+            </header>
+
+            <div class="navigation">
+                <a href="apresentacao.html" class="nav-button"><i class="fas fa-clipboard-list"></i> Apresentação</a>
+                <a href="index.html" class="nav-button"><i class="fas fa-calendar-alt"></i> Agenda</a>
+                <a href="feedbacks.html" class="nav-button"><i class="fas fa-comment-dots"></i> Feedbacks</a>
+                <a href="despesas.html" class="nav-button"><i class="fas fa-file-invoice-dollar"></i> Despesas</a>
+                <a href="historico.html" class="nav-button"><i class="fas fa-history"></i> Históricos</a>
+                <a href="account.html" class="nav-button account-header-btn"><i class="fas fa-user-astronaut"></i> Minha Conta</a>
+                <a href="rotas.html" class="nav-button active"><i class="fas fa-route"></i> Rotas</a>
+            </div>
+
+            <main>
+                <section class="hero">
+                    <div>
+                        <span class="hero-eyebrow"><i class="fas fa-route"></i> Rotas</span>
+                        <h1>Planeje deslocamentos com visão clara dos eventos.</h1>
+                        <p>Monte a rota do astrônomo a partir do cache da agenda e visualize distâncias com precisão operacional.</p>
+                    </div>
+                    <div class="panel-card">
+                        <div class="panel-title">
+                            <span>Painel rápido</span>
+                            <span class="panel-tag">Atualização automática</span>
+                        </div>
+                        <div class="panel-list">
+                            <div class="panel-item">
+                                <span class="panel-label">Agenda local</span>
+                                <span class="panel-value">Cache sincronizado</span>
+                            </div>
+                            <div class="panel-item">
+                                <span class="panel-label">Distâncias</span>
+                                <span class="panel-value">Cálculo contínuo</span>
+                            </div>
+                            <div class="panel-item">
+                                <span class="panel-label">Rota pronta</span>
+                                <span class="panel-value">Resumo imediato</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <div class="section-header">
+                        <h2>Atualizar rotas</h2>
+                        <p>Carregue os eventos do cache da agenda ou use dados de demonstração.</p>
+                    </div>
+                    <div class="panel-card">
+                        <div class="filters-row">
+                            <button class="btn btn-primary" onclick="carregarRotas()" id="btnCarregar">
+                                <i class="fas fa-satellite-dish"></i> Carregar rotas da agenda
+                            </button>
+                            <button class="btn btn-secondary" onclick="usarDadosDemo()" id="btnDemo">
+                                <i class="fas fa-bullseye"></i> Usar dados de demonstração
+                            </button>
+                            <div class="status-text" id="status-text"></div>
+                        </div>
+                        <div class="demo-data hidden" id="demoAlert">
+                            📝 <strong>Modo Demonstração:</strong> Usando dados de exemplo para teste
+                        </div>
+                        <div class="loading hidden" id="loading">
+                            <div class="spinner"></div>
+                            <p>Buscando rotas e calculando distâncias...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <div class="section-header">
+                        <h2>Rotas geradas</h2>
+                        <p>Visualize o trajeto e a sequência de eventos em cada rota.</p>
+                    </div>
+                    <div class="panel-card">
+                        <div id="rotasContainer" class="rotas-grid"></div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Limpa caches no reload (F5), preservando apenas sessões
+        (function(){
+            const isReload = (() => {
+                try{
+                    const nav = performance.getEntriesByType('navigation')[0];
+                    if (nav && nav.type) return nav.type === 'reload';
+                    if (performance.navigation) return performance.navigation.type === 1;
+                }catch(_){}
+                return false;
+            })();
+            if (!isReload) return;
+            try{
+                const keep = new Set(['astronomo_session','userSession']);
+                const prefixes = ['agenda_cache_v1','rotas_cache_v1','rotas_override_v1','route_cache_osrm_v1','coord_cache_nominatim_v1','route_block_cache_v1'];
+                const contains = ['user_theme','savedUser','astronomersData','astronomersLastUpdate'];
+                const toDelete = [];
+                for (let i=0;i<localStorage.length;i++){
+                    const k = localStorage.key(i);
+                    if (!k) continue;
+                    if (keep.has(k)) continue;
+                    if (prefixes.some(p => k.startsWith(p)) || contains.some(c => k.includes(c))) {
+                        toDelete.push(k);
+                    }
+                }
+                toDelete.forEach(k => localStorage.removeItem(k));
+            }catch(_){}
+        })();
+
+        const API_AGENDA = "https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo";
+        const DADOS_DEMO = [
+            {
+                "astronomo": "Nathalia",
+                "rota_id": "Nathalia_rota_1",
+                "quantidade_eventos": 3,
+                "eventos": [
+                    {
+                        "id": 8103925,
+                        "cidade": "Jardim - MS",
+                        "data_e_hora_do_agendamento": "2025-11-26T18:03:00.000Z",
+                        "distancia_km": "571.46",
+                        "destino_lat": "-21.4799410",
+                        "destino_lon": "-56.1489020"
+                    },
+                    {
+                        "id": 7572341,
+                        "cidade": "Itaporã-MS",
+                        "data_e_hora_do_agendamento": "2025-11-27T19:25:00.000Z",
+                        "distancia_km": "382.52",
+                        "destino_lat": "-22.0799142",
+                        "destino_lon": "-54.7874239"
+                    },
+                    {
+                        "id": 8174175,
+                        "cidade": "Chapecó - SC",
+                        "data_e_hora_do_agendamento": "2025-11-28T17:47:00.000Z",
+                        "distancia_km": "412.41",
+                        "destino_lat": "-27.0922364",
+                        "destino_lon": "-52.6166878"
+                    }
+                ],
+                "data_inicio": "2025-11-26T18:03:00.000Z",
+                "data_fim": "2025-11-28T17:47:00.000Z",
+                "distancia_total": 1366.39
+            },
+            {
+                "astronomo": "Olivia",
+                "rota_id": "Olivia_rota_1",
+                "quantidade_eventos": 2,
+                "eventos": [
+                    {
+                        "id": 8070185,
+                        "cidade": "Santa Cruz do Sul - RS",
+                        "data_e_hora_do_agendamento": "2025-11-27T18:59:00.000Z",
+                        "distancia_km": "380.63",
+                        "destino_lat": "-29.7142090",
+                        "destino_lon": "-52.4285807"
+                    },
+                    {
+                        "id": 7898385,
+                        "cidade": "Canoas - RS",
+                        "data_e_hora_do_agendamento": "2025-11-28T13:18:00.000Z",
+                        "distancia_km": "240.47",
+                        "destino_lat": "-29.9216045",
+                        "destino_lon": "-51.1799525"
+                    }
+                ],
+                "data_inicio": "2025-11-27T18:59:00.000Z",
+                "data_fim": "2025-11-28T13:18:00.000Z",
+                "distancia_total": 621.1
+            }
+        ];
+
+        const AGENDA_CACHE_PREFIX = 'agenda_cache_v1';
+        const ROTAS_CACHE_KEY = 'rotas_cache_v1';
+        const ROTA_OVERRIDE_PREFIX = 'rotas_override_v1';
+        let sessaoAtual = null;
+
+        function safeText(v){
+            return v == null ? '' : String(v).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch] || ch));
+        }
+
+        function parseProfitRate(raw) {
+            if (raw === undefined || raw === null) return null;
+            const cleaned = (typeof raw === 'string' ? raw.replace('%', '').replace(',', '.').trim() : raw);
+            const num = Number(cleaned);
+            if (!Number.isFinite(num)) return null;
+            if (num >= 0 && num <= 1) return num;
+            if (num > 1 && num <= 100) return num / 100;
+            return null;
+        }
+
+        function normalizeProfitKey(key){
+            try{
+                return String(key||'')
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g,'')
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g,' ')
+                    .trim();
+            }catch(_){ return String(key||''); }
+        }
+
+        function extractProfitRate(source) {
+            if (!source || typeof source !== 'object') return null;
+            const candidates = [
+                source.percentual_lucro,
+                source.porcentagem_lucro,
+                source.porcentagem_de_lucro,
+                source.lucro_percentual,
+                source.taxa_lucro,
+                source.percentual_de_lucro,
+                source['porcentagem do astronomo'],
+                source.porcentagem_do_astronomo,
+                source.percentual_do_astronomo,
+                source.comissao,
+                source.comissao_percentual,
+                source.percentual,
+                source.porcentagem,
+            ];
+            for (const raw of candidates) {
+                const rate = parseProfitRate(raw);
+                if (rate !== null) return rate;
+            }
+            try{
+                for (const [k,v] of Object.entries(source)){
+                    const nk = normalizeProfitKey(k);
+                    if (!nk) continue;
+                    if (/porcentagem.*astronom/.test(nk) || /percentual.*astronom/.test(nk) || (/lucro/.test(nk) && /astronom/.test(nk))){
+                        const r = parseProfitRate(v);
+                        if (r !== null) return r;
+                    }
+                }
+            }catch(_){}
+            return null;
+        }
+
+        function formatProfitPercent(rate){
+            const pct = Number(rate) * 100;
+            if (!Number.isFinite(pct)) return '--%';
+            const opts = { maximumFractionDigits: 2, minimumFractionDigits: pct % 1 === 0 ? 0 : 2 };
+            return `${pct.toLocaleString('pt-BR', opts)}%`;
+        }
+
+        function formatPhoneBr(phone){
+            if (!phone) return '';
+            const cleaned = String(phone).replace(/\D/g,'');
+            const m1 = cleaned.match(/^(\d{2})(\d{5})(\d{4})$/);
+            if (m1) return `(${m1[1]}) ${m1[2]}-${m1[3]}`;
+            const m2 = cleaned.match(/^(\d{2})(\d{4})(\d{4})$/);
+            if (m2) return `(${m2[1]}) ${m2[2]}-${m2[3]}`;
+            return phone;
+        }
+
+        function toNumber(val){
+            const n = Number(val);
+            if (Number.isFinite(n)) return n;
+            if (typeof val === 'string'){
+                const s = val.replace(',','.');
+                const num = Number(s);
+                return Number.isFinite(num) ? num : null;
+            }
+            return null;
+        }
+
+        function getEventoDate(ev){
+            const raw = ev?.data_e_hora_do_agendamento || ev?.data_agendamento || ev?.data || ev?.date;
+            if (!raw) return null;
+            const d = new Date(raw);
+            if (Number.isNaN(d.getTime())) return null;
+            return d;
+        }
+
+        function loadAgendaEvents(sess){
+            try{
+                const keys = [];
+                if (sess){
+                    const ns = (sess.id_astronomo ?? sess.usuario ?? sess.username ?? sess.astronomo) || 'anon';
+                    keys.push(`${AGENDA_CACHE_PREFIX}::${String(ns).toLowerCase()}`);
+                }
+                for (let i = 0; i < localStorage.length; i++){
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith(AGENDA_CACHE_PREFIX) && !keys.includes(k)) keys.push(k);
+                }
+                for (const key of keys){
+                    const raw = localStorage.getItem(key);
+                    const parsed = raw ? JSON.parse(raw) : null;
+                    const events = Array.isArray(parsed?.events) ? parsed.events : Array.isArray(parsed?.data) ? parsed.data : [];
+                    if (events.length) return events;
+                }
+            }catch(_){}
+            return [];
+        }
+
+        function carregarEventosLocais(sess){
+            try{
+                const raw = localStorage.getItem(ROTAS_CACHE_KEY);
+                const parsed = raw ? JSON.parse(raw) : null;
+                const cacheSess = parsed?.session || null;
+                if (sess && cacheSess && cacheSess.id_astronomo != null && sess.id_astronomo != null) {
+                    if (String(cacheSess.id_astronomo) !== String(sess.id_astronomo)) throw new Error('Cache pertence a outro usuário');
+                }
+                const events = Array.isArray(parsed?.events) ? parsed.events : Array.isArray(parsed?.data) ? parsed.data : [];
+                if (events.length) return events;
+            }catch(_){}
+            return loadAgendaEvents(sess);
+        }
+
+        function construirRotaDaAgenda(eventos, sess){
+            const lista = Array.isArray(eventos) ? eventos.slice() : [];
+            lista.sort((a,b) => {
+                const da = getEventoDate(a);
+                const db = getEventoDate(b);
+                if (!da && !db) return 0;
+                if (!da) return 1;
+                if (!db) return -1;
+                return da - db;
+            });
+            const inicio = lista[0] ? getEventoDate(lista[0]) : null;
+            const fim = lista[lista.length - 1] ? getEventoDate(lista[lista.length - 1]) : null;
+            const nome = sess?.nome_completo || sess?.astronomo || sess?.usuario || sess?.username || 'Agenda';
+            return {
+                astronomo: nome,
+                rota_id: 'Rota da agenda',
+                quantidade_eventos: lista.length,
+                eventos: lista,
+                data_inicio: inicio ? inicio.toISOString() : null,
+                data_fim: fim ? fim.toISOString() : null,
+                distancia_total: null
+            };
+        }
+
+        function pickAstronomoId(obj){
+            if (!obj || typeof obj !== 'object') return null;
+            const candidates = [
+                obj.id_astronomo,
+                obj.astronomo_id,
+                obj.id,
+                obj.user_id,
+                obj.usuario_id,
+                obj.assistant_id,
+                obj.row_number,
+                obj.row_num,
+            ];
+            for (const v of candidates){
+                if (v === undefined || v === null || v === '') continue;
+                const num = Number(v);
+                if (Number.isFinite(num)) return num;
+                return v;
+            }
+            return null;
+        }
+
+        function getLoggedSession(){
+            const normalizeSession = (src) => {
+                if (!src || typeof src !== 'object') return null;
+                const base = { ...src };
+                if (src.astronomer && typeof src.astronomer === 'object') {
+                    Object.assign(base, src.astronomer);
+                    if (!base.usuario && src.astronomer.usuario) base.usuario = src.astronomer.usuario;
+                    if (!base.nome_completo && src.astronomer.nome_completo) base.nome_completo = src.astronomer.nome_completo;
+                }
+                const id = pickAstronomoId(base);
+                return {
+                    ...base, // preserva todos os campos vindos do login (lucro, veículo, etc.)
+                    loggedIn: src.loggedIn === true || src.loginTime != null || src.token != null,
+                    username: base.usuario || base.username || base.astronomo || base.nome_completo || src.username || src.user || null,
+                    usuario: base.usuario || base.username || base.astronomo || null,
+                    id_astronomo: id,
+                    assistant_id: base.assistant_id ?? null,
+                    row_number: base.row_number ?? base.row_num ?? null,
+                    sessionId: src.sessionId ?? src.session_id ?? src.token ?? null,
+                    session_id: src.session_id ?? src.sessionId ?? src.token ?? null,
+                    timestamp: src.timestamp ?? Date.now(),
+                    nome_completo: base.nome_completo ?? base.usuario ?? null,
+                };
+            };
+
+            try {
+                const raw = localStorage.getItem('astronomo_session');
+                const s = raw ? JSON.parse(raw) : null;
+                const norm = normalizeSession(s);
+                if (norm && norm.loggedIn && norm.id_astronomo != null) return norm;
+                if (norm && norm.loggedIn && norm.id_astronomo == null) {
+                    localStorage.setItem('astronomo_session', JSON.stringify(norm));
+                }
+            } catch (e) {}
+
+            try {
+                const legacyRaw = localStorage.getItem('userSession');
+                const legacySess = legacyRaw ? JSON.parse(legacyRaw) : null;
+                const normalized = normalizeSession(legacySess);
+                if (normalized && normalized.loggedIn && normalized.id_astronomo != null) {
+                    localStorage.setItem('astronomo_session', JSON.stringify(normalized));
+                    return normalized;
+                }
+            } catch (_) {}
+            return null;
+        }
+
+        function describeSession(sess){
+            if (!sess) return '<div class="astro-line">Nenhum astrônomo logado.</div>';
+            const nome = safeText(sess.nome_completo || sess.astronomo || sess.usuario || sess.username || 'Astrônomo');
+            const usuario = safeText(sess.usuario || sess.username || '');
+            const id   = sess.id_astronomo != null ? safeText(sess.id_astronomo) : '';
+            const cidade = safeText(sess.cidade_base || '');
+            const estado = safeText(sess.estado || '');
+            const veiculo = safeText(sess.veiculo || '');
+            const combustivel = safeText(sess.combustivel || '');
+            const consumo = Number(sess.consumo_km_l) ? `${Number(sess.consumo_km_l).toLocaleString('pt-BR',{maximumFractionDigits:2})} km/L` : '';
+            const lucroRate = extractProfitRate(sess);
+            const lucroLabel = lucroRate != null ? formatProfitPercent(lucroRate) : null;
+            const valorLitro = Number(sess.valor_litro);
+            const tel = formatPhoneBr(sess.telefone || sess.celular || sess.whatsapp || '');
+            const email = safeText(sess.email || '');
+            const loc = cidade && estado && !cidade.includes(estado) ? `${cidade} - ${estado}` : (cidade || estado);
+
+            return `
+                <div class="astro-line"><strong>${nome}</strong>${usuario ? ' • ' + usuario : ''}${id ? ' • ID ' + id : ''}</div>
+                ${loc ? `<div class="astro-line">🚩 ${loc}</div>` : ''}
+                ${(veiculo || combustivel || consumo) ? `<div class="astro-line">🚗 ${veiculo || 'Veículo não informado'}${combustivel ? ' • ' + combustivel : ''}${consumo ? ' • ' + consumo : ''}</div>` : ''}
+                ${(lucroLabel || valorLitro) ? `<div class="astro-line">💸 Lucro: ${lucroLabel || '--'}${Number.isFinite(valorLitro) ? ' • R$ ' + valorLitro.toFixed(2) + '/L' : ''}</div>` : ''}
+                ${(tel || email) ? `<div class="astro-line">${tel ? '📱 ' + safeText(tel) : ''}${tel && email ? ' • ' : ''}${email ? '📧 ' + email : ''}</div>` : ''}
+            `.trim();
+        }
+
+        function rotaOverrideKey(sess){
+            const ns = (sess && (sess.id_astronomo ?? sess.usuario ?? sess.username ?? sess.astronomo)) || 'anon';
+            return `${ROTA_OVERRIDE_PREFIX}::${String(ns).toLowerCase()}`;
+        }
+
+        function saveRouteOverrides(map, sess){
+            try{
+                const key = rotaOverrideKey(sess);
+                const existingRaw = localStorage.getItem(key);
+                const existing = existingRaw ? JSON.parse(existingRaw) : {};
+                const merged = { ...(existing.overrides || {}), ...(map || {}) };
+                const payload = { ts: Date.now(), overrides: merged };
+                localStorage.setItem(key, JSON.stringify(payload));
+                return payload;
+            }catch(err){
+                console.warn('Falha ao salvar overrides de rotas:', err);
+                return null;
+            }
+        }
+
+        function loadRotaContinuaIds(){
+            try{
+                const raw = localStorage.getItem(ROTAS_CACHE_KEY);
+                const parsed = raw ? JSON.parse(raw) : null;
+                const events = Array.isArray(parsed?.events) ? parsed.events : Array.isArray(parsed?.data) ? parsed.data : [];
+                const ids = new Set();
+                events.forEach(ev => {
+                    if (ev && (ev.rota_continua || ev.continua)) {
+                        const id = ev.id_evento || ev.id_evento_unico || ev.id || ev.id_agendamento || ev.uuid;
+                        if (id != null) ids.add(String(id));
+                    }
+                });
+                return ids;
+            }catch(_){
+                return new Set();
+            }
+        }
+
+        function registrarOverridesRotaContinua(rota, distancias, sess){
+            const overrides = {};
+            const idsContinua = loadRotaContinuaIds();
+            const eventos = Array.isArray(rota?.eventos) ? rota.eventos : [];
+            const rotaContinua = rota?.rota_continua === true || rota?.continua === true || (rota?.tipo || '').toString().toLowerCase().includes('continua');
+            for (let i = 1; i < eventos.length; i++){
+                const ev = eventos[i];
+                const prev = eventos[i-1];
+                const id = ev?.id_evento || ev?.id_evento_unico || ev?.id || ev?.id_agendamento || ev?.uuid;
+                if (id == null) continue;
+                const isContinua = rotaContinua || idsContinua.has(String(id)) || ev?.rota_continua === true || prev?.rota_continua === true;
+                if (!isContinua) continue;
+                const dist = distancias[i-1];
+                if (dist !== null && dist !== undefined && Number.isFinite(dist)) {
+                    overrides[String(id)] = Number(dist.toFixed(2));
+                }
+            }
+            if (Object.keys(overrides).length && sess) {
+                saveRouteOverrides(overrides, sess);
+            }
+            return overrides;
+        }
+
+        async function carregarRotas(auto = false) {
+            const loading = document.getElementById('loading');
+            const btnCarregar = document.getElementById('btnCarregar');
+            const rotasContainer = document.getElementById('rotasContainer');
+            const demoAlert = document.getElementById('demoAlert');
+            const statusText = document.getElementById('status-text');
+            const sess = getLoggedSession();
+            sessaoAtual = sess;
+            const sessVal = sessaoAtual || sess;
+
+            loading.classList.remove('hidden');
+            demoAlert.classList.add('hidden');
+            if (btnCarregar) btnCarregar.disabled = true;
+            rotasContainer.innerHTML = '';
+            statusText.textContent = '';
+
+            if (!sessVal || sessVal.id_astronomo == null) {
+                if (!auto) {
+                    rotasContainer.innerHTML = `
+                        <div class="error">
+                            ⚠️ Sessão não encontrada. Tentando usar o cache disponível.
+                        </div>
+                    `;
+                }
+            }
+
+            try {
+                const eventos = carregarEventosLocais(sessVal);
+                if (!eventos.length) {
+                    rotasContainer.innerHTML = `
+                        <div class="error">
+                            Nenhum evento encontrado no cache da agenda. Volte para a Agenda e atualize antes de abrir Rotas.
+                        </div>
+                    `;
+                    return;
+                }
+
+                const rotaUnica = construirRotaDaAgenda(eventos, sessVal);
+                if (!rotaUnica.eventos.length) {
+                    rotasContainer.innerHTML = `
+                        <div class="error">
+                            Nenhum evento válido para montar rotas.
+                        </div>
+                    `;
+                    return;
+                }
+
+                await exibirRota(rotaUnica, rotasContainer);
+                const eventosCount = Number.isFinite(rotaUnica.quantidade_eventos)
+                    ? rotaUnica.quantidade_eventos
+                    : rotaUnica.eventos.length;
+                const eventosLabel = eventosCount === 1 ? 'evento' : 'eventos';
+                statusText.textContent = `Rota criada a partir dos eventos salvos na agenda local (${eventosCount} ${eventosLabel}).`;
+
+            } catch (error) {
+                console.error('Erro:', error);
+                rotasContainer.innerHTML = `
+                    <div class="error">
+                        ❌ Erro ao carregar rotas: ${error.message}<br><br>
+                        <strong>Soluções:</strong><br>
+                        1. Atualize a Agenda para salvar o cache local<br>
+                        2. Volte para Rotas<br>
+                        3. Ou use o botão "Usar Dados de Demonstração"
+                    </div>
+                `;
+            } finally {
+                loading.classList.add('hidden');
+                if (btnCarregar) btnCarregar.disabled = false;
+            }
+        }
+
+        function usarDadosDemo() {
+            const loading = document.getElementById('loading');
+            const rotasContainer = document.getElementById('rotasContainer');
+            const demoAlert = document.getElementById('demoAlert');
+            const statusText = document.getElementById('status-text');
+
+            loading.classList.remove('hidden');
+            demoAlert.classList.remove('hidden');
+            rotasContainer.innerHTML = '';
+            statusText.textContent = 'Modo demonstração ativo.';
+
+            setTimeout(async () => {
+                try {
+                    for (const rota of DADOS_DEMO) {
+                        await exibirRota(rota, rotasContainer);
+                    }
+                } catch (error) {
+                    console.error('Erro com dados demo:', error);
+                    rotasContainer.innerHTML = `
+                        <div class="error">
+                            Erro ao carregar dados de demonstração: ${error.message}
+                        </div>
+                    `;
+                } finally {
+                    loading.classList.add('hidden');
+                }
+            }, 500);
+        }
+
+        async function exibirRota(rota, container) {
+            const rotaDiv = document.createElement('div');
+            rotaDiv.className = 'rota-card';
+
+            const distancias = await calcularDistanciasRota(rota.eventos);
+            const overrides = registrarOverridesRotaContinua(rota, distancias, sessaoAtual);
+            const baseInfo = calcularDistanciasComBase(rota.eventos);
+            const totalKm = Number(((baseInfo.baseIda || 0) + distancias.reduce((s,d)=> s + (d||0),0) + (baseInfo.baseVolta || 0)).toFixed(2));
+            const gastos = calcularGastosEstimados(rota, totalKm);
+            const timelineHTML = criarTimelineVisual(rota.eventos);
+            const isCompactTimeline = rota.eventos.length > 12;
+            const timelineHint = isCompactTimeline ? '<span class="rota-visual-hint">Role para ver</span>' : '';
+            const inicioDate = rota.data_inicio ? new Date(rota.data_inicio) : null;
+            const fimDate = rota.data_fim ? new Date(rota.data_fim) : null;
+            const hasInicio = inicioDate instanceof Date && !Number.isNaN(inicioDate.getTime());
+            const hasFim = fimDate instanceof Date && !Number.isNaN(fimDate.getTime());
+            const periodoLabel = hasInicio && hasFim
+                ? `${inicioDate.toLocaleDateString('pt-BR')} a ${fimDate.toLocaleDateString('pt-BR')}`
+                : 'Período não informado';
+            const eventosCount = Number.isFinite(rota.quantidade_eventos)
+                ? rota.quantidade_eventos
+                : rota.eventos.length;
+            const eventosLabel = eventosCount === 1 ? 'evento' : 'eventos';
+
+            rotaDiv.innerHTML = `
+                <div class="rota-header">
+                    <div class="rota-info">
+                        <h3 class="rota-title">${rota.astronomo} - ${rota.rota_id}</h3>
+                        <div class="rota-subtitle">
+                            📅 ${periodoLabel} • 🎯 ${eventosCount} ${eventosLabel}
+                        </div>
+                    </div>
+                    <div class="rota-badge">
+                        ${Number.isFinite(totalKm) ? totalKm.toFixed(1) + ' km' : (rota.distancia_total ? rota.distancia_total + ' km' : 'Calculando...')}
+                    </div>
+                </div>
+
+                <div class="rota-visual">
+                    <div class="rota-visual-title">
+                        <span><strong>Sequência da rota</strong> <span class="rota-visual-note">(0 = base)</span></span>
+                        ${timelineHint}
+                    </div>
+                    <div class="rota-timeline ${isCompactTimeline ? 'timeline-compact' : ''}">
+                        <div class="timeline-line"></div>
+                        ${timelineHTML}
+                    </div>
+                </div>
+
+                <div class="eventos-list">
+                    ${rota.eventos.map((evento, index) => `
+                        <div class="evento-item">
+                            <div class="evento-icon">${index + 1}</div>
+                            <div class="evento-info">
+                                <p class="evento-cidade">${evento.cidade || 'Cidade não informada'}</p>
+                                <div class="evento-detalhes">
+                                    <span>📅 ${new Date(evento.data_e_hora_do_agendamento).toLocaleDateString('pt-BR')}</span>
+                                    <span>
+                                        📍 ${
+                                            (() => {
+                                                const id = evento.id_evento || evento.id || evento.id_agendamento || evento.uuid;
+                                                const override = id != null ? overrides[String(id)] : null;
+                                                if (override !== undefined && override !== null) {
+                                                    return `${override.toFixed(1)} km (rota contínua)`;
+                                                }
+                                                return evento.distancia_km ? `${evento.distancia_km} km da base` : 'Distância não informada';
+                                            })()
+                                        }
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="distancias-section">
+                    <div class="distancias-title">Distâncias entre as cidades</div>
+                    ${Number.isFinite(baseInfo.baseIda) ? `
+                        <div class="distancia-item">
+                            <span class="distancia-rota">Base → ${rota.eventos[0].cidade}</span>
+                            <span class="distancia-valor">${baseInfo.baseIda.toFixed(1)} km</span>
+                        </div>
+                    ` : ''}
+                    ${distancias.map((distancia, index) => `
+                        <div class="distancia-item">
+                            <span class="distancia-rota">
+                                ${rota.eventos[index].cidade} → ${rota.eventos[index + 1].cidade}
+                            </span>
+                            <span class="distancia-valor">
+                                ${distancia ? distancia.toFixed(1) + ' km' : 'Não calculada'}
+                            </span>
+                        </div>
+                    `).join('')}
+                    ${Number.isFinite(baseInfo.baseVolta) ? `
+                        <div class="distancia-item">
+                            <span class="distancia-rota">${rota.eventos[rota.eventos.length-1].cidade} → Base</span>
+                            <span class="distancia-valor">${baseInfo.baseVolta.toFixed(1)} km</span>
+                        </div>
+                    ` : ''}
+                    
+                    ${distancias.length > 0 ? `
+                        <div class="distancia-total">
+                            🚗 Distância total da rota: ${totalKm.toFixed(1)} km
+                        </div>
+                    ` : ''}
+                    <div class="distancias-title" style="margin-top:10px;">Gastos estimados</div>
+                    <div class="distancia-item">
+                        <span class="distancia-rota">Combustível</span>
+                        <span class="distancia-valor">${gastos.combustivel != null ? 'R$ ' + gastos.combustivel.toFixed(2) : '—'}</span>
+                    </div>
+                    <div class="distancia-item">
+                        <span class="distancia-rota">Hospedagem</span>
+                        <span class="distancia-valor">${gastos.hospedagem != null ? 'R$ ' + gastos.hospedagem.toFixed(2) : '—'}</span>
+                    </div>
+                    <div class="distancia-item">
+                        <span class="distancia-rota">Alimentação</span>
+                        <span class="distancia-valor">${gastos.alimentacao != null ? 'R$ ' + gastos.alimentacao.toFixed(2) : '—'}</span>
+                    </div>
+                    <div class="distancia-item">
+                        <span class="distancia-rota">Pedágios</span>
+                        <span class="distancia-valor">${gastos.pedagios != null ? 'R$ ' + gastos.pedagios.toFixed(2) : '—'}</span>
+                    </div>
+                    <div class="distancia-total">
+                        💸 Total estimado: ${gastos.total != null ? 'R$ ' + gastos.total.toFixed(2) : '—'}
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(rotaDiv);
+        }
+
+        function criarTimelineVisual(eventos) {
+            const pontos = [];
+            // Base como ponto inicial
+            pontos.push(`
+                <div class="timeline-point">
+                    <div class="point-number">0</div>
+                    <div class="point-label">Base</div>
+                </div>
+            `);
+            // Eventos sequenciais
+            eventos.forEach((evento, index) => {
+                pontos.push(`
+                    <div class="timeline-point">
+                        <div class="point-number">${index + 1}</div>
+                        <div class="point-label">${(evento.cidade || 'Evento').split(' - ')[0]}</div>
+                    </div>
+                `);
+            });
+            // Base como ponto final
+            pontos.push(`
+                <div class="timeline-point">
+                    <div class="point-number">${eventos.length + 1}</div>
+                    <div class="point-label">Base</div>
+                </div>
+            `);
+            return pontos.join('');
+        }
+
+        async function calcularDistanciasRota(eventos) {
+            const distancias = [];
+
+            for (let i = 0; i < eventos.length - 1; i++) {
+                const origem = eventos[i];
+                const destino = eventos[i + 1];
+
+                try {
+                    let distancia;
+                    
+                    if (origem.destino_lat && origem.destino_lon && 
+                        destino.destino_lat && destino.destino_lon) {
+                        distancia = calcularDistanciaHaversine(
+                            [parseFloat(origem.destino_lat), parseFloat(origem.destino_lon)],
+                            [parseFloat(destino.destino_lat), parseFloat(destino.destino_lon)]
+                        );
+                    } else {
+                        distancia = await calcularDistanciaPorCidades(
+                            origem.cidade, 
+                            destino.cidade
+                        );
+                    }
+                    
+                    distancias.push(distancia);
+                } catch (error) {
+                    console.error(`Erro ao calcular distância ${i}:`, error);
+                    distancias.push(null);
+                }
+            }
+
+            return distancias;
+        }
+
+        function calcularDistanciasComBase(eventos){
+            const baseLat = toNumber(sessaoAtual?.origem_lat);
+            const baseLon = toNumber(sessaoAtual?.origem_lon);
+            let baseIda = null;
+            let baseVolta = null;
+            const first = eventos && eventos[0];
+            const last = eventos && eventos[eventos.length-1];
+            if (first && Number.isFinite(baseLat) && Number.isFinite(baseLon) && first.destino_lat && first.destino_lon){
+                baseIda = calcularDistanciaHaversine(
+                    [baseLat, baseLon],
+                    [parseFloat(first.destino_lat), parseFloat(first.destino_lon)]
+                );
+            }
+            if (last && Number.isFinite(baseLat) && Number.isFinite(baseLon) && last.destino_lat && last.destino_lon){
+                baseVolta = calcularDistanciaHaversine(
+                    [parseFloat(last.destino_lat), parseFloat(last.destino_lon)],
+                    [baseLat, baseLon]
+                );
+            }
+            return { baseIda, baseVolta };
+        }
+
+        function calcularGastosEstimados(rota, totalKm){
+            const evs = Array.isArray(rota?.eventos) ? rota.eventos : [];
+            let diariasTotal = 0;
+            let noitesTotal = 0;
+            evs.forEach(ev => {
+                const d = Number(ev.numero_diarias || ev.numero_de_diarias || ev.diarias || 1);
+                const diariasEv = Number.isFinite(d) && d > 0 ? d : 1;
+                diariasTotal += diariasEv;
+                noitesTotal += Math.max(diariasEv - 1, 0);
+            });
+
+            const sess = sessaoAtual || {};
+            const preferMedia = (mediaKey, normalKey) => {
+                const media = Number(sess[mediaKey]);
+                if (Number.isFinite(media) && media > 0) return media;
+                const normal = Number(sess[normalKey]);
+                return Number.isFinite(normal) && normal > 0 ? normal : null;
+            };
+
+            const valorLitro = preferMedia('valor_litro_media', 'valor_litro');
+            const consumo = preferMedia('consumo_km_l_media', 'consumo_km_l');
+            const alimentacaoDia = preferMedia('alimentacao_diaria_media', 'alimentacao_diaria');
+            const hospedagemDia = preferMedia('diaria_hospedagem_media', 'diaria_hospedagem');
+            const pedagiosVal = preferMedia('pedagios_media', 'pedagios');
+            const combustivelMedio = preferMedia('gasto_combustivel_media', 'custo_combustivel_medio');
+
+            let combustivel = null;
+            if (Number.isFinite(totalKm) && Number.isFinite(consumo) && consumo > 0 && Number.isFinite(valorLitro) && valorLitro > 0){
+                combustivel = (totalKm / consumo) * valorLitro;
+            }
+            if (combustivel === null && Number.isFinite(combustivelMedio)) combustivel = combustivelMedio;
+
+            const alimentacao = Number.isFinite(alimentacaoDia) ? alimentacaoDia * Math.max(diariasTotal, 1) : null;
+            const hospedagem = Number.isFinite(hospedagemDia) ? hospedagemDia * Math.max(noitesTotal, 0) : null;
+            const pedagios = Number.isFinite(pedagiosVal) ? pedagiosVal : null;
+            const totalParts = [combustivel, alimentacao, hospedagem, pedagios].filter(v => Number.isFinite(v));
+            const total = totalParts.length ? totalParts.reduce((a,b)=>a+b,0) : null;
+            return { combustivel, alimentacao, hospedagem, pedagios: Number.isFinite(pedagios) ? pedagios : null, total };
+        }
+
+        async function calcularDistanciaPorCidades(cidadeOrigem, cidadeDestino) {
+            try {
+                const origemLimpa = cidadeOrigem.split(' - ')[0].trim();
+                const destinoLimpa = cidadeDestino.split(' - ')[0].trim();
+
+                const coordsOrigem = await obterCoordenadas(origemLimpa);
+                const coordsDestino = await obterCoordenadas(destinoLimpa);
+
+                if (coordsOrigem && coordsDestino) {
+                    return calcularDistanciaHaversine(coordsOrigem, coordsDestino);
+                }
+
+                throw new Error('Não foi possível obter coordenadas das cidades');
+            } catch (error) {
+                console.error('Erro no cálculo por cidades:', error);
+                throw error;
+            }
+        }
+
+        async function obterCoordenadas(cidade) {
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cidade + ', Brasil')}&limit=1`
+                );
+                
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    return [
+                        parseFloat(data[0].lat),
+                        parseFloat(data[0].lon)
+                    ];
+                }
+                
+                return null;
+            } catch (error) {
+                console.error(`Erro ao obter coordenadas de ${cidade}:`, error);
+                return null;
+            }
+        }
+
+        function calcularDistanciaHaversine(coord1, coord2) {
+            const [lat1, lon1] = coord1;
+            const [lat2, lon2] = coord2;
+
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const sess = getLoggedSession();
+            sessaoAtual = sess;
+            const astroInfoEl = document.getElementById('astro-info');
+            if (astroInfoEl) astroInfoEl.innerHTML = describeSession(sessaoAtual);
+
+            carregarRotas(true).catch(err => console.warn('Auto-carregamento de rotas falhou:', err));
+        });
+    </script>
+</body>
+</html>

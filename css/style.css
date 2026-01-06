@@ -1,0 +1,893 @@
+/* ======================================================
+   Agenda do Astronomo — CSS (Futurista / Neon)
+   Substitui totalmente o estilo anterior — estilo B
+   ====================================================== */
+
+/* ===== VARIÁVEIS GLOBAIS (PALETA NEON/ESPACIAL) ===== */
+:root{
+  --bg-deep: #030417;
+  --bg-mid: #06102a;
+  --accent-purple: #7b5cff;
+  --accent-cyan: #34d1f3;
+  --accent-magenta: #ff5ec4;
+  --accent-rose: #ff7fd1;
+  --accent-fuchsia: #d66bff;
+  --accent-iris: #a08bff;
+  --accent-gold: #ffd86b;
+  --glass: rgba(255,255,255,0.06);
+  --glass-strong: rgba(255,255,255,0.09);
+  --muted: rgba(255,255,255,0.65);
+  --muted-2: rgba(255,255,255,0.45);
+  --card-bg: linear-gradient(135deg, rgba(20,18,40,0.55), rgba(10,12,35,0.6));
+  --neon-outline: rgba(123,92,255,0.18);
+  --shadow-neon: 0 10px 30px rgba(11,9,28,0.6);
+  --glass-border: rgba(123,92,255,0.12);
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --transition-fast: 180ms cubic-bezier(.2,.9,.3,1);
+  --transition-med: 280ms cubic-bezier(.18,.9,.32,1);
+
+  /* Calendar theme variables centralizados */
+  --calendar-bg: rgba(15, 23, 42, 0.95);
+  --calendar-border: #2d3748;
+  --calendar-primary: var(--accent-purple);
+  --calendar-secondary: var(--accent-cyan);
+  --calendar-accent: var(--accent-gold);
+  --calendar-success: #48bb78;
+  --calendar-warning: #ed8936;
+  --calendar-danger: #e53e3e;
+  --calendar-text: #e2e8f0;
+  --calendar-text-muted: #a0aec0;
+  /* Event color aliases */
+  --event-color-confirmed: var(--calendar-success);
+  --event-color-pending: var(--calendar-warning);
+  --event-color-cancelled: var(--calendar-danger);
+  --event-color-travel: var(--calendar-secondary);
+  --event-color-school: var(--calendar-primary);
+}
+
+/* ===== RESET BASE ===== */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body,#app{height:100%}
+body{
+  font-family: "Inter", "Space Grotesk", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial;
+  background: radial-gradient(1200px 600px at 10% 20%, rgba(123,92,255,0.06), transparent 5%),
+              radial-gradient(900px 400px at 90% 80%, rgba(52,209,243,0.05), transparent 6%),
+              var(--bg-deep);
+  color: #e6f0ff;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
+
+/* Brinde badge (Agenda do Dia) */
+.brinde-badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+  padding: 2px 8px;
+  font-size: 12px;
+  border-radius: 999px;
+}
+/* Estado padrão histórico (ouro) mantém compatibilidade */
+.brinde-badge, .brinde-badge.yes{
+  color: var(--accent-gold);
+  background: rgba(255, 216, 107, 0.10);
+  border: 1px solid rgba(255, 216, 107, 0.35);
+}
+.brinde-badge .fa-gift{ color: var(--accent-gold); }
+/* Sem brinde: neutro para evitar confusão */
+.brinde-badge.no{
+  color: var(--muted);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.18);
+}
+.brinde-badge.no .fa-gift{ color: var(--muted); }
+
+/* Finalizado badge (neutro/cinza) */
+.finalizado-badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+  padding: 2px 8px;
+  font-size: 12px;
+  border-radius: 999px;
+  color: #a0aec0; /* cinza */
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.22);
+}
+.finalizado-badge .fa-check-circle{ color: #a0aec0; }
+
+/* ===== List Subtitles (Seções de eventos) ===== */
+.list-subtitle{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 12px;
+  border:1px solid var(--glass-border);
+  border-left-width:4px;
+  border-radius: var(--radius-md);
+  background: var(--glass);
+  color:#e8eeff;
+  font-weight:700;
+  letter-spacing:.2px;
+  text-transform:none;
+  margin:10px 0 8px 0;
+  box-shadow: var(--shadow-neon);
+}
+.list-subtitle.upcoming{
+  border-left-color: var(--calendar-success);
+  background: linear-gradient(180deg, rgba(34,197,94,0.10), rgba(34,197,94,0.06));
+}
+.list-subtitle.pending{
+  border-left-color: var(--calendar-warning);
+  background: linear-gradient(180deg, rgba(237,137,54,0.12), rgba(237,137,54,0.06));
+}
+
+/* Contêiner dos pendentes (abaixo do botão verde) */
+#pending-events{
+  margin-top: 10px;
+}
+
+/* ===== WEATHER WIDGET (SIMPLE) ===== */
+.weather-widget{
+  margin: 8px 0 14px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  align-items: stretch;
+}
+.weather-today{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  box-shadow: var(--shadow-neon);
+}
+.weather-today .icon{
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--neon-outline);
+  color: var(--accent-gold);
+}
+.weather-today .label{
+  font-weight: 600;
+}
+.weather-today .meta{
+  color: var(--muted);
+  font-size: 12px;
+}
+.weather-next{
+  display: flex;
+  gap: 8px;
+  grid-column: 1 / -1;
+}
+.weather-next{ flex-wrap: wrap }
+/* legacy responsive disabled: use main-responsive.css */
+/* @media (max-width: 640px){
+  .weather-widget{ grid-template-columns: 1fr; }
+  .weather-today{ padding: 10px; }
+  .weather-next{ justify-content: flex-start; }
+} */
+.weather-chip{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.weather-chip .w-icon{
+  color: var(--accent-cyan);
+}
+
+.account-header-btn{
+  margin-left: auto;
+}
+
+.navigation{
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 18px auto 24px;
+  padding: 0;
+}
+
+
+/* ===== ANIMATED BACKGROUND LAYERS =====
+   These elements should be inserted in your HTML:
+   <div class="space-layer stars"></div>
+   <div class="space-layer twinkle"></div>
+   <div class="space-layer nebula"></div>
+*/
+.space-layer{position:fixed;inset:0;pointer-events:none;z-index:0}
+.stars{
+  background-image:
+    radial-gradient(#ffffff 1px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.75) 1px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.5) 0.8px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.25) 0.6px, transparent 0.8px),
+    radial-gradient(rgba(255,255,255,0.18) 0.5px, transparent 0.7px);
+  background-size: 1100px 1100px, 600px 600px, 380px 380px, 220px 220px, 140px 140px;
+  background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
+  opacity: 0.32;
+  mix-blend-mode: screen;
+  animation: starsDrift 160s linear infinite;
+}
+.twinkle{
+  background-image: radial-gradient(rgba(255,255,255,0.18) 1px, transparent 2px);
+  background-size: 120px 120px;
+  background-position: 0 0;
+  opacity: 0.28;
+  animation: twinkleFade 6s ease-in-out infinite, twinkleMove 120s linear infinite;
+  mix-blend-mode: screen;
+}
+.constellations{
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'><g stroke='%23b58aff' stroke-opacity='0.35' stroke-width='0.8' fill='none'><path d='M10 30 L60 80 L120 40 L180 110'/><path d='M20 150 L90 120 L150 180'/><path d='M40 20 L30 90 L70 160'/></g><g fill='%23ffffff' fill-opacity='0.8'><circle cx='60' cy='80' r='1.2'/><circle cx='120' cy='40' r='1.3'/><circle cx='180' cy='110' r='1.1'/><circle cx='20' cy='150' r='1.2'/><circle cx='90' cy='120' r='1.4'/><circle cx='150' cy='180' r='1.1'/><circle cx='40' cy='20' r='1.2'/><circle cx='30' cy='90' r='1.2'/><circle cx='70' cy='160' r='1.2'/></g></svg>");
+  background-size: 380px 380px;
+  background-repeat: repeat;
+  opacity: 0.08;
+  mix-blend-mode: screen;
+  animation: nebulaDrift 180s linear infinite;
+}
+.shooting-stars{
+  background-image: repeating-linear-gradient(315deg, rgba(255,255,255,0) 0, rgba(255,255,255,0) 96%, rgba(255,255,255,0.18) 98%, rgba(255,255,255,0) 100%);
+  background-size: 8px 8px;
+  opacity: 0.085;
+  animation: shootingDrift 18s linear infinite;
+  mix-blend-mode: screen;
+}
+
+/* Camadas extras de estrelas cadentes para densidade e variedade */
+.shooting-stars-2{
+  background-image: repeating-linear-gradient(345deg, rgba(255,255,255,0) 0, rgba(255,255,255,0) 96%, rgba(255,255,255,0.16) 98%, rgba(255,255,255,0) 100%);
+  background-size: 7px 7px;
+  opacity: 0.08;
+  animation: shootingDrift2 14s linear infinite;
+  mix-blend-mode: screen;
+}
+.shooting-stars-3{
+  background-image: repeating-linear-gradient(290deg, rgba(255,255,255,0) 0, rgba(255,255,255,0) 96%, rgba(255,255,255,0.14) 98%, rgba(255,255,255,0) 100%);
+  background-size: 6px 6px;
+  opacity: 0.075;
+  animation: shootingDrift3 10s linear infinite;
+  mix-blend-mode: screen;
+}
+.nebula{
+  background:
+    radial-gradient(40% 30% at 20% 40%, rgba(123,92,255,0.26), transparent 20%),
+    radial-gradient(38% 28% at 68% 62%, rgba(52,209,243,0.2), transparent 25%),
+    radial-gradient(32% 22% at 60% 20%, rgba(255,94,196,0.18), transparent 22%),
+    radial-gradient(28% 20% at 30% 75%, rgba(255,127,209,0.16), transparent 20%),
+    radial-gradient(22% 18% at 80% 25%, rgba(214,107,255,0.14), transparent 24%);
+  background-position: 0 0, 0 0, 0 0;
+  opacity: 0.9;
+  mix-blend-mode: screen;
+  transform-origin:center;
+  animation: nebulaFloat 50s ease-in-out infinite, nebulaDrift 200s linear infinite;
+}
+
+/* Faixa sutil da Via Láctea atravessando o céu */
+.milkyway{
+  background-image:
+    radial-gradient(80% 20% at 50% 50%, rgba(255,255,255,0.06), transparent 60%),
+    repeating-linear-gradient(115deg, rgba(255,255,255,0.05) 0 3px, rgba(255,255,255,0) 3px 12px);
+  opacity: 0.06;
+  mix-blend-mode: screen;
+  animation: milkyDrift 240s linear infinite;
+}
+
+/* Galáxias difusas (clusters e braços) */
+.galaxies{
+  background:
+    radial-gradient(42vmin 28vmin at 18% 30%, rgba(255,255,255,0.05), transparent 60%),
+    radial-gradient(40vmin 26vmin at 72% 62%, rgba(160,139,255,0.09), transparent 60%),
+    radial-gradient(36vmin 24vmin at 58% 38%, rgba(255,127,209,0.08), transparent 60%),
+    radial-gradient(30vmin 20vmin at 30% 75%, rgba(214,107,255,0.07), transparent 60%),
+    radial-gradient(24vmin 16vmin at 82% 25%, rgba(123,92,255,0.06), transparent 65%);
+  opacity: 0.28;
+  mix-blend-mode: screen;
+  animation: galaxyDrift 220s linear infinite;
+}
+
+/* Nebula explosion trail (rose hues) */
+.nebula-explosion{
+  position: fixed;
+  left: -25vw;
+  top: 30vh;
+  width: 0; height: 0;
+  pointer-events: none;
+  z-index: 0;
+  animation: nebulaTravel 28s linear infinite;
+}
+.nebula-explosion::before{
+  content: "";
+  position: absolute;
+  left: 0; top: 0;
+  width: 70vmin; height: 70vmin;
+  transform: translate(-10vmin, -20vmin) scale(0.2);
+  transform-origin: 50% 50%;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(closest-side at 50% 50%, rgba(255,150,210,0.45), transparent 70%),
+    radial-gradient(closest-side at 40% 45%, rgba(255,100,180,0.35), transparent 60%),
+    radial-gradient(closest-side at 62% 58%, rgba(250,80,160,0.28), transparent 62%),
+    conic-gradient(from 20deg at 50% 50%, rgba(255,120,190,0.12), transparent 85%);
+  filter: blur(26px);
+  animation: nebulaExplode 1.3s ease-out, nebulaPulse 6s ease-in-out infinite;
+}
+.nebula-explosion::after{
+  content: "";
+  position: absolute;
+  left: 0; top: 0;
+  width: 90vmin; height: 50vmin;
+  transform: translate(-38vmin, -12vmin);
+  border-radius: 50% 40% 60% 50% / 55% 45% 55% 45%;
+  mix-blend-mode: screen;
+  background: radial-gradient(closest-side at 0% 50%, rgba(255,110,190,0.18), transparent 75%);
+  filter: blur(40px);
+  opacity: .45;
+}
+
+@keyframes nebulaExplode{
+  0%{ transform: translate(-10vmin, -20vmin) scale(0.2); opacity: 0 }
+  40%{ opacity: .85 }
+  100%{ transform: translate(-10vmin, -20vmin) scale(1); opacity: .6 }
+}
+@keyframes nebulaPulse{
+  0%{ filter: blur(22px) }
+  50%{ filter: blur(30px) }
+  100%{ filter: blur(22px) }
+}
+@keyframes nebulaTravel{
+  0%{ transform: translate3d(0,0,0) }
+  100%{ transform: translate3d(140vw,-18vh,0) }
+}
+
+/* Background animations */
+@keyframes starsDrift{
+  from{ background-position: 0 0, 0 0 }
+  to{ background-position: -800px 600px, 800px -600px }
+}
+@keyframes twinkleFade{
+  0%{opacity:0.16}
+  50%{opacity:0.26}
+  100%{opacity:0.16}
+}
+@keyframes twinkleMove{
+  from{ background-position: 0 0 }
+  to{ background-position: -300px 300px }
+}
+@keyframes shootingDrift{
+  from{ background-position: 0 0 }
+  to{ background-position: 1000px -1000px }
+}
+@keyframes shootingDrift2{
+  from{ background-position: 0 0 }
+  to{ background-position: -1200px -900px }
+}
+@keyframes shootingDrift3{
+  from{ background-position: 0 0 }
+  to{ background-position: 900px 800px }
+}
+@keyframes nebulaFloat{
+  0%{transform: scale(1) translate(0,0)}
+  50%{transform: scale(1.05) translate(40px,-40px)}
+  100%{transform: scale(1) translate(0,0)}
+}
+@keyframes nebulaDrift{
+  from{ background-position: 0 0, 0 0, 0 0 }
+  to{ background-position: 200px -120px, -180px 140px, 120px 100px }
+}
+@keyframes milkyDrift{
+  from{ background-position: 0 0, 0 0 }
+  to{ background-position: 300px -200px, -400px 260px }
+}
+@keyframes galaxyDrift{
+  from{ background-position: 0 0, 0 0, 0 0, 0 0, 0 0 }
+  to{ background-position: 120px -80px, -180px 120px, 160px 100px, -100px -140px, 140px 80px }
+}
+
+/* ===== LAYOUT CONTAINER ===== */
+.container{
+  max-width:1300px;
+  margin:32px auto;
+  padding:26px;
+  position:relative;
+  z-index:5;
+}
+
+/* ===== HEADER ===== */
+header{
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: var(--radius-lg);
+  padding:28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  border:1px solid var(--glass-border);
+  box-shadow: var(--shadow-neon);
+  position:relative;
+  overflow:hidden;
+}
+header::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background: linear-gradient(90deg, rgba(123,92,255,0.02), transparent 20%, rgba(52,209,243,0.02));
+}
+header h1{
+  font-size:1.8rem;
+  color:var(--accent-gold);
+  letter-spacing:-0.6px;
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+header h1 i{font-size:1.4rem;color:var(--accent-magenta)}
+header p{
+  color:var(--muted);
+  font-size:1rem;
+  opacity:0.95;
+}
+
+/* ===== STATS GRID ===== */
+.stats-grid{
+  margin-top:20px;
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+  gap:18px;
+}
+.stat-card{
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(10,8,30,0.35));
+  border-radius:12px;
+  padding:20px;
+  border:1px solid var(--glass-border);
+  transition: transform var(--transition-med), box-shadow var(--transition-med);
+  position:relative;
+  overflow:hidden;
+}
+.stat-card:hover{ transform: translateY(-8px); box-shadow: 0 18px 50px rgba(11,9,28,0.7) }
+.stat-card h3{ color:var(--muted-2); font-size:0.85rem; text-transform:uppercase; letter-spacing:1px }
+.stat-number{ font-size:1.9rem; color:var(--accent-cyan); font-weight:700; margin-top:8px; text-shadow: 0 6px 18px rgba(52,209,243,0.06) }
+.stat-hint{ margin-top:8px; font-size:0.8rem; color:var(--muted-2); letter-spacing:0.08em; text-transform:uppercase }
+
+/* decorative neon line */
+.stat-card::before{
+  content:"";
+  position:absolute;
+  left:-20%;
+  top:-30%;
+  width:60%;
+  height:200%;
+  background: linear-gradient(120deg, transparent, rgba(123,92,255,0.06), rgba(255,94,196,0.03));
+  transform: rotate(25deg);
+  pointer-events:none;
+}
+
+/* ===== CONTROLS ===== */
+.controls{
+  margin:28px 0;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  border: none;
+  flex-wrap: wrap;
+}
+#update-btn{
+  background: linear-gradient(90deg, var(--accent-purple), var(--accent-rose), var(--accent-cyan));
+  color:white;
+  border:none;
+  padding:12px 24px;
+  border-radius:10px;
+  font-weight:700;
+  cursor:pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: 0 8px 30px rgba(52,209,243,0.08);
+}
+#update-btn:hover{ transform: translateY(-4px); box-shadow:0 18px 50px rgba(123,92,255,0.12) }
+#update-status{ font-weight:600; color:var(--muted); min-height:20px }
+
+/* ===== TABS ===== */
+.tabs{
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  margin-bottom:18px;
+  flex-wrap:wrap;
+}
+.tab-btn{
+  background:transparent;
+  border:1px solid var(--glass-border);
+  color:var(--muted);
+  padding:12px 20px;
+  border-radius:12px;
+  cursor:pointer;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  transition: all var(--transition-fast);
+}
+.tab-btn:hover{ transform: translateY(-4px); border-color:var(--neon-outline); color: #fff }
+.tab-btn.active{
+  background: linear-gradient(90deg, rgba(123,92,255,0.12), rgba(52,209,243,0.08));
+  border-color: rgba(123,92,255,0.28);
+  color:#fff;
+  box-shadow: 0 8px 28px rgba(123,92,255,0.08);
+}
+
+/* ===== TAB CONTENT PANES ===== */
+.tab-content{
+  background: linear-gradient(180deg, rgba(10,12,30,0.6), rgba(6,8,22,0.7));
+  border-radius: var(--radius-lg);
+  padding:28px;
+  border:1px solid var(--glass-border);
+  box-shadow: var(--shadow-neon);
+  display:none;
+}
+.tab-content.active{ display:block }
+
+/* headings inside tabs */
+.tab-content h2{
+  color:var(--accent-gold);
+  font-size:1.4rem;
+  margin-bottom:18px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+/* (Removido) Bloco de Próximos Eventos */
+
+/* ===== TODAY EVENTS ===== */
+.today-highlight{
+  margin-top:10px;
+  padding:16px;
+  border-radius:14px;
+  background:
+    linear-gradient(180deg, rgba(12,14,34,0.45), rgba(6,8,20,0.55)),
+    radial-gradient(800px 300px at 15% 0%, rgba(123,92,255,0.08), transparent 60%),
+    radial-gradient(600px 260px at 85% 20%, rgba(52,209,243,0.07), transparent 60%),
+    radial-gradient(500px 220px at 50% 90%, rgba(255,127,209,0.06), transparent 65%);
+  border:1px solid var(--glass-border);
+}
+.today-event-item{ display:flex; gap:12px; align-items:center; background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent); padding:12px; border-radius:10px; flex-wrap: wrap }
+/* eventos do dia atual que já passaram agora (cor sutil) */
+.today-event-item.past-now{ background: rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.08); opacity:.85 }
+.event-time-badge{ background: linear-gradient(90deg,var(--accent-purple),var(--accent-cyan)); color:white; padding:8px 10px; border-radius:8px; font-weight:700 }
+
+/* ===== ROUTES ===== */
+.route-info, .route-card, .hotel-card{
+  background: linear-gradient(180deg, rgba(15,15,30,0.55), rgba(6,8,20,0.6));
+  border-radius:12px;
+  padding:18px;
+  border:1px solid var(--glass-border);
+}
+.route-header{ color:var(--accent-gold); font-weight:700; display:flex; gap:10px; align-items:center }
+.route-summary p{ color:var(--muted); margin:6px 0 }
+.route-steps{ margin-top:12px }
+.route-step{ display:flex; align-items:center; gap:12px; padding:10px; border-radius:10px; background: rgba(255,255,255,0.01) }
+.step-number{ width:34px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg,var(--accent-purple),var(--accent-cyan)); color:white; font-weight:700 }
+
+ 
+
+/* hotels */
+.hotels-section{ display:grid; grid-template-columns: repeat(auto-fit,minmax(320px,1fr)); gap:16px; margin-top:16px }
+.hotel-card h4{ color:var(--accent-gold); margin-bottom:8px }
+
+/* ===== CHATBOT ===== */
+/* Removido daqui para evitar conflitos: o estilo do chatbot vive em `css/chatbot.css`. */
+
+/* typing indicator */
+.typing-indicator{ display:flex; gap:8px; align-items:center; padding:10px; border-radius:12px; background: rgba(255,255,255,0.02) }
+.typing-dot{ width:8px; height:8px; border-radius:999px; background:var(--accent-purple); animation: bounce 1.2s infinite }
+.typing-dot:nth-child(2){ animation-delay:0.15s } .typing-dot:nth-child(3){ animation-delay:0.3s }
+@keyframes bounce{ 0%,80%,100%{ transform:scale(.7); opacity:0.6 } 40%{ transform:scale(1.05); opacity:1 } }
+
+/* ===== MODAL ===== */
+.modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:1500; background:rgba(2,6,20,0.72) }
+.modal.open{ display:flex }
+.modal-content{ width:min(900px,95%); max-height:90vh; overflow:auto; border-radius:16px; padding:26px; background: linear-gradient(180deg, rgba(6,8,20,0.96), rgba(10,12,25,0.98)); border:1px solid var(--glass-border); box-shadow:0 30px 80px rgba(2,6,20,0.8) }
+.close-btn{ position:absolute; right:22px; top:18px; background:transparent; border:none; color:var(--muted); font-size:1.6rem; cursor:pointer }
+
+/* ===== TOASTS ===== */
+.toast{ position:fixed; top:20px; right:20px; z-index:1600; background: linear-gradient(180deg, rgba(10,12,20,0.95), rgba(6,8,20,0.95)); padding:12px 16px; border-radius:10px; display:flex; gap:12px; align-items:center; box-shadow:0 12px 40px rgba(2,6,20,0.7); border-left:4px solid var(--accent-cyan) }
+.toast-icon{ font-size:1.2rem; color:var(--accent-cyan) }
+.toast-message{ color:var(--muted); font-weight:600 }
+.toast-close{ background:transparent; border:none; color:var(--muted); cursor:pointer }
+
+/* ===== FOOTER ===== */
+footer{ margin-top:36px; padding:24px; text-align:center; color:var(--muted-2); font-style:italic; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent); border-top:1px solid rgba(255,255,255,0.02) }
+
+/* legacy responsive disabled: use main-responsive.css */
+/*
+@media (max-width: 1100px){ header h1{ font-size:1.4rem } }
+@media (max-width: 800px){ .container{ padding:16px } .stats-grid{ grid-template-columns: repeat(auto-fit, minmax(180px,1fr)) } .tab-content{ padding:18px } }
+@media (max-width: 680px){ .stats-grid{ grid-template-columns: repeat(auto-fit, minmax(160px,1fr)) } header{ padding:18px } .tab-content{ padding:16px } }
+@media (max-width: 540px){ .route-summary, .route-actions{ justify-content:center } .day-route-actions{ gap:8px } .today-highlight{ padding:12px } }
+@media (max-width:480px){ header{ flex-direction:column; align-items:flex-start; gap:12px; padding:18px } .tabs{ gap:8px; margin-bottom:12px } .stat-number{ font-size:1.4rem } }
+@media (max-width: 360px){ body{ font-size:14px } .btn{ padding:8px 10px } .badge-icon{ width:44px; height:44px } }
+*/
+
+/* ===== SMALL UTILITIES ===== */
+.hidden{ display:none !important }
+.center{ display:flex; align-items:center; justify-content:center }
+.faint{ color:var(--muted-2) !important }
+
+/* ===== FUNDO GALÁCTICO APRIMORADO (complemento) ===== */
+/* Contêiner para estrelas cadentes reais (filhas animadas) */
+.shooting-stars { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.shooting-star {
+  position: absolute;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.85) 30%,
+    rgba(255,255,255,0.85) 70%,
+    rgba(255,255,255,0) 100%);
+  height: 2px;
+  border-radius: 50%;
+  filter: blur(0.5px);
+  transform: rotate(45deg);
+  animation: shootingStar linear forwards;
+}
+/* instâncias (tempos/posições escalonados) */
+.shooting-star:nth-child(1) { top: 15%; left: -120px; width: 140px; animation-duration: 3.2s; animation-delay: 0s; }
+.shooting-star:nth-child(2) { top: 25%; left: -160px; width: 180px; animation-duration: 2.6s; animation-delay: 8s; }
+.shooting-star:nth-child(3) { top: 40%; left: -220px; width: 220px; animation-duration: 3.8s; animation-delay: 15s; }
+.shooting-star:nth-child(4) { top: 60%; left: -140px; width: 160px; animation-duration: 2.2s; animation-delay: 22s; }
+.shooting-star:nth-child(5) { top: 75%; left: -180px; width: 200px; animation-duration: 3.4s; animation-delay: 30s; }
+.shooting-star:nth-child(6) { top: 85%; left: -160px; width: 170px; animation-duration: 2.9s; animation-delay: 40s; }
+.shooting-star:nth-child(7) { top: 35%; left: -140px; width: 160px; animation-duration: 3.1s; animation-delay: 50s; }
+.shooting-star:nth-child(8) { top: 55%; left: -190px; width: 210px; animation-duration: 2.7s; animation-delay: 60s; }
+.shooting-star:nth-child(9) { top: 10%; left: -100px; width: 150px; animation-duration: 3.0s; animation-delay: 70s; }
+.shooting-star:nth-child(10){ top: 48%; left: -130px; width: 190px; animation-duration: 2.8s; animation-delay: 80s; }
+
+@keyframes shootingStar {
+  0%   { transform: translateX(0) translateY(0) rotate(45deg); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateX(100vw) translateY(100vh) rotate(45deg); opacity: 0; }
+}
+
+/* Poeira estelar sutil (nova camada space-layer stardust) */
+.stardust {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.12) 0.6px, transparent 0.6px);
+  background-size: 80px 80px;
+  background-position: 0 0;
+  opacity: 0.15;
+  mix-blend-mode: screen;
+  animation: stardustMove 120s linear infinite;
+}
+@keyframes stardustMove { from { background-position: 0 0; } to { background-position: -200px 200px; } }
+
+/* ===== FUNDO GALÁCTICO APRIMORADO — OVERRIDE ===== */
+/* Substitui apenas as camadas de fundo: .space-layer, .stars, .twinkle, .shooting-stars, .nebula, .galaxies e animações relacionadas */
+.space-layer { position: fixed; inset: 0; pointer-events: none; z-index: 0 }
+
+/* Estrelas densas de fundo */
+.stars {
+  background-image:
+    radial-gradient(#ffffff 1.2px, transparent 1.2px),
+    radial-gradient(rgba(255,255,255,0.9) 0.8px, transparent 0.8px),
+    radial-gradient(rgba(255,255,255,0.7) 0.6px, transparent 0.6px),
+    radial-gradient(rgba(255,255,255,0.5) 0.4px, transparent 0.4px),
+    radial-gradient(rgba(255,255,255,0.3) 0.2px, transparent 0.2px);
+  background-size: 1200px 1200px, 800px 800px, 500px 500px, 300px 300px, 150px 150px;
+  background-position: 0 0, 200px 400px, 400px 200px, 600px 600px, 800px 300px;
+  opacity: 0.4;
+  mix-blend-mode: screen;
+  animation: starsDrift 200s linear infinite;
+}
+
+/* Estrelas piscantes */
+.twinkle {
+  background-image:
+    radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.6) 0.7px, transparent 0.7px);
+  background-size: 400px 400px, 250px 250px;
+  background-position: 0 0, 100px 150px;
+  opacity: 0.3;
+  animation: twinkleFade 4s ease-in-out infinite, twinkleMove 90s linear infinite;
+  mix-blend-mode: screen;
+}
+
+/* Contêiner de estrelas cadentes já definido acima (.shooting-stars/.shooting-star) */
+
+/* Nebulosa vibrante */
+.nebula {
+  background:
+    radial-gradient(40% 40% at 15% 25%, rgba(123,92,255,0.3), transparent 50%),
+    radial-gradient(35% 35% at 75% 65%, rgba(52,209,243,0.25), transparent 45%),
+    radial-gradient(30% 30% at 55% 15%, rgba(255,94,196,0.2), transparent 40%),
+    radial-gradient(25% 25% at 25% 80%, rgba(255,127,209,0.18), transparent 35%),
+    radial-gradient(20% 20% at 85% 35%, rgba(214,107,255,0.15), transparent 30%);
+  opacity: 0.7;
+  mix-blend-mode: screen;
+  animation: nebulaFloat 45s ease-in-out infinite, nebulaPulse 20s ease-in-out infinite;
+}
+
+/* Galáxias distantes */
+.galaxies {
+  background:
+    radial-gradient(50vmin 35vmin at 12% 22%, rgba(160,139,255,0.12), transparent 65%),
+    radial-gradient(45vmin 30vmin at 78% 68%, rgba(255,127,209,0.1), transparent 60%),
+    radial-gradient(40vmin 25vmin at 52% 12%, rgba(123,92,255,0.08), transparent 55%),
+    radial-gradient(35vmin 20vmin at 22% 78%, rgba(214,107,255,0.06), transparent 50%);
+  opacity: 0.25;
+  mix-blend-mode: screen;
+  animation: galaxyDrift 180s linear infinite;
+}
+
+/* Animações novas/sincronizadas */
+@keyframes starsDrift {
+  from { background-position: 0 0, 200px 400px, 400px 200px, 600px 600px, 800px 300px; }
+  to   { background-position: -800px 800px, -600px 1200px, -100px 1000px, 200px 1400px, 1000px 700px; }
+}
+@keyframes twinkleFade { 0%,100% { opacity: .2 } 50% { opacity: .4 } }
+@keyframes twinkleMove { from { background-position: 0 0, 100px 150px; } to { background-position: -200px 200px, -150px 350px; } }
+@keyframes nebulaFloat { 0% { transform: translate(0,0) scale(1) } 33% { transform: translate(30px,-20px) scale(1.02) } 66% { transform: translate(-20px,15px) scale(0.98) } 100% { transform: translate(0,0) scale(1) } }
+@keyframes nebulaPulse { 0%,100% { opacity: .6 } 50% { opacity: .8 } }
+@keyframes galaxyDrift { from { background-position: 0 0, 0 0, 0 0, 0 0 } to { background-position: 100px -80px, -150px 120px, 80px 100px, -120px -60px } }
+
+/* ===== AGENDA DO DIA — LAYOUT CENTRALIZADO ===== */
+#today-events-list{ display:flex; flex-direction:column; align-items:center; gap:14px }
+.today-highlight{ text-align:center }
+
+/* ===== AGENDA DO DIA — CARD POR EVENTO ===== */
+.day-event-card{ width:min(760px,95%); position:relative; background: linear-gradient(180deg, rgba(12,14,34,0.65), rgba(6,8,22,0.75)); border:1px solid var(--glass-border); border-radius:16px; box-shadow: 0 18px 60px rgba(3,6,18,0.55); overflow:hidden }
+.day-event-card::after{ content:""; position:absolute; inset:0; pointer-events:none; background: linear-gradient(120deg, transparent 0%, rgba(123,92,255,0.05) 35%, rgba(52,209,243,0.05) 65%, transparent 100%); opacity:.9 }
+.card-header{ display:flex; gap:14px; align-items:flex-start; padding:16px 18px 6px 18px; flex-wrap: wrap }
+.badge-icon{ width:50px; height:50px; border-radius:12px; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg, var(--accent-magenta), var(--accent-purple)); color:white; box-shadow: 0 10px 30px rgba(123,92,255,0.25) }
+.header-main h4{ color:#eaf4ff; font-size:1.05rem; margin-bottom:6px }
+.subline{ color:var(--muted-2); font-size:.92rem }
+.meta-row{ margin-top:8px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center; color:var(--muted); font-size:.9rem }
+.meta-row span{ background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); padding:6px 10px; border-radius:999px }
+.card-route{ padding:12px 18px 18px 18px }
+.route-stats{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-bottom:10px }
+.route-stat{ display:flex; gap:8px; align-items:center; color:var(--muted) }
+.day-route-actions{ display:flex; gap:10px; justify-content:center; flex-wrap: wrap }
+.day-event-card:hover{ transform: translateY(-3px); transition: transform 200ms ease }
+
+/* Astronaut vibe accent on hover */
+.day-event-card:hover .badge-icon{ box-shadow:0 14px 40px rgba(123,92,255,0.35) }
+
+/* Canceled/minimized styles */
+.tag-canceled{ display:inline-block; margin-left:8px; padding:2px 8px; border-radius:999px; font-size:12px; background: rgba(229,62,62,0.18); color:#ffc9c9; border:1px solid rgba(229,62,62,0.35) }
+.today-event-item.is-canceled{ opacity:.65; filter:saturate(.7); }
+.today-event-item.is-canceled .btn-whatsapp{ display:none }
+.day-event-card.is-canceled{ opacity:.7; filter:saturate(.7) }
+.day-event-card.is-canceled.is-collapsed .card-route{ display:none }
+
+/* ===== AGENDA DO DIA — BANNERS ===== */
+.event-info-banner, .route-info-banner{ background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(6,8,20,0.4)); border:1px solid var(--glass-border); border-radius:12px; padding:14px; margin-bottom:12px }
+.banner-header{ display:flex; gap:10px; align-items:center; color:var(--accent-gold); margin-bottom:10px }
+.event-banner-content, .route-banner-content{ display:flex; flex-direction:column; gap:10px }
+.event-banner-item, .route-banner-item{ background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:8px }
+.event-banner-main{ display:flex; justify-content:space-between; align-items:center }
+.event-banner-main h4{ color:#e9f3ff; font-size:1rem }
+.event-location{ color:var(--muted-2); font-size:0.9rem }
+.event-banner-details .detail-row{ display:flex; justify-content:space-between; color:var(--muted); font-size:0.92rem }
+.route-summary{ display:flex; gap:12px; flex-wrap:wrap }
+.route-stat{ display:flex; gap:6px; align-items:center; color:var(--muted) }
+.route-actions{ display:flex; gap:8px; flex-wrap:wrap }
+
+/* ===== CUSTOS — Resumos claros (Estimados/Reais) ===== */
+ 
+
+/* ===== FRASES SAZONAIS ===== */
+.seasonal-phrase-banner{
+  display:flex;
+  gap:14px;
+  align-items:center;
+  background: linear-gradient(180deg, rgba(14,16,36,0.6), rgba(8,10,28,0.65));
+  border:1px solid var(--glass-border);
+  border-radius:14px;
+  padding:14px 16px;
+  position:relative;
+  overflow:hidden;
+}
+
+ 
+.seasonal-phrase-banner::after{
+  content:"";
+  position:absolute; inset:0; pointer-events:none;
+  background:
+    linear-gradient(120deg, transparent 0%, rgba(123,92,255,0.06) 40%, rgba(52,209,243,0.06) 60%, transparent 100%),
+    linear-gradient(0deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 140px 140px, 140px 140px;
+  opacity:.9;
+}
+.seasonal-phrase-banner .phrase-icon{
+  width:44px; height:44px; border-radius:50%; display:grid; place-items:center;
+  font-size:1.2rem; color:var(--accent-gold);
+  background: rgba(255,255,255,0.04);
+  border:1px solid var(--neon-outline);
+}
+.seasonal-phrase-banner .phrase-content{ display:flex; flex-direction:column; align-items:flex-start }
+.seasonal-phrase-banner .phrase-text{
+  color:#e8f1ff; font-weight:700; letter-spacing:.02em; transition: opacity .3s ease;
+}
+.seasonal-phrase-banner .phrase-subtitle{
+  color:var(--muted-2); font-size:0.86rem; margin-top:2px;
+}
+
+/* Empty state subtle card */
+.empty-state{
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  padding:18px; border-radius:14px; width:min(780px,96%);
+  background: linear-gradient(180deg, rgba(12,14,34,0.55), rgba(6,8,22,0.6));
+  border:1px solid var(--glass-border);
+  color:var(--muted);
+}
+.empty-state i{ color:var(--accent-cyan); font-size:1.6rem }
+
+/* ===== Responsive tweaks for <=640px ===== */
+/*
+@media (max-width: 640px){
+  .container{ margin:16px auto; padding:16px; }
+  header{ padding:16px; flex-direction: column; align-items:flex-start; gap:12px; }
+  .stats-grid{ grid-template-columns: 1fr 1fr; gap:10px; }
+  .stat-card{ padding:12px; }
+  .stat-card h3{ font-size:0.78rem; }
+  .stat-number{ font-size:1.4rem; margin-top:4px; }
+  .stat-hint{ margin-top:4px; font-size:0.75rem; }
+  .controls{ margin:16px 0; padding:12px; }
+}
+@media (max-width: 420px){
+  .stats-grid{ grid-template-columns: 1fr; }
+}
+*/
+
+/* actions (globais para botões) */
+.event-actions-inline{ flex-wrap: wrap }
+.btn{ padding:10px 14px; border-radius:10px; border:none; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px }
+.btn.is-loading{ opacity:0.55; pointer-events:none; cursor:wait; position:relative }
+.btn-whatsapp{ background: linear-gradient(90deg,#25D366,#23bb8f); color:white }
+.btn-maps{ background: linear-gradient(90deg,var(--accent-cyan),var(--accent-iris)); color:white }
+.btn-secondary{ background: rgba(255,255,255,0.03); color:var(--muted) }
+.queue-hint{ margin-top:12px; padding:12px; border-radius:10px; border:1px dashed rgba(255,255,255,0.15); color:var(--muted); text-align:center; font-size:0.85rem; background: rgba(255,255,255,0.02); letter-spacing:0.06em; text-transform:uppercase }
+.event-details-container{ max-height: 0; overflow: hidden; padding: 0; }
+
+/* ===== Override: remover fundos animados (estrelas/galáxias/nébula) para um visual simples ===== */
+.space-layer,
+.stars,
+.twinkle,
+.nebula,
+.galaxies,
+.shooting-stars,
+.shooting-stars-2,
+.shooting-stars-3,
+.stardust {
+  display: none !important;
+  background: none !important;
+  animation: none !important;
+}

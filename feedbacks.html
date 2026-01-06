@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedbacks - Astrônomos</title>
+    <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
+    <!-- <link rel="stylesheet" href="css/style.css"> -->
+    <!-- <link rel="stylesheet" href="css/docs-urania.css"> -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+</head>
+<body class="presentation-page feedbacks-page">
+    <!-- Fundo galáctico (coeso com a Agenda Urânia) -->
+    <div class="space-layer stars"></div>
+    <div class="space-layer twinkle"></div>
+    <div class="space-layer nebula"></div>
+    <div class="space-layer galaxies"></div>
+
+    <div class="page-wrapper">
+        <div class="page-container container">
+            <header class="page-header">
+                <div>
+                    <h1>Feedbacks</h1>
+                    <p class="subtitle">Agenda Inteligente Urânia</p>
+                </div>
+            </header>
+            
+            <div class="navigation">
+                <a href="apresentacao.html" class="nav-button"><i class="fas fa-clipboard-list"></i> Apresentação</a>
+                <a href="index.html" class="nav-button"><i class="fas fa-calendar-alt"></i> Agenda</a>
+                <a href="feedbacks.html" class="nav-button active"><i class="fas fa-comment-dots"></i> Feedbacks</a>
+                <a href="despesas.html" class="nav-button"><i class="fas fa-file-invoice-dollar"></i> Despesas</a>
+                <a href="historico.html" class="nav-button"><i class="fas fa-history"></i> Históricos</a>
+                <a href="account.html" class="nav-button account-header-btn"><i class="fas fa-user-astronaut"></i> Minha Conta</a>
+                <a href="rotas.html" class="nav-button"><i class="fas fa-route"></i> Rotas</a>
+            </div>
+            
+            <main>
+                <section class="hero">
+                    <div>
+                        <span class="hero-eyebrow"><i class="fas fa-comment-dots"></i> Feedbacks</span>
+                        <h1>Feedbacks dos astrônomos em tempo real.</h1>
+                        <p>Carregue, filtre e acompanhe percepções por cidade, sentimento e resultado das sessões.</p>
+                    </div>
+                    <div class="panel-card">
+                        <div class="panel-title">
+                            <span>Painel rápido</span>
+                            <span class="panel-tag">Atualização automática</span>
+                        </div>
+                        <div class="panel-list">
+                            <div class="panel-item">
+                                <span class="panel-label">Cobertura</span>
+                                <span class="panel-value">Visão consolidada</span>
+                            </div>
+                            <div class="panel-item">
+                                <span class="panel-label">Sentimento</span>
+                                <span class="panel-value">Leitura instantânea</span>
+                            </div>
+                            <div class="panel-item">
+                                <span class="panel-label">Qualidade</span>
+                                <span class="panel-value">Ajustes recomendados</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section class="section" id="indicadores">
+                    <div class="section-header">
+                        <h2>Indicadores de feedback</h2>
+                        <p>Visão geral do volume e do sentimento das avaliações dos astrônomos.</p>
+                    </div>
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-feedbacks">0</div>
+                            <div class="stat-label">Total de Feedbacks</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="positive-feedbacks">0</div>
+                            <div class="stat-label">Positivos</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="neutral-feedbacks">0</div>
+                            <div class="stat-label">Neutros</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="negative-feedbacks">0</div>
+                            <div class="stat-label">Negativos</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="feedback-rate">0%</div>
+                            <div class="stat-label">Taxa de Feedback</div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section class="section" id="feedbacks">
+                    <div class="section-header">
+                        <h2>Feedbacks recentes</h2>
+                        <p>Explore avaliações por cidade e sentimento para ajustar operações.</p>
+                    </div>
+                    <div class="sentiment-analysis">
+                        <div class="sentiment-filter active" data-sentiment="all">
+                            <i class="fas fa-star"></i> Todos
+                            <span class="sentiment-count" id="count-all">0</span>
+                        </div>
+                        <div class="sentiment-filter" data-sentiment="positive">
+                            <i class="fas fa-smile"></i> Positivos
+                            <span class="sentiment-count" id="count-positive">0</span>
+                        </div>
+                        <div class="sentiment-filter" data-sentiment="neutral">
+                            <i class="fas fa-meh"></i> Neutros
+                            <span class="sentiment-count" id="count-neutral">0</span>
+                        </div>
+                        <div class="sentiment-filter" data-sentiment="negative">
+                            <i class="fas fa-frown"></i> Negativos
+                            <span class="sentiment-count" id="count-negative">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label class="filter-label" for="city-select">Cidade:</label>
+                            <select class="filter-select" id="city-select">
+                                <option value="all">Todas as cidades</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label" for="search-input">Buscar nos feedbacks:</label>
+                            <input type="text" class="search-input" id="search-input" placeholder="Digite para buscar...">
+                        </div>
+                    </div>
+                    
+                    <div class="feedback-grid" id="feedback-grid">
+                        <div class="empty-state">
+                            <i class="fas fa-comment-slash"></i>
+                            <h3>Nenhum feedback encontrado</h3>
+                            <p>Clique em "Buscar Dados" para carregar os feedbacks dos astrônomos</p>
+                        </div>
+                    </div>
+                    
+                    <div class="pagination" id="pagination" style="display: none;">
+                        <div class="pagination-info" id="pagination-info"></div>
+                        <div class="pagination-buttons">
+                            <button class="btn btn-secondary" id="prev-page">Anterior</button>
+                            <button class="btn btn-secondary" id="next-page">Próxima</button>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Limpa caches no reload (F5), preservando apenas sessões
+        (function(){
+            const isReload = (() => {
+                try{
+                    const nav = performance.getEntriesByType('navigation')[0];
+                    if (nav && nav.type) return nav.type === 'reload';
+                    if (performance.navigation) return performance.navigation.type === 1;
+                }catch(_){}
+                return false;
+            })();
+            if (!isReload) return;
+            try{
+                const keep = new Set(['astronomo_session','userSession']);
+                const prefixes = ['agenda_cache_v1','rotas_cache_v1','rotas_override_v1','route_cache_osrm_v1','coord_cache_nominatim_v1','route_block_cache_v1'];
+                const contains = ['user_theme','savedUser','astronomersData','astronomersLastUpdate'];
+                const toDelete = [];
+                for (let i=0;i<localStorage.length;i++){
+                    const k = localStorage.key(i);
+                    if (!k) continue;
+                    if (keep.has(k)) continue;
+                    if (prefixes.some(p => k.startsWith(p)) || contains.some(c => k.includes(c))) {
+                        toDelete.push(k);
+                    }
+                }
+                toDelete.forEach(k => localStorage.removeItem(k));
+            }catch(_){}
+        })();
+
+        // Elementos DOM
+        const feedbackGrid = document.getElementById('feedback-grid');
+        const citySelect = document.getElementById('city-select');
+        const searchInput = document.getElementById('search-input');
+        const notification = document.getElementById('notification');
+        const totalFeedbacksElement = document.getElementById('total-feedbacks');
+        const positiveFeedbacksElement = document.getElementById('positive-feedbacks');
+        const neutralFeedbacksElement = document.getElementById('neutral-feedbacks');
+        const negativeFeedbacksElement = document.getElementById('negative-feedbacks');
+        const feedbackRateElement = document.getElementById('feedback-rate');
+        const connectionStatus = document.getElementById('connection-status');
+        const webhookStatus = document.getElementById('webhook-status');
+        const pagination = document.getElementById('pagination');
+        const paginationInfo = document.getElementById('pagination-info');
+        const prevPageButton = document.getElementById('prev-page');
+        const nextPageButton = document.getElementById('next-page');
+        const btnFetchData = document.getElementById('btn-fetch-data');
+        const sentimentFilters = document.querySelectorAll('.sentiment-filter');
+        const countAllElement = document.getElementById('count-all');
+        const countPositiveElement = document.getElementById('count-positive');
+        const countNeutralElement = document.getElementById('count-neutral');
+        const countNegativeElement = document.getElementById('count-negative');
+
+        // Configuração do Webhook (novo endpoint)
+        const AGENDA_WEBHOOK_URL = 'https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo';
+        const AGENDA_CACHE_PREFIX = 'agenda_cache_v1';
+
+        // Utilitários de sessão e webhook
+        function getLoggedSession(){
+            try{
+                const raw = localStorage.getItem('astronomo_session');
+                const s = raw ? JSON.parse(raw) : null;
+                if (s && s.loggedIn) return s;
+            }catch(_){ }
+            return null;
+        }
+
+        function agendaCacheKey(sess){
+            const ns = (sess && (sess.id_astronomo ?? sess.usuario ?? sess.username)) || 'anon';
+            return `${AGENDA_CACHE_PREFIX}::${String(ns).toLowerCase()}`;
+        }
+
+        function buildUrl(base, params){
+            const usp = new URLSearchParams();
+            Object.entries(params||{}).forEach(([k,v])=>{ if (v!==undefined && v!==null) usp.append(k, String(v)); });
+            const sep = base.includes('?') ? '&' : '?';
+            return base + sep + usp.toString();
+        }
+        async function callAgendaWebhook(action, params){
+            const url = buildUrl(AGENDA_WEBHOOK_URL, { action, ...(params||{}) });
+            const resp = await fetch(url, { method:'GET', headers:{ 'Accept':'application/json' } });
+            if (!resp.ok) throw new Error(`Erro HTTP ${resp.status}`);
+            try{ return await resp.json(); }catch(_){ return null; }
+        }
+
+        function loadCachedAgenda(sess){
+            try{
+                const key = agendaCacheKey(sess);
+                const raw = localStorage.getItem(key);
+                if (!raw) return null;
+                const parsed = JSON.parse(raw);
+                if (!parsed || !Array.isArray(parsed.events)) return null;
+                const revived = parsed.events.map(ev => ({
+                    ...ev,
+                    _date: ev && ev._date ? new Date(ev._date) : (ev && ev.data ? new Date(ev.data) : null)
+                }));
+                return { ts: parsed.ts || parsed.timestamp || null, events: revived };
+            }catch(err){
+                console.warn('Não foi possível ler o cache da agenda:', err);
+                return null;
+            }
+        }
+
+        // Estado da aplicação
+        let eventsData = [];
+        let feedbacksData = [];
+        let filteredFeedbacks = [];
+        let filteredCity = 'all';
+        let filteredSentiment = 'all';
+        let searchTerm = '';
+        let currentPage = 1;
+        const feedbacksPerPage = 12;
+
+        function norm(v){ return String(v||'').trim().toLowerCase(); }
+        function belongsToSession(item, s){
+            if (!s) return false;
+            const sid = item.assistant_id ?? item.ASSISTANT_ID;
+            const iid = item.id_astronomo ?? item.idAstronomo;
+            const u = item.usuario ?? item.USERNAME;
+            const a = item.astronomo ?? item.astronomo_validacao;
+            if (s.assistant_id != null && String(s.assistant_id) === String(sid)) return true;
+            if (s.id_astronomo != null && String(s.id_astronomo) === String(iid)) return true;
+            const su = norm(s.username);
+            const sn = norm(s.nome_completo);
+            if (u && norm(u).includes(su)) return true;
+            if (a && (norm(a).includes(su) || (sn && norm(a).includes(sn)))) return true;
+            return false;
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Event Listeners
+            citySelect.addEventListener('change', handleCityFilter);
+            searchInput.addEventListener('input', handleSearch);
+            prevPageButton.addEventListener('click', goToPrevPage);
+            nextPageButton.addEventListener('click', goToNextPage);
+            btnFetchData.addEventListener('click', fetchDataFromN8N);
+            
+            sentimentFilters.forEach(filter => {
+                filter.addEventListener('click', () => {
+                    sentimentFilters.forEach(f => f.classList.remove('active'));
+                    filter.classList.add('active');
+                    filteredSentiment = filter.dataset.sentiment;
+                    applyFilters();
+                });
+            });
+
+            // Carrega automaticamente do cache da Agenda ao abrir a página
+            fetchDataFromN8N();
+        });
+
+        // ========== FUNÇÃO PRINCIPAL - BUSCAR DADOS REAIS DO n8n ==========
+
+        async function fetchDataFromN8N() {
+            try {
+                btnFetchData.disabled = true;
+                btnFetchData.innerHTML = '<span class="loading"></span> Buscando dados...';
+                connectionStatus.textContent = 'Lendo dados sincronizados na Agenda...';
+                webhookStatus.classList.remove('status-connected', 'status-error', 'status-warning');
+
+                const s = getLoggedSession();
+                const cached = loadCachedAgenda(s);
+
+                if (!cached || !Array.isArray(cached.events) || cached.events.length === 0) {
+                    throw new Error('Nenhum dado em cache. Abra a Agenda (index) para sincronizar os eventos.');
+                }
+
+                eventsData = cached.events;
+
+                // Extrair apenas eventos que têm feedback (avaliação/NPM)
+                feedbacksData = eventsData.filter(hasFeedbackFromEvent);
+
+                // Processar e validar os dados
+                feedbacksData = feedbacksData.map(event => {
+                    const feedbackTexto = extractFeedbackText(event);
+                    const nota = extractNotaNpm(event);
+                    const npmCampo = extractNpmField(event);
+                    const textoRaw = (typeof event?.texto_tarefa === 'object' && event?.texto_tarefa !== null) ? (event.texto_tarefa.texto ?? '') : (event?.texto_tarefa ?? '');
+                    const escolaNome = (event?.nome_da_escola || event?.nome_escola || event?.escola || event?.nome_lead || '').toString().trim();
+                    const eventoNome = escolaNome || (event?.conteudo_da_apresentacao ?? textoRaw ?? '').toString() || 'Evento Astronômico';
+                    const dataBruta = event?._date || event?.data_agendamento || event?.data_e_hora_do_agendamento || event?.data || event?.date || new Date().toISOString();
+                    const dataObj = dataBruta instanceof Date ? dataBruta : new Date(dataBruta);
+                    const data = !Number.isNaN(dataObj.getTime()) ? dataObj.toISOString() : new Date().toISOString();
+                    const cidade = (event?.cidade && event.cidade.toString().trim()) ? event.cidade : (event?.cidade_destino || 'Cidade não informada');
+                    const local = (event?.local_instalacao && event.local_instalacao.toString().toLowerCase()!=='null') ? event.local_instalacao : (event?.endereco || 'Local não informado');
+                    const alunos = event?.numero_alunos_empresa ?? event?.numero_de_alunos ?? '0';
+                    const id = event?.id ?? event?.id_evento ?? event?.id_evento_unico ?? 'N/A';
+                    const sentiment = analyzeSentiment(feedbackTexto, nota);
+                    return {
+                        ...event,
+                        id,
+                        escola: escolaNome || 'Escola não informada',
+                        evento: eventoNome,
+                        data,
+                        cidade,
+                        local,
+                        astronomo: event?.astronomo ?? event?.astronomo_validacao ?? 'A definir',
+                        feedback: feedbackTexto,
+                        sentiment,
+                        numero_alunos: alunos,
+                        valor_total: event?.valor_total ?? '0',
+                        nota_npm: nota,
+                        npm: npmCampo
+                    };
+                });
+
+                populateFilters();
+                
+                connectionStatus.textContent = `Carregado do cache da Agenda - ${feedbacksData.length} feedback(s)`;
+                webhookStatus.classList.add('status-connected');
+                showNotification(`${feedbacksData.length} feedbacks carregados do cache da Agenda`, 'success');
+                
+            } catch (error) {
+                console.error('Erro ao buscar dados do n8n:', error);
+                connectionStatus.textContent = `Erro: ${error.message}`;
+                webhookStatus.classList.add('status-error');
+                showNotification(`Abra a Agenda (index) para sincronizar: ${error.message}`, 'error');
+                
+                // Em caso de erro, mostrar estado vazio
+                feedbacksData = [];
+                renderFeedbacks();
+                updatePagination();
+                updateStats();
+            } finally {
+                btnFetchData.disabled = false;
+                btnFetchData.innerHTML = '<i class="fas fa-sync-alt"></i> Buscar Dados';
+            }
+        }
+
+        // ========== ANÁLISE DE SENTIMENTO ==========
+
+        function analyzeSentiment(feedback, notaNpm) {
+            // A nota NPM define o sentimento sempre que estiver presente
+            if (Number.isFinite(notaNpm)) {
+                if (notaNpm >= 8) return 'positive';
+                if (notaNpm >= 6) return 'neutral';
+                return 'negative';
+            }
+
+            // Fallback para casos sem nota: análise simples por palavras-chave
+            if (!feedback) return 'neutral';
+            
+            const text = feedback.toLowerCase();
+            
+            const positiveWords = ['excelente', 'ótimo', 'bom', 'perfeito', 'maravilhoso', 'incrível', 'fantástico', 'sucesso', 'satisfeito', 'gostaram', 'feliz', 'ótima'];
+            const negativeWords = ['problema', 'problemas', 'ruim', 'péssimo', 'terrível', 'horrível', 'erro', 'falha', 'defeito', 'quebrou', 'caindo', 'desistiram', 'reclamação', 'reclamaram'];
+            
+            let positiveCount = 0;
+            let negativeCount = 0;
+            
+            positiveWords.forEach(word => {
+                if (text.includes(word)) positiveCount++;
+            });
+            
+            negativeWords.forEach(word => {
+                if (text.includes(word)) negativeCount++;
+            });
+            
+            if (positiveCount > negativeCount) return 'positive';
+            if (negativeCount > positiveCount) return 'negative';
+            return 'neutral';
+        }
+
+        function extractFeedbackText(event){
+            const candidates = [
+                event?.avaliacao,
+                event?.avaliacao_astronomo,
+                event?.avaliacao_comentario,
+                event?.feedback,
+                event?.comentario_feedback,
+                event?.feedback_texto,
+                event?.avaliacao_responsavel
+            ];
+            for (const c of candidates){
+                const t = (c ?? '').toString().trim();
+                if (!t) continue;
+                const lower = t.toLowerCase();
+                if (lower === 'null' || lower === 'undefined') continue;
+                return t;
+            }
+            return '';
+        }
+
+        function extractNpmField(event){
+            const candidates = [
+                event?.npm,
+                event?.npm_texto,
+                event?.net_promoter_score,
+                event?.nota_nps,
+                event?.nps
+            ];
+            for (const c of candidates){
+                const t = (c ?? '').toString().trim();
+                if (!t) continue;
+                if (t.toLowerCase() === 'null' || t.toLowerCase() === 'undefined') continue;
+                return t;
+            }
+            return '';
+        }
+
+        function extractNotaNpm(event){
+            const candidates = [
+                event?.nota_npm,
+                event?.notaNpm,
+                event?.nota_npm_value,
+                event?.npm_nota,
+                event?.nota,
+                event?.nota_nps,
+                event?.nps
+            ];
+            for (const c of candidates){
+                if (c === null || c === undefined) continue;
+                const num = Number(String(c).replace(',', '.'));
+                if (!Number.isFinite(num)) continue;
+                if (num >= 0 && num <= 10) return num;
+                // aceita números fora do range, mas arredonda para 0-10
+                return Math.max(0, Math.min(10, num));
+            }
+            return null;
+        }
+
+        function hasFeedbackFromEvent(event){
+            const f = extractFeedbackText(event);
+            const nota = extractNotaNpm(event);
+            const npmField = extractNpmField(event);
+            return (f && f.trim() !== '') || (npmField && npmField.trim() !== '') || nota !== null;
+        }
+
+        function getSentimentClass(sentiment) {
+            switch(sentiment) {
+                case 'positive': return 'sentiment-positive';
+                case 'negative': return 'sentiment-negative';
+                default: return 'sentiment-neutral';
+            }
+        }
+
+        function getSentimentIcon(sentiment) {
+            switch(sentiment) {
+                case 'positive': return 'fas fa-smile';
+                case 'negative': return 'fas fa-frown';
+                default: return 'fas fa-meh';
+            }
+        }
+
+        // ========== FUNÇÕES DE FILTRO E BUSCA ==========
+
+        function applyFilters() {
+            filteredFeedbacks = feedbacksData.filter(feedback => {
+                const matchesCity = filteredCity === 'all' || feedback.cidade?.includes(filteredCity);
+                const matchesSentiment = filteredSentiment === 'all' || feedback.sentiment === filteredSentiment;
+                const matchesSearch = !searchTerm || 
+                    feedback.feedback?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    feedback.evento?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    feedback.cidade?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    feedback.astronomo?.toLowerCase().includes(searchTerm.toLowerCase());
+                
+                return matchesCity && matchesSentiment && matchesSearch;
+            });
+            
+            currentPage = 1;
+            renderFeedbacks();
+            updatePagination();
+            updateStats();
+        }
+
+        // Removido seletor de astrônomo; usaremos a sessão do login
+
+        function handleCityFilter(e) {
+            filteredCity = e.target.value;
+            applyFilters();
+        }
+
+        function handleSearch(e) {
+            searchTerm = e.target.value;
+            applyFilters();
+        }
+
+        // ========== FUNÇÕES DE PAGINAÇÃO ==========
+
+        function goToPrevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderFeedbacks();
+                updatePagination();
+            }
+        }
+
+        function goToNextPage() {
+            const totalPages = Math.ceil(filteredFeedbacks.length / feedbacksPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderFeedbacks();
+                updatePagination();
+            }
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredFeedbacks.length / feedbacksPerPage);
+            const startItem = (currentPage - 1) * feedbacksPerPage + 1;
+            const endItem = Math.min(currentPage * feedbacksPerPage, filteredFeedbacks.length);
+            
+            if (filteredFeedbacks.length > feedbacksPerPage) {
+                pagination.style.display = 'flex';
+                paginationInfo.textContent = `Mostrando ${startItem}-${endItem} de ${filteredFeedbacks.length} feedbacks`;
+                prevPageButton.disabled = currentPage === 1;
+                nextPageButton.disabled = currentPage === totalPages;
+            } else {
+                pagination.style.display = 'none';
+            }
+        }
+
+        // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
+
+        function cityBaseName(cidade) {
+            if (!cidade) return 'Desconhecida';
+            const s = String(cidade).trim();
+            if (s.includes(' - ')) return s.split(' - ')[0].trim();
+            if (s.includes('/')) return s.split('/')[0].trim();
+            if (s.includes(',')) return s.split(',')[0].trim();
+            return s;
+        }
+
+        function populateFilters() {
+            // Limpar selects
+            citySelect.innerHTML = '<option value="all">Todas as cidades</option>';
+            
+            // Obter lista única de cidades
+            const cities = [...new Set(feedbacksData.map(feedback => cityBaseName(feedback.cidade)).filter(Boolean))];
+            cities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = city;
+                citySelect.appendChild(option);
+            });
+            
+            updateStats();
+            applyFilters();
+        }
+
+        function renderFeedbacks() {
+            feedbackGrid.innerHTML = '';
+            
+            const startIndex = (currentPage - 1) * feedbacksPerPage;
+            const endIndex = startIndex + feedbacksPerPage;
+            const feedbacksToShow = filteredFeedbacks.slice(startIndex, endIndex);
+            
+            if (feedbacksToShow.length === 0) {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'empty-state';
+                if (feedbacksData.length === 0) {
+                    emptyState.innerHTML = `
+                        <i class="fas fa-comment-slash"></i>
+                        <h3>Nenhum feedback encontrado</h3>
+                        <p>Nenhum evento com avaliação de astrônomo foi encontrado nos dados.</p>
+                    `;
+                } else {
+                    emptyState.innerHTML = `
+                        <i class="fas fa-search"></i>
+                        <h3>Nenhum feedback encontrado</h3>
+                        <p>Tente ajustar os filtros ou termos de busca.</p>
+                    `;
+                }
+                feedbackGrid.appendChild(emptyState);
+                return;
+            }
+            
+            feedbacksToShow.forEach(feedback => {
+                const feedbackElement = document.createElement('div');
+                feedbackElement.className = `feedback-card ${feedback.sentiment}`;
+                
+                const feedbackDateRaw = feedback.data || feedback._date;
+                const feedbackDate = feedbackDateRaw ? new Date(feedbackDateRaw) : null;
+                const validDate = feedbackDate && !Number.isNaN(feedbackDate.getTime());
+                const formattedDate = validDate ? feedbackDate.toLocaleDateString('pt-BR') : 'Data não informada';
+                const formattedTime = validDate ? feedbackDate.toLocaleTimeString('pt-BR', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                }) : '—';
+                const escolaNome = feedback.escola || feedback.evento || 'Escola não informada';
+                const cidadeNome = feedback.cidade || 'Cidade não informada';
+                const notaBadge = feedback.nota_npm !== null && feedback.nota_npm !== undefined
+                    ? `<span class="sentiment-badge sentiment-neutral"><i class="fas fa-star"></i> NPM ${feedback.nota_npm}/10</span>`
+                    : '';
+                const npmTextoBadge = feedback.npm
+                    ? `<span class="sentiment-badge sentiment-neutral"><i class="fas fa-chart-line"></i> ${feedback.npm}</span>`
+                    : '';
+                const escolaBadge = escolaNome
+                    ? `<span class="sentiment-badge sentiment-neutral"><i class="fas fa-school"></i> ${escolaNome}</span>`
+                    : '';
+                const cidadeBadge = cidadeNome
+                    ? `<span class="sentiment-badge sentiment-neutral"><i class="fas fa-city"></i> ${cidadeNome}</span>`
+                    : '';
+                
+                const sentimentClass = getSentimentClass(feedback.sentiment);
+                const sentimentIcon = getSentimentIcon(feedback.sentiment);
+                
+                feedbackElement.innerHTML = `
+                    <div class="feedback-header">
+                        <div class="event-title">${escolaNome}</div>
+                        <div class="event-date">${formattedDate} • ${cidadeNome}</div>
+                    </div>
+
+                    <div class="feedback-meta" style="display:flex; gap:8px; flex-wrap:wrap; margin:6px 0;">
+                        ${notaBadge}
+                        ${npmTextoBadge}
+                        ${escolaBadge}
+                        ${cidadeBadge}
+                    </div>
+                    
+                    <div class="feedback-content">
+                        <div class="feedback-text">
+                            "${feedback.feedback}"
+                        </div>
+                    </div>
+                    
+                    <div class="feedback-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Data/Horário</span>
+                            <span class="detail-value">${formattedDate} ${formattedTime !== '—' ? formattedTime : ''}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Escola</span>
+                            <span class="detail-value">${escolaNome}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Cidade</span>
+                            <span class="detail-value">${cidadeNome}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Local</span>
+                            <span class="detail-value">${feedback.local}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Número de Alunos</span>
+                            <span class="detail-value">${feedback.numero_alunos}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Valor</span>
+                            <span class="detail-value">R$ ${feedback.valor_total ? parseFloat(feedback.valor_total).toLocaleString('pt-BR') : 'N/A'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Nota NPM</span>
+                            <span class="detail-value">${feedback.nota_npm !== null && feedback.nota_npm !== undefined ? `${feedback.nota_npm}/10` : 'Não informada'}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="astronomer-info">
+                        <div class="astronomer-avatar">
+                            ${feedback.astronomo.charAt(0)}
+                        </div>
+                        <div>
+                            <div class="astronomer-name">${feedback.astronomo}</div>
+                            <div>
+                                <span class="sentiment-badge ${sentimentClass}">
+                                    <i class="${sentimentIcon}"></i>
+                                    ${feedback.sentiment === 'positive' ? 'Positivo' : feedback.sentiment === 'negative' ? 'Negativo' : 'Neutro'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                feedbackGrid.appendChild(feedbackElement);
+            });
+        }
+
+        function updateStats() {
+            const totalFeedbacks = feedbacksData.length;
+            const positiveFeedbacks = feedbacksData.filter(f => f.sentiment === 'positive').length;
+            const neutralFeedbacks = feedbacksData.filter(f => f.sentiment === 'neutral').length;
+            const negativeFeedbacks = feedbacksData.filter(f => f.sentiment === 'negative').length;
+            const feedbackRate = eventsData.length > 0 ? ((totalFeedbacks / eventsData.length) * 100).toFixed(1) : 0;
+            
+            totalFeedbacksElement.textContent = totalFeedbacks.toLocaleString('pt-BR');
+            positiveFeedbacksElement.textContent = positiveFeedbacks.toLocaleString('pt-BR');
+            neutralFeedbacksElement.textContent = neutralFeedbacks.toLocaleString('pt-BR');
+            negativeFeedbacksElement.textContent = negativeFeedbacks.toLocaleString('pt-BR');
+            feedbackRateElement.textContent = `${feedbackRate}%`;
+            
+            // Atualizar contadores dos filtros de sentimento
+            countAllElement.textContent = totalFeedbacks;
+            countPositiveElement.textContent = positiveFeedbacks;
+            countNeutralElement.textContent = neutralFeedbacks;
+            countNegativeElement.textContent = negativeFeedbacks;
+        }
+
+        function showNotification(message, type) {
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minha Conta • Astrônomo</title>
+    <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
+    <link rel="stylesheet" href="css/styles.css">
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+  <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
+  <!-- <link rel="stylesheet" href="css/style.css"> -->
+  <!-- <link rel="stylesheet" href="css/docs-urania.css"> -->
+  <!-- <link rel="stylesheet" href="css/calendar-collapsible.css"> -->
+  <!-- <link rel="stylesheet" href="css/chatbot.css"> -->
+  <!-- <style>
+    body{
+      background: radial-gradient(1200px 600px at 10% 20%, rgba(123,92,255,0.08), transparent 5%),
+                  radial-gradient(900px 400px at 90% 80%, rgba(52,209,243,0.05), transparent 6%),
+                  var(--bg-deep, #050717);
+    }
+    .panel-card{
+      border-radius: 14px;
+      padding: 16px;
+      background: linear-gradient(145deg, rgba(19,22,48,0.82), rgba(9,12,32,0.9));
+      border: 1px solid rgba(123,92,255,0.2);
+      box-shadow: 0 18px 55px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.02);
+      margin-top: 14px;
+      backdrop-filter: blur(8px);
+    }
+    .panel-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+      color: #fff;
+    }
+    .data-grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap:10px;
+    }
+    .data-item{
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:10px;
+      padding:10px;
+      background: rgba(255,255,255,0.03);
+      min-height:72px;
+    }
+    .data-label{ color: var(--muted); font-size:0.85rem; }
+    .data-value{ font-weight:700; margin-top:4px; word-break: break-word; color:#eaf1ff; }
+    .password-row{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .eye-btn{
+      border:none;
+      background: rgba(255,255,255,0.08);
+      color:#fff;
+      border-radius:999px;
+      padding:6px 10px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.25);
+    }
+  </style> -->
+</head>
+<body class="presentation-page account-page">
+  <!-- Fundo unificado (camadas espaciais) -->
+  <div class="space-layer stars"></div>
+  <div class="space-layer twinkle"></div>
+  <div class="space-layer nebula"></div>
+  <div class="space-layer galaxies"></div>
+
+  <div class="page-wrapper">
+    <div class="page-container container">
+      <header class="page-header">
+        <div>
+          <h1>Minha Conta</h1>
+          <p class="subtitle">Agenda Inteligente Urânia</p>
+        </div>
+      </header>
+
+      <div class="navigation">
+        <a href="apresentacao.html" class="nav-button"><i class="fas fa-clipboard-list"></i> Apresentação</a>
+        <a href="index.html" class="nav-button"><i class="fas fa-calendar-alt"></i> Agenda</a>
+        <a href="feedbacks.html" class="nav-button"><i class="fas fa-comment-dots"></i> Feedbacks</a>
+        <a href="despesas.html" class="nav-button"><i class="fas fa-file-invoice-dollar"></i> Despesas</a>
+        <a href="historico.html" class="nav-button"><i class="fas fa-history"></i> Históricos</a>
+        <a href="account.html" class="nav-button account-header-btn active"><i class="fas fa-user-astronaut"></i> Minha Conta</a>
+        <a href="rotas.html" class="nav-button"><i class="fas fa-route"></i> Rotas</a>
+      </div>
+
+      <main>
+        <section class="hero">
+          <div>
+            <span class="hero-eyebrow"><i class="fas fa-user-astronaut"></i> Perfil</span>
+            <h1>Dados do astrônomo em um painel único.</h1>
+            <p>Revise informações pessoais, preferências e parâmetros de operação usados na agenda inteligente.</p>
+            <div class="hero-actions">
+              <button id="acc-logout" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            </div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-title">
+              <span>Resumo do perfil</span>
+              <span class="panel-tag">Sessão ativa</span>
+            </div>
+            <div class="panel-list">
+              <div class="panel-item">
+                <span class="panel-label">Status</span>
+                <span class="panel-value">Conectado</span>
+              </div>
+              <div class="panel-item">
+                <span class="panel-label">Preferências</span>
+                <span class="panel-value">Tema personalizado</span>
+              </div>
+              <div class="panel-item">
+                <span class="panel-label">Origem</span>
+                <span class="panel-value">Base operacional</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="perfil">
+          <div class="section-header">
+            <h2>Detalhes do usuário</h2>
+            <p>Dados cadastrais e operacionais usados para personalizar as agendas.</p>
+          </div>
+          <div class="panel-card">
+            <div class="data-grid">
+          <div class="data-item"><div class="data-label">Nome completo</div><div class="data-value" id="acc-nome-completo">-</div></div>
+          <div class="data-item"><div class="data-label">Usuário</div><div class="data-value" id="acc-username">-</div></div>
+          <div class="data-item"><div class="data-label">Nome de exibição</div><div class="data-value" id="acc-astronomo">-</div></div>
+          <div class="data-item"><div class="data-label">ID do Astrônomo</div><div class="data-value" id="acc-astronomo-id">-</div></div>
+          <div class="data-item"><div class="data-label">Assistant ID</div><div class="data-value" id="acc-assistant">-</div></div>
+          <div class="data-item"><div class="data-label">Row</div><div class="data-value" id="acc-row">-</div></div>
+          <div class="data-item"><div class="data-label">Session</div><div class="data-value" id="acc-session">-</div></div>
+          <div class="data-item"><div class="data-label">Login</div><div class="data-value" id="acc-login-time">-</div></div>
+          <div class="data-item"><div class="data-label">Telefone</div><div class="data-value" id="acc-telefone">-</div></div>
+          <div class="data-item"><div class="data-label">E-mail</div><div class="data-value" id="acc-email">-</div></div>
+          <div class="data-item"><div class="data-label">Cidade base</div><div class="data-value" id="acc-cidade-base">-</div></div>
+          <div class="data-item"><div class="data-label">Estado</div><div class="data-value" id="acc-estado">-</div></div>
+          <div class="data-item"><div class="data-label">Veículo</div><div class="data-value" id="acc-veiculo">-</div></div>
+          <div class="data-item"><div class="data-label">Consumo (km/l)</div><div class="data-value" id="acc-consumo">-</div></div>
+          <div class="data-item"><div class="data-label">Combustível</div><div class="data-value" id="acc-combustivel">-</div></div>
+          <div class="data-item"><div class="data-label">Valor do litro</div><div class="data-value" id="acc-valor-litro">-</div></div>
+          <div class="data-item"><div class="data-label">Percentual de lucro</div><div class="data-value" id="acc-lucro">-</div></div>
+          <div class="data-item"><div class="data-label">Diária hospedagem</div><div class="data-value" id="acc-diaria-hosp">-</div></div>
+          <div class="data-item"><div class="data-label">Monitor</div><div class="data-value" id="acc-monitor">-</div></div>
+          <div class="data-item"><div class="data-label">Pedágios</div><div class="data-value" id="acc-pedagios">-</div></div>
+          <div class="data-item"><div class="data-label">Alimentação diária</div><div class="data-value" id="acc-alimentacao">-</div></div>
+          <div class="data-item"><div class="data-label">Origem real</div><div class="data-value" id="acc-origem-real">-</div></div>
+          <div class="data-item"><div class="data-label">Origem lat</div><div class="data-value" id="acc-origem-lat">-</div></div>
+          <div class="data-item"><div class="data-label">Origem lon</div><div class="data-value" id="acc-origem-lon">-</div></div>
+          <div class="data-item"><div class="data-label">Precisa voltar p/ base</div><div class="data-value" id="acc-voltar-base">-</div></div>
+          <div class="data-item">
+            <div class="data-label">Senha</div>
+            <div class="data-value password-row">
+              <span id="acc-password">******</span>
+              <button id="acc-toggle-pass" class="eye-btn" type="button"><i class="fas fa-eye"></i></button>
+            </div>
+          </div>
+        </div>
+          </div>
+        </section>
+
+        <section class="section" id="tema">
+          <div class="section-header">
+            <h2>Editor de tema</h2>
+            <p>Personalize cores do sistema de acordo com a sua preferência.</p>
+          </div>
+          <div class="event-details-grid">
+            <div class="meta-item">
+              <div class="meta-label">Acento Roxo</div>
+              <input type="color" id="theme-purple" value="#7b5cff" />
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Acento Ciano</div>
+              <input type="color" id="theme-cyan" value="#34d1f3" />
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Acento Magenta</div>
+              <input type="color" id="theme-magenta" value="#ff5ec4" />
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Acento Ouro</div>
+              <input type="color" id="theme-gold" value="#ffd86b" />
+            </div>
+          </div>
+          <div class="controls" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+            <button id="theme-save" class="btn btn-secondary"><i class="fas fa-save"></i> Salvar Tema</button>
+            <button id="theme-reset" class="btn btn-secondary"><i class="fas fa-undo"></i> Redefinir</button>
+            <button id="theme-suggest" class="btn btn-secondary"><i class="fas fa-magic"></i> Sugerir pelo usuário</button>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+  </div>
+
+  <script>
+    // Limpa caches no reload (F5), preservando apenas sessões
+    (function(){
+      const isReload = (() => {
+        try{
+          const nav = performance.getEntriesByType('navigation')[0];
+          if (nav && nav.type) return nav.type === 'reload';
+          if (performance.navigation) return performance.navigation.type === 1;
+        }catch(_){}
+        return false;
+      })();
+      if (!isReload) return;
+      try{
+        const keep = new Set(['astronomo_session','userSession']);
+        const prefixes = ['agenda_cache_v1','rotas_cache_v1','rotas_override_v1','route_cache_osrm_v1','coord_cache_nominatim_v1','route_block_cache_v1'];
+        const contains = ['user_theme','savedUser','astronomersData','astronomersLastUpdate'];
+        const toDelete = [];
+        for (let i=0;i<localStorage.length;i++){
+          const k = localStorage.key(i);
+          if (!k) continue;
+          if (keep.has(k)) continue;
+          if (prefixes.some(p => k.startsWith(p)) || contains.some(c => k.includes(c))) {
+            toDelete.push(k);
+          }
+        }
+        toDelete.forEach(k => localStorage.removeItem(k));
+      }catch(_){}
+    })();
+    // aplica paleta do usuário aqui também
+    (function(){
+      function keyFor(base){
+        try{
+          const raw = localStorage.getItem('astronomo_session');
+          const s = raw? JSON.parse(raw): null;
+          const ns = (s && (s.username || s.USERNAME || s.assistant_id || s.id_astronomo)) || 'anon';
+          return base + '::' + String(ns).toLowerCase().replace(/[^a-z0-9_-]+/g,'').slice(0,64);
+        }catch(_){ return base + '::anon'; }
+      }
+      try{
+        const t = JSON.parse(localStorage.getItem(keyFor('user_theme'))||'null');
+        if (t && typeof t==='object'){
+          for (const k in t){ document.documentElement.style.setProperty(k, t[k]); }
+        }
+      }catch(_){ }
+    })();
+  </script>
+  <script>
+// account.js — página “Minha Conta”
+(function(){
+  function keyFor(base){
+    try{
+      const raw = localStorage.getItem('astronomo_session');
+      const s = raw ? JSON.parse(raw) : null;
+      const ns = (s && (s.username || s.USERNAME || s.assistant_id || s.id_astronomo)) || 'anon';
+      return base + '::' + String(ns).toLowerCase().replace(/[^a-z0-9_-]+/g,'').slice(0,64);
+    }catch(_){ return base + '::anon'; }
+  }
+  function loadUserTheme(){ try{ return JSON.parse(localStorage.getItem(keyFor('user_theme'))||'null')||null; }catch(_){ return null; } }
+  function saveUserTheme(theme){ try{ localStorage.setItem(keyFor('user_theme'), JSON.stringify(theme||{})); }catch(_){ } }
+  function applyTheme(theme){
+    try{
+      const root=document.documentElement; if(!theme) return;
+      Object.entries(theme).forEach(([k,v])=> root.style.setProperty(k, String(v)) );
+    }catch(_){ }
+  }
+  function deriveThemeFromUsername(username){
+    try{
+      if(!username) return null; const u=String(username).toLowerCase();
+      const palettes=[
+        { '--accent-purple':'#7b5cff','--accent-cyan':'#34d1f3','--accent-magenta':'#ff5ec4','--accent-gold':'#ffd86b' },
+        { '--accent-purple':'#8b5cff','--accent-cyan':'#20e3b2','--accent-magenta':'#ff6b9f','--accent-gold':'#ffc857' },
+        { '--accent-purple':'#6a6cff','--accent-cyan':'#4dd0e1','--accent-magenta':'#ff7ea5','--accent-gold':'#ffe082' }
+      ];
+      let h=0; for(let i=0;i<u.length;i++) h=(h*31+u.charCodeAt(i))>>>0; return palettes[h%palettes.length];
+    }catch(_){ return null; }
+  }
+  function readSession(){
+    try{
+      const raw = localStorage.getItem('astronomo_session');
+      if(!raw) return null;
+      const s = JSON.parse(raw);
+      if(!s || !s.loggedIn) return null;
+      return s;
+    }catch(e){ return null; }
+  }
+
+  function formatTime(ts){
+    try{
+      return new Date(ts).toLocaleString('pt-BR');
+    }catch(e){ return '-'; }
+  }
+  function formatProfitPercent(val){
+    const n = Number(val);
+    if (!Number.isFinite(n)) return '-';
+    const pct = n > 1 ? n : n * 100;
+    return `${pct.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}%`;
+  }
+  function formatPhone(phone){
+    if (!phone) return '-';
+    const cleaned = String(phone).replace(/\D/g,'');
+    const m1 = cleaned.match(/^(\d{2})(\d{5})(\d{4})$/);
+    if (m1) return `(${m1[1]}) ${m1[2]}-${m1[3]}`;
+    const m2 = cleaned.match(/^(\d{2})(\d{4})(\d{4})$/);
+    if (m2) return `(${m2[1]}) ${m2[2]}-${m2[3]}`;
+    return phone;
+  }
+  function formatCoord(val){
+    const n = Number(val);
+    if (!Number.isFinite(n)) return '-';
+    return n.toFixed(5);
+  }
+  function normalizeCityUF(str){
+    if (!str) return '-';
+    const tokens = String(str).split('-').map(s=>s.trim()).filter(Boolean);
+    if (!tokens.length) return '-';
+    const city = tokens[0];
+    const uf = tokens.find(t => t.length === 2 && /^[A-Za-z]{2}$/i.test(t)) || tokens[1];
+    return uf ? `${city} - ${uf.toUpperCase()}` : city;
+  }
+
+  function populate(session){
+    const $ = (id)=>document.getElementById(id);
+    if(!session) return;
+    $('acc-nome-completo').textContent = session.nome_completo || '-';
+    $('acc-username').textContent = session.usuario || session.username || '-';
+    $('acc-astronomo').textContent = session.astronomo || session.nome_completo || session.usuario || '-';
+    $('acc-astronomo-id').textContent = session.id_astronomo || '-';
+    $('acc-assistant').textContent = session.assistant_id || '-';
+    $('acc-row').textContent = session.row_number != null ? String(session.row_number) : '-';
+    $('acc-session').textContent = session.sessionId || '-';
+    $('acc-login-time').textContent = formatTime(session.timestamp);
+    $('acc-telefone').textContent = formatPhone(session.telefone || session.celular || session.whatsapp || session.contato);
+    $('acc-email').textContent = session.email || '-';
+    $('acc-cidade-base').textContent = normalizeCityUF(session.cidade_base || session.base || '-');
+    $('acc-estado').textContent = session.estado || '-';
+    $('acc-veiculo').textContent = session.veiculo || '-';
+    $('acc-consumo').textContent = session.consumo_km_l || '-';
+    $('acc-combustivel').textContent = session.combustivel || '-';
+    $('acc-valor-litro').textContent = session.valor_litro || '-';
+    const lucroRaw = session.percentual_lucro ?? session.lucro_percentual ?? session.taxa_lucro ?? session.lucro_percentual_decimal;
+    $('acc-lucro').textContent = lucroRaw != null ? formatProfitPercent(lucroRaw) : '-';
+    $('acc-diaria-hosp').textContent = session.diaria_hospedagem || '-';
+    $('acc-monitor').textContent = session.monitor || '-';
+    $('acc-pedagios').textContent = session.pedagios || '-';
+    $('acc-alimentacao').textContent = session.alimentacao_diaria || '-';
+    $('acc-origem-real').textContent = session.origem_real || '-';
+    $('acc-origem-lat').textContent = formatCoord(session.origem_lat);
+    $('acc-origem-lon').textContent = formatCoord(session.origem_lon);
+    $('acc-voltar-base').textContent = session.precisa_voltar_para_base != null ? (session.precisa_voltar_para_base ? 'Sim' : 'Não') : '-';
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const session = readSession();
+    populate(session);
+    const themeSeed = session?.username || session?.usuario || session?.astronomo || '';
+    // Preencher e bind do editor de tema
+    try{
+      const toHex=(s)=>{ const m=String(s||'').trim(); return /^#/.test(m)? m : m; };
+      const getVar=(name)=> getComputedStyle(document.documentElement).getPropertyValue(name) || '';
+      const cur = loadUserTheme() || { '--accent-purple':getVar('--accent-purple'), '--accent-cyan':getVar('--accent-cyan'), '--accent-magenta':getVar('--accent-magenta'), '--accent-gold':getVar('--accent-gold') };
+      const ip = document.getElementById('theme-purple'); if(ip) ip.value = toHex(cur['--accent-purple']||'#7b5cff');
+      const ic = document.getElementById('theme-cyan');   if(ic) ic.value = toHex(cur['--accent-cyan']||'#34d1f3');
+      const im = document.getElementById('theme-magenta');if(im) im.value = toHex(cur['--accent-magenta']||'#ff5ec4');
+      const ig = document.getElementById('theme-gold');   if(ig) ig.value = toHex(cur['--accent-gold']||'#ffd86b');
+
+      const onChange=()=>{
+        const theme={ '--accent-purple':ip.value, '--accent-cyan':ic.value, '--accent-magenta':im.value, '--accent-gold':ig.value };
+        applyTheme(theme);
+      };
+      [ip,ic,im,ig].forEach(inp=> inp && inp.addEventListener('input', onChange));
+
+      const saveBtn=document.getElementById('theme-save'); if(saveBtn) saveBtn.addEventListener('click', ()=>{ const theme={ '--accent-purple':ip.value, '--accent-cyan':ic.value, '--accent-magenta':im.value, '--accent-gold':ig.value }; saveUserTheme(theme); alert('Tema salvo!'); });
+      const resetBtn=document.getElementById('theme-reset'); if(resetBtn) saveBtn && resetBtn.addEventListener('click', ()=>{ try{ localStorage.removeItem(keyFor('user_theme')); }catch(_){ } const t=deriveThemeFromUsername(themeSeed) || null; if(t) applyTheme(t); else location.reload(); });
+      const suggestBtn=document.getElementById('theme-suggest'); if(suggestBtn) suggestBtn.addEventListener('click', ()=>{ const t=deriveThemeFromUsername(themeSeed); if(!t) return; applyTheme(t); if(ip) ip.value=t['--accent-purple']; if(ic) ic.value=t['--accent-cyan']; if(im) im.value=t['--accent-magenta']; if(ig) ig.value=t['--accent-gold']; });
+    }catch(_){ }
+    const logoutBtn = document.getElementById('acc-logout');
+    if(logoutBtn){
+      logoutBtn.addEventListener('click', function(){
+        try{ localStorage.removeItem('astronomo_session'); }catch(e){}
+        try{ localStorage.removeItem('userSession'); }catch(e){}
+        window.location.reload();
+      });
+    }
+
+    // Máscara de senha
+    const passSpan = document.getElementById('acc-password');
+    const toggleBtn = document.getElementById('acc-toggle-pass');
+    const rawPass = session && (session.senha || session.password || session.pass) || null;
+    let showing = false;
+    if (rawPass){
+      passSpan.textContent = '••••••';
+      toggleBtn.addEventListener('click', ()=>{
+        showing = !showing;
+        passSpan.textContent = showing ? rawPass : '••••••';
+        toggleBtn.innerHTML = showing ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+      });
+    } else {
+      passSpan.textContent = 'Não disponível';
+      toggleBtn.disabled = true;
+      toggleBtn.style.opacity = 0.5;
+    }
+  });
+})();
+  </script>
+</body>
+</html>

@@ -1,0 +1,326 @@
+/* ------------------------------------------------------
+   Extensões de estilo para páginas de documentos
+   Harmoniza com o tema "Agenda Inteligente Urânia"
+   Requer: css/style.css (variáveis e base)
+------------------------------------------------------- */
+
+/* Layout base dos docs */
+body{
+  color: var(--calendar-text, #e2e8f0);
+}
+
+.subtitle{ color: var(--muted) }
+
+.container{
+  max-width: 1300px;
+  margin: 32px auto;
+  padding: 26px;
+  position: relative;
+  z-index: 5;
+}
+
+/* Cabeçalho dos docs herda o header global */
+header h1{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+header.page-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  width:100%;
+}
+
+/* Navegação superior simples (Agenda / Feedbacks / Despesas / Históricos) */
+.navigation{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  width:fit-content;
+  max-width:100%;
+  margin:18px auto 24px;
+}
+.nav-button{
+  background: transparent;
+  border:1px solid var(--glass-border);
+  color: var(--muted);
+  padding: 10px 18px;
+  border-radius: 12px;
+  cursor:pointer;
+  display:flex; align-items:center; gap:8px;
+  text-decoration:none;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+.nav-button:hover{ transform: translateY(-3px); border-color: var(--neon-outline); color: #fff }
+.nav-button.active{
+  background: linear-gradient(90deg, rgba(123,92,255,0.12), rgba(52,209,243,0.10));
+  border-color: rgba(123,92,255,0.28);
+  color:#fff;
+  box-shadow: 0 8px 28px rgba(123,92,255,0.08);
+}
+
+/* Seções em cartão (substitui caixas escuras inline) */
+.calendar-section,
+.events-section,
+.expenses-section,
+.calculations-section{
+  background: linear-gradient(180deg, rgba(10,12,30,0.6), rgba(6,8,22,0.7));
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  border:1px solid var(--glass-border);
+  box-shadow: var(--shadow-neon);
+  min-width: 0; /* evita overflow em grids quando há textos longos */
+}
+
+.section-title{
+  color: var(--accent-gold);
+  margin-bottom: 16px;
+  display:flex; align-items:center; gap:10px;
+  font-size: 1.25rem;
+}
+
+/* Layout principal para seções lado a lado */
+.main-content{ display:grid; grid-template-columns: 1fr 1.2fr; gap: 24px }
+@media (max-width: 1024px){ .main-content{ grid-template-columns: 1fr } }
+
+/* Cabeçalho e navegação do calendário */
+.calendar-header{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom: 16px }
+.calendar-nav{
+  background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan));
+  color:white; border:none; padding:10px 14px; border-radius: 10px; font-weight:700; cursor:pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: 0 10px 30px rgba(52,209,243,0.08);
+}
+.calendar-nav:hover{ transform: translateY(-3px); box-shadow:0 18px 50px rgba(123,92,255,0.12) }
+
+/* Cartões genéricos dentro das seções */
+.event-item,
+.expense-card,
+.feedback-card,
+.history-card,
+.calculation-results{
+  background: linear-gradient(180deg, rgba(12,14,34,0.45), rgba(6,8,22,0.55));
+  border:1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 16px;
+  transition: transform var(--transition-med), box-shadow var(--transition-med);
+}
+.event-item:hover,
+.feedback-card:hover,
+.history-card:hover{ transform: translateY(-4px); box-shadow: 0 18px 50px rgba(11,9,28,0.5) }
+
+/* Grid de estatísticas dos docs */
+.stats{ display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 16px; margin: 12px 0 22px }
+.stat-item{ background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(10,8,30,0.35)); border:1px solid var(--glass-border); border-radius:12px; padding:16px; text-align:center }
+.stat-card{ /* usa estilo global .stat-card, aqui apenas garantias de spacing */ min-height: 88px }
+.stat-value{ color: var(--accent-cyan); }
+.stat-label{ color: var(--muted-2); }
+
+/* Campos de filtro e formulários */
+.filter-select,
+.search-input,
+.form-input{
+  width:100%;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border:1px solid var(--glass-border);
+  color:#e6f0ff;
+}
+.filter-label, .detail-label, .form-label{ color: var(--muted) }
+
+/* Status do Webhook / avisos */
+.webhook-status{
+  background: linear-gradient(180deg, rgba(12,14,34,0.45), rgba(6,8,22,0.55));
+  border:1px solid var(--glass-border);
+  border-left: 4px solid var(--accent-purple);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 12px 0 20px;
+  min-width: 0;
+  overflow: hidden; /* impede alargamento por strings enormes */
+}
+.webhook-status.status-connected{ border-left-color: #48bb78 }
+.webhook-status .result-item{ display:flex; justify-content:space-between; gap:12px; padding:4px 0 }
+.webhook-status .result-label{ color: var(--muted) }
+.webhook-status .result-value{ color: #fff; font-weight:600 }
+/* Quebra segura de URLs e textos longos */
+.webhook-status span, #webhook-url, .event-detail span, .detail-value{
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Resultados e resumos (genéricos) */
+.result-item{ display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.08) }
+.result-item:last-child{ border-bottom:none }
+.result-label{ color: var(--muted) }
+.result-value{ color:#e6f0ff; font-weight:600 }
+
+/* Lista com rolagem agradável */
+.events-list{ max-height: 560px; overflow:auto; padding-right: 8px }
+.events-list::-webkit-scrollbar{ width:8px }
+.events-list::-webkit-scrollbar-thumb{ background: rgba(123,92,255,0.5); border-radius: 6px }
+.events-list::-webkit-scrollbar-track{ background: rgba(255,255,255,0.06) }
+
+/* Botões diversos dos docs */
+.source-button,
+.pagination-button{
+  background: rgba(255,255,255,0.03);
+  color: var(--muted);
+  border:1px solid var(--glass-border);
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor:pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+.source-button:hover,
+.pagination-button:hover{ transform: translateY(-3px); border-color: var(--neon-outline); color:#fff }
+.source-button.active{ background: linear-gradient(90deg, rgba(123,92,255,0.12), rgba(52,209,243,0.10)); color:#fff }
+.pagination{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top: 18px }
+.pagination-info{ color: var(--muted) }
+
+/* Filtros e grupos */
+.filters{ display:flex; gap:12px; margin-bottom: 14px; flex-wrap:wrap }
+.filter-group{ flex:1; min-width: 200px }
+
+/* Calendário compacto (docs index.html) */
+.calendar{ width:100%; border-collapse: collapse; border-spacing:0; }
+.calendar th{
+  text-align:center; padding:10px; color: var(--accent-gold);
+  background: rgba(255,255,255,0.03);
+}
+.calendar td{
+  height: 48px;
+  text-align: center;
+  border:1px solid rgba(255,255,255,0.08);
+  cursor: pointer;
+  position: relative;
+}
+.calendar td.today{ background: rgba(123,92,255,0.18); color:#fff; font-weight:600 }
+.calendar td.has-event{ background: rgba(52,209,243,0.14) }
+.calendar td.selected{ outline:2px solid var(--accent-purple) }
+.calendar td.has-event::after{ content:""; position:absolute; bottom:6px; left:50%; transform: translateX(-50%); width:8px; height:8px; border-radius:50%; background: var(--accent-cyan) }
+
+/* Lista de eventos (itens) */
+.event-header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom: 10px }
+.event-title{ color: var(--accent-gold); font-weight:700 }
+.event-date{ background: linear-gradient(90deg, var(--accent-rose), var(--accent-magenta)); color:white; padding:6px 10px; border-radius:8px; font-size: .9rem }
+.event-detail{ display:flex; align-items:center; gap:8px; color: var(--muted) }
+.event-detail i{ color: var(--accent-gold) }
+
+/* ===== MODAL DE EVENTO (DETALHES) ===== */
+.event-modal-title{ color: var(--accent-gold); font-size: 1.3rem; font-weight: 800; margin-bottom: 14px; }
+.event-section{ background: linear-gradient(180deg, rgba(12,14,34,0.45), rgba(6,8,22,0.55)); border:1px solid var(--glass-border); border-radius: 12px; padding: 14px; margin: 12px 0; }
+.event-section-header{ display:flex; align-items:center; gap:10px; color: var(--accent-gold); font-weight:700; margin-bottom: 10px; }
+.event-kv-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; }
+@media (max-width: 560px){ .event-kv-grid{ grid-template-columns: 1fr; } }
+.event-kv{ display:flex; flex-direction:column; gap:4px; min-width:0 }
+.event-kv .kv-label{ color: var(--muted); font-size: .88rem; }
+.event-kv .kv-value{ color:#e6f0ff; font-weight:600; word-break: break-word; }
+
+/* Badges/flags abaixo do título do modal e nos cards */
+.event-flags{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin: 6px 0 8px }
+.event-astronomer{ display:inline-block; background: rgba(123,92,255,0.15); color:#fff; padding:6px 10px; border-radius: 8px; font-size: .85rem; margin-top: 6px }
+
+/* Estados vazios */
+.empty-state{ background: linear-gradient(180deg, rgba(12,14,34,0.45), rgba(6,8,22,0.55)); border:1px solid var(--glass-border); color: var(--muted); border-radius: 14px }
+.empty-state i{ color: var(--accent-cyan) }
+
+/* Notificações toasts simples (compatível com os docs) */
+.notification{
+  position: fixed; top: 20px; right: 20px; z-index: 40;
+  padding: 14px 18px; border-radius: 10px; color:#fff; font-weight:600;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  transform: translateX(100%); opacity: 0; transition: all 220ms ease;
+}
+.notification.show{ transform: translateX(0); opacity:1 }
+.notification.success{ background: linear-gradient(90deg, #22c55e, #16a34a) }
+.notification.error{ background: linear-gradient(90deg, #ef4444, #b91c1c) }
+.notification.info{ background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan)) }
+
+/* Responsividade básica */
+@media (max-width: 768px){
+  .calendar-section, .events-section, .expenses-section, .calculations-section{ padding: 18px }
+  .events-list{ max-height: 420px }
+}
+
+/* ===== Login (coeso com tema) ===== */
+.login-section{ display:grid; place-items:center; margin-top: 10px }
+.login-card{
+  width:min(520px, 100%);
+  background: linear-gradient(180deg, rgba(12,14,34,0.55), rgba(6,8,22,0.7));
+  border:1px solid var(--glass-border);
+  border-radius: 16px; padding: 20px; box-shadow: var(--shadow-neon);
+}
+.login-form{ display:flex; flex-direction:column; gap:12px }
+.login-row{ display:flex; flex-direction:column; gap:8px }
+.login-row label{ color: var(--muted); font-weight:600 }
+.login-row input{ padding: 12px; border-radius: 10px; border:1px solid var(--glass-border); background: rgba(255,255,255,0.04); color:#fff }
+
+/* Botões de ação maiores */
+.refresh-button{ width:100%; background: linear-gradient(90deg, #22c55e, #16a34a); color:white; border:none; padding: 12px; border-radius: 10px; font-weight:700; cursor:pointer; transition: transform var(--transition-fast), box-shadow var(--transition-fast) }
+.refresh-button:hover{ transform: translateY(-2px); box-shadow: 0 12px 38px rgba(22,163,74,0.28) }
+
+/* Despesas — grades, cartões e destaques */
+.expense-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px }
+@media (max-width: 1024px){ .expense-grid{ grid-template-columns: 1fr } }
+.expense-card{ border-left: 4px solid var(--accent-cyan) }
+.expense-card.fixed{ border-left-color: var(--accent-gold) }
+.expense-card.average{ border-left-color: #48bb78 }
+.expense-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom: 10px }
+.expense-title{ color: var(--accent-gold); font-weight:700 }
+.expense-value{ color:#48bb78; font-weight:700 }
+.expense-details{ color: var(--muted) }
+.expense-source{ display:inline-block; padding: 2px 8px; border-radius: 8px; font-size: .75rem; font-weight:700 }
+.source-fixed{ background: rgba(255, 216, 107, 0.10); color: var(--accent-gold); border:1px solid rgba(255, 216, 107, 0.3) }
+.source-average{ background: rgba(72, 187, 120, 0.12); color: #48bb78; border:1px solid rgba(72, 187, 120, 0.3) }
+.value-comparison{ display:flex; align-items:center; gap:8px; margin-top:6px }
+.fixed-value{ background: rgba(255, 216, 107, 0.10); color: var(--accent-gold); padding:2px 6px; border-radius:6px; font-size:.78rem }
+.average-value{ background: rgba(72, 187, 120, 0.12); color:#48bb78; padding:2px 6px; border-radius:6px; font-size:.78rem }
+.in-use{ font-weight:700; text-decoration: underline }
+
+/* Controles e selects genéricos */
+.controls{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom: 18px }
+.data-source{ display:flex; gap:10px; flex-wrap:wrap }
+.astronomer-selector{ display:flex; align-items:center; gap:12px }
+
+/* Feedbacks */
+.feedback-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(480px,1fr)); gap: 18px }
+@media (max-width: 768px){ .feedback-grid{ grid-template-columns: 1fr } }
+.feedback-card{ border-left: 6px solid var(--accent-purple) }
+.feedback-card.positive{ border-left-color: #48bb78 }
+.feedback-card.neutral{ border-left-color: #ed8936 }
+.feedback-card.negative{ border-left-color: #e53e3e }
+.feedback-header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom: 10px; padding-bottom: 10px; border-bottom:1px solid rgba(255,255,255,0.08) }
+.feedback-text{ background: rgba(255,255,255,0.04); border-left: 3px solid rgba(255,255,255,0.14); padding: 12px; border-radius: 8px; font-style: italic }
+.astronomer-info{ display:flex; align-items:center; gap:10px; background: rgba(255,255,255,0.04); border:1px solid var(--glass-border); padding: 10px; border-radius: 10px }
+.astronomer-avatar{ width:40px; height:40px; border-radius:50%; background: linear-gradient(90deg, var(--accent-rose), var(--accent-magenta)); display:grid; place-items:center; color:white; font-weight:700 }
+.astronomer-name{ color: var(--accent-gold); font-weight:700 }
+.sentiment-badge{ display:inline-block; padding:4px 10px; border-radius:999px; font-size:.8rem; font-weight:700; margin-left:8px }
+.sentiment-positive{ background: rgba(72,187,120,0.15); color:#48bb78 }
+.sentiment-neutral{ background: rgba(237,137,54,0.15); color:#ed8936 }
+.sentiment-negative{ background: rgba(229,62,62,0.15); color:#e53e3e }
+
+/* Histórico */
+.history-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(480px,1fr)); gap: 18px }
+@media (max-width: 768px){ .history-grid{ grid-template-columns: 1fr } }
+.history-card{ border-left: 6px solid var(--accent-cyan) }
+.history-header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom: 10px; padding-bottom: 10px; border-bottom:1px solid rgba(255,255,255,0.08) }
+.completion-badge{ display:inline-block; padding:4px 10px; border-radius:999px; font-size:.8rem; font-weight:700; background: rgba(72,187,120,0.15); color:#48bb78 }
+.feedback-badge{ display:inline-block; padding:4px 8px; border-radius:8px; font-size:.75rem; background: rgba(255, 216, 107, 0.12); color: var(--accent-gold) }
+.period-filter{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 14px }
+.period-button{ background: rgba(255,255,255,0.03); border:1px solid var(--glass-border); color: var(--muted); padding: 8px 14px; border-radius: 10px; cursor:pointer }
+.period-button:hover{ transform: translateY(-2px) }
+.period-button.active{ background: linear-gradient(90deg, rgba(123,92,255,0.12), rgba(52,209,243,0.10)); color:#fff; border-color: rgba(123,92,255,0.28) }
+.export-section{ display:flex; justify-content:flex-end; gap:10px; margin-bottom: 12px }
+.export-button{ background: rgba(72,187,120,0.18); color:#eafff3; border:1px solid rgba(72,187,120,0.35); padding: 10px 14px; border-radius: 10px; cursor:pointer }
+
+/* Spinner utilitário */
+.loading{ display:inline-block; width:20px; height:20px; border:3px solid rgba(255,255,255,0.25); border-radius:50%; border-top-color:#fff; animation: spin 1s ease-in-out infinite; margin-right:8px }
+@keyframes spin{ to{ transform: rotate(360deg) } }

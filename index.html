@@ -1,0 +1,2696 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda do Astrônomo</title>
+    <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Reaproveita o visual da Agenda Urânia/RH (ajuste caminhos se necessário) -->
+    <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
+    <!-- <link rel="stylesheet" href="css/style.css"> -->
+    <!-- <link rel="stylesheet" href="css/docs-urania.css"> -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+    <!-- <link rel="stylesheet" href="css/agenda.css"> -->
+</head>
+<body class="presentation-page agenda-page">
+    <!-- Fundo galáctico reaproveitado -->
+    <div class="space-layer stars"></div>
+    <div class="space-layer twinkle"></div>
+    <div class="space-layer nebula"></div>
+    <div class="space-layer galaxies"></div>
+
+    <div class="page-wrapper">
+        <div class="page-container">
+            <header class="page-header">
+                <div>
+                    <h1>🌌 Agenda do Astrônomo</h1>
+                    <div class="astro-info" id="astro-info">Carregando dados do astrônomo...</div>
+                </div>
+                <a href="account.html" class="nav-button">
+                    <i class="fas fa-user-astronaut"></i> Minha Conta
+                </a>
+            </header>
+
+            <div class="navigation">
+                <a href="apresentacao.html" class="nav-button"><i class="fas fa-clipboard-list"></i> Apresentação</a>
+                <a href="index.html" class="nav-button active"><i class="fas fa-calendar-alt"></i> Agenda</a>
+                <a href="feedbacks.html" class="nav-button"><i class="fas fa-comment-dots"></i> Feedbacks</a>
+                <a href="despesas.html" class="nav-button"><i class="fas fa-file-invoice-dollar"></i> Despesas</a>
+                <a href="historico.html" class="nav-button"><i class="fas fa-history"></i> Históricos</a>
+                <a href="account.html" class="nav-button account-header-btn"><i class="fas fa-user-astronaut"></i> Minha Conta</a>
+                <a href="rotas.html" class="nav-button"><i class="fas fa-route"></i> Rotas</a>
+            </div>
+
+            <section class="hero">
+                <div>
+                    <span class="hero-eyebrow"><i class="fas fa-calendar-alt"></i> Agenda</span>
+                    <h1>Planeje, visualize e acompanhe as rotas do astrônomo.</h1>
+                    <p>Centralize o calendário, visualize eventos por dia e mantenha a agenda sincronizada para decisões rápidas.</p>
+                </div>
+                <div class="panel-card">
+                    <div class="panel-title">
+                        <span>Painel rápido</span>
+                        <span class="panel-tag">Atualização automática</span>
+                    </div>
+                    <div class="panel-list">
+                        <div class="panel-item">
+                            <span class="panel-label">Agenda do mês</span>
+                            <span class="panel-value">Visão consolidada</span>
+                        </div>
+                        <div class="panel-item">
+                            <span class="panel-label">Eventos do dia</span>
+                            <span class="panel-value">Detalhes em tempo real</span>
+                        </div>
+                        <div class="panel-item">
+                            <span class="panel-label">Rotas contínuas</span>
+                            <span class="panel-value">Sugestões automáticas</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="panel-card" style="margin-bottom: 12px;">
+                <div class="filters-row">
+                    <div>
+                        <label for="task-type-filter">Tipo de tarefa:</label>
+                        <select id="task-type-filter">
+                            <option value="all">Todos</option>
+                            <option value="visita">Astrônomo VISITA</option>
+                            <option value="pre">Astrônomo PRÉ</option>
+                            <option value="reserva">Astrônomo RESERVA</option>
+                            <option value="nao_marcar">Astrônomo NÃO MARCAR</option>
+                        </select>
+                    </div>
+                    <button id="btn-refresh-agenda" class="btn btn-secondary">
+                        🔄 Atualizar agenda
+                    </button>
+                    <button id="btn-open-rotas" class="cta-rotas btn btn-primary" title="Usa os dados carregados aqui para montar as rotas contínuas">
+                        <i class="fas fa-route"></i> Rotas
+                    </button>
+                    <span class="status-text" id="status-text">Aguardando carregamento...</span>
+                </div>
+            </div>
+
+            <div class="main-grid">
+                <!-- Calendário -->
+                <div class="calendar-panel">
+                    <div class="panel-card">
+                        <div class="panel-title">
+                            <span>📅 Calendário</span>
+                        </div>
+                        <div class="calendar-header-row">
+                            <button class="calendar-nav-btn btn btn-secondary" id="btn-prev-month">← Mês anterior</button>
+                            <div class="calendar-month-label" id="current-month-label">...</div>
+                            <button class="calendar-nav-btn btn btn-secondary" id="btn-next-month">Próximo mês →</button>
+                        </div>
+                        <table class="calendar-table">
+                            <thead>
+                                <tr>
+                                    <th>Dom</th>
+                                    <th>Seg</th>
+                                    <th>Ter</th>
+                                    <th>Qua</th>
+                                    <th>Qui</th>
+                                    <th>Sex</th>
+                                    <th>Sáb</th>
+                                </tr>
+                            </thead>
+                            <tbody id="calendar-body">
+                                <!-- preenchido via JS -->
+                            </tbody>
+                        </table>
+                        <div class="day-detail" id="day-detail">
+                            <div class="day-detail__header">
+                                <div class="day-detail__title">
+                                    <i class="fas fa-circle-dot"></i>
+                                    <span id="day-detail-label">Selecione um dia para ver os eventos</span>
+                                </div>
+                                <span class="day-detail__count" id="day-detail-count"></span>
+                            </div>
+                            <div class="day-detail__body" id="day-detail-body">
+                                <div class="day-detail__empty">Clique em um dia do calendário para ver os eventos dessa data.</div>
+                            </div>
+                        </div>
+                        <div class="day-weather" id="day-weather">
+                            <div class="day-weather__header">
+                                <div class="day-weather__title"><i class="fas fa-cloud-sun"></i> Clima do dia</div>
+                                <span class="day-weather__meta" id="day-weather-meta">Carregue a agenda para ver a previsão.</span>
+                            </div>
+                            <div class="day-weather__body" id="day-weather-body">
+                                <div class="day-weather__empty">Aguardando seleção de evento para exibir clima de origem e destino.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de eventos -->
+                <div class="events-panel">
+                    <div class="panel-card">
+                        <div class="panel-title">
+                            <span>📋 Eventos</span>
+                            <span id="events-count" style="font-size:0.8rem; opacity:0.85;">0 evento(s)</span>
+                        </div>
+                        <div class="events-list" id="events-list">
+                            <div class="empty-state">
+                                Aguardando dados da agenda...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- /page-container -->
+    </div> <!-- /page-wrapper -->
+
+    <!-- Modal de detalhes do evento -->
+    <div class="event-modal" id="event-modal" aria-hidden="true">
+        <div class="event-modal-backdrop" id="event-modal-backdrop"></div>
+        <div class="event-modal-content">
+            <button class="event-modal-close" id="event-modal-close" aria-label="Fechar">✕</button>
+            <div id="event-modal-body">Carregando...</div>
+        </div>
+    </div>
+
+    <!-- Lightbox de imagens em tela cheia -->
+    <div class="image-lightbox" id="image-lightbox" aria-hidden="true">
+        <div class="image-lightbox__backdrop" id="image-lightbox-backdrop"></div>
+        <div class="image-lightbox__content">
+            <button class="image-lightbox__close" id="image-lightbox-close" aria-label="Fechar imagens">✕</button>
+            <button class="image-lightbox__nav" id="image-lightbox-prev" aria-label="Imagem anterior">‹</button>
+            <img id="image-lightbox-img" alt="Imagem do evento" loading="lazy" decoding="async">
+            <button class="image-lightbox__nav" id="image-lightbox-next" aria-label="Próxima imagem">›</button>
+            <div class="image-lightbox__counter" id="image-lightbox-counter"></div>
+        </div>
+    </div>
+
+    <script>
+        // Limpa caches no reload (F5), preservando apenas sessões
+        (function(){
+            const isReload = (() => {
+                try{
+                    const nav = performance.getEntriesByType('navigation')[0];
+                    if (nav && nav.type) return nav.type === 'reload';
+                    if (performance.navigation) return performance.navigation.type === 1;
+                }catch(_){}
+                return false;
+            })();
+            if (!isReload) return;
+            try{
+                const keep = new Set(['astronomo_session','userSession']);
+                const prefixes = ['agenda_cache_v1','rotas_cache_v1','rotas_override_v1','route_cache_osrm_v1','coord_cache_nominatim_v1','route_block_cache_v1'];
+                const contains = ['user_theme','savedUser','astronomersData','astronomersLastUpdate'];
+                const toDelete = [];
+                for (let i=0;i<localStorage.length;i++){
+                    const k = localStorage.key(i);
+                    if (!k) continue;
+                    if (keep.has(k)) continue;
+                    if (prefixes.some(p => k.startsWith(p)) || contains.some(c => k.includes(c))) {
+                        toDelete.push(k);
+                    }
+                }
+                toDelete.forEach(k => localStorage.removeItem(k));
+            }catch(_){}
+        })();
+
+        // ==== Configuração do webhook (mesmo endpoint da agenda) ====
+        const API_EVENT_IMAGES = "https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo";
+        // Cache local para reutilizar os eventos nas demais páginas
+        const AGENDA_CACHE_PREFIX = 'agenda_cache_v1';
+        const ROTAS_CACHE_KEY = 'rotas_cache_v1';
+        const ROTA_OVERRIDE_PREFIX = 'rotas_override_v1';
+        const WEATHER_API_BASE = 'https://api.open-meteo.com/v1/forecast';
+
+        function agendaCacheKey(sess){
+            const ns = (sess && (sess.id_astronomo ?? sess.usuario ?? sess.username)) || 'anon';
+            return `${AGENDA_CACHE_PREFIX}::${String(ns).toLowerCase()}`;
+        }
+
+        function saveAgendaCache(events, sess){
+            try{
+                const key = agendaCacheKey(sess);
+                const payload = { ts: Date.now(), events: Array.isArray(events) ? events : [] };
+                localStorage.setItem(key, JSON.stringify(payload));
+            }catch(err){
+                console.warn('Falha ao salvar cache local da agenda:', err);
+            }
+        }
+
+        function syncRotasCache(events, sess){
+            try{
+                const onlyVisita = Array.isArray(events) ? events.filter(isVisitaEvent) : [];
+                const payload = {
+                    ts: Date.now(),
+                    session: sess || null,
+                    events: onlyVisita
+                };
+                localStorage.setItem(ROTAS_CACHE_KEY, JSON.stringify(payload));
+            }catch(err){
+                console.warn('Falha ao espelhar cache para rotas:', err);
+            }
+        }
+
+        function rotaOverrideKey(sess){
+            const ns = (sess && (sess.id_astronomo ?? sess.usuario ?? sess.username ?? sess.astronomo)) || 'anon';
+            return `${ROTA_OVERRIDE_PREFIX}::${String(ns).toLowerCase()}`;
+        }
+
+        function saveRouteOverrides(map, sess){
+            try{
+                const key = rotaOverrideKey(sess);
+                const existingRaw = localStorage.getItem(key);
+                const existing = existingRaw ? JSON.parse(existingRaw) : {};
+                const merged = { ...(existing.overrides || {}), ...(map || {}) };
+                const payload = { ts: Date.now(), overrides: merged };
+                localStorage.setItem(key, JSON.stringify(payload));
+                return payload;
+            }catch(err){
+                console.warn('Falha ao salvar overrides de rotas:', err);
+                return null;
+            }
+        }
+
+        function loadRouteOverrides(sess){
+            try{
+                const key = rotaOverrideKey(sess);
+                const raw = localStorage.getItem(key);
+                return raw ? JSON.parse(raw) : null;
+            }catch(_){
+                return null;
+            }
+        }
+
+        // ==== Referências DOM ====
+        const astroInfoEl        = document.getElementById('astro-info');
+        const statusTextEl       = document.getElementById('status-text');
+        const taskTypeFilterEl   = document.getElementById('task-type-filter');
+        const btnRefreshAgenda   = document.getElementById('btn-refresh-agenda');
+        const btnOpenRotas       = document.getElementById('btn-open-rotas');
+        const currentMonthLabel  = document.getElementById('current-month-label');
+        const calendarBody       = document.getElementById('calendar-body');
+        const btnPrevMonth       = document.getElementById('btn-prev-month');
+        const btnNextMonth       = document.getElementById('btn-next-month');
+        const eventsListEl       = document.getElementById('events-list');
+        const eventsCountEl      = document.getElementById('events-count');
+        const dayDetailLabel     = document.getElementById('day-detail-label');
+        const dayDetailCount     = document.getElementById('day-detail-count');
+        const dayDetailBody      = document.getElementById('day-detail-body');
+        const dayWeatherEl       = document.getElementById('day-weather');
+        const dayWeatherBodyEl   = document.getElementById('day-weather-body');
+        const dayWeatherMetaEl   = document.getElementById('day-weather-meta');
+        const eventModal         = document.getElementById('event-modal');
+        const eventModalBody     = document.getElementById('event-modal-body');
+        const eventModalClose    = document.getElementById('event-modal-close');
+        const eventModalBackdrop = document.getElementById('event-modal-backdrop');
+        if (btnOpenRotas) btnOpenRotas.disabled = true;
+        // Lightbox refs
+        const lightboxEl         = document.getElementById('image-lightbox');
+        const lightboxImg        = document.getElementById('image-lightbox-img');
+        const lightboxCounter    = document.getElementById('image-lightbox-counter');
+        const lightboxPrev       = document.getElementById('image-lightbox-prev');
+        const lightboxNext       = document.getElementById('image-lightbox-next');
+        const lightboxClose      = document.getElementById('image-lightbox-close');
+        const lightboxBackdrop   = document.getElementById('image-lightbox-backdrop');
+
+        // ==== Estado simples ====
+        let eventsData = [];          // eventos normalizados
+        let currentMonthDate = new Date(); // data base do mês atual
+        let selectedDate = startOfDay(new Date());      // dia selecionado no calendário
+        let currentTaskFilter = { type: 'visita', id: null };
+        let currentSession = null;
+        const WEATHER_CACHE_TTL = 30 * 60 * 1000; // 30 min
+        const weatherCache = new Map();
+        let weatherRenderToken = 0;
+        const INDEX_UI_STATE_KEY = 'index_ui_state_v1';
+        const getSelectedTaskFilter = () => {
+            if (!taskTypeFilterEl) return { type:'all', id:null };
+            const opt = taskTypeFilterEl.selectedOptions[0];
+            const type = (opt && (opt.dataset.type || opt.value)) || 'all';
+            const idVal = opt && opt.value && opt.value !== 'all' && opt.value !== type ? opt.value : null;
+            return { type, id: idVal };
+        };
+        // Lightbox state
+        let lightboxImages = [];
+        let lightboxIndex = 0;
+        const API_AGENDA = "https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo";
+
+        function saveIndexUIState(){
+            try{
+                const state = {
+                    month: currentMonthDate ? currentMonthDate.toISOString() : null,
+                    selectedDate: selectedDate ? selectedDate.toISOString() : null,
+                    taskFilter: taskTypeFilterEl ? taskTypeFilterEl.value : 'visita'
+                };
+                localStorage.setItem(INDEX_UI_STATE_KEY, JSON.stringify(state));
+            }catch(_){}
+        }
+
+        function loadIndexUIState(){
+            try{
+                const raw = localStorage.getItem(INDEX_UI_STATE_KEY);
+                if (!raw) return null;
+                const s = JSON.parse(raw);
+                return s;
+            }catch(_){ return null; }
+        }
+
+        function pickAstronomoId(obj){
+            if (!obj || typeof obj !== 'object') return null;
+            const candidates = [
+                obj.id_astronomo,
+                obj.astronomo_id,
+                obj.id,
+                obj.user_id,
+                obj.usuario_id,
+                obj.assistant_id, // fallback, se API usar esse ID
+                obj.row_number,
+                obj.row_num,
+            ];
+            for (const v of candidates){
+                if (v === undefined || v === null || v === '') continue;
+                const num = Number(v);
+                if (Number.isFinite(num)) return num;
+                return v; // se vier como string não numérica, ainda assim retorna
+            }
+            return null;
+        }
+
+        // ==== Util: sessão do login (reaproveitando astronomo_session) ====
+        function getLoggedSession(){
+            const normalizeSession = (src) => {
+                if (!src || typeof src !== 'object') return null;
+                const base = { ...src };
+                // Se dentro existir objeto astronomer (formato do userSession), mescla
+                if (src.astronomer && typeof src.astronomer === 'object') {
+                    Object.assign(base, src.astronomer);
+                    if (!base.usuario && src.astronomer.usuario) base.usuario = src.astronomer.usuario;
+                    if (!base.nome_completo && src.astronomer.nome_completo) base.nome_completo = src.astronomer.nome_completo;
+                }
+                const id = pickAstronomoId(base);
+                const normalized = {
+                    loggedIn: src.loggedIn === true || src.loginTime != null || src.token != null,
+                    username: base.usuario || base.username || base.astronomo || base.nome_completo || src.username || src.user || null,
+                    usuario: base.usuario || base.username || base.astronomo || null,
+                    id_astronomo: id,
+                    assistant_id: base.assistant_id ?? null,
+                    row_number: base.row_number ?? base.row_num ?? null,
+                    sessionId: src.sessionId ?? src.session_id ?? src.token ?? null,
+                    session_id: src.session_id ?? src.sessionId ?? src.token ?? null,
+                    timestamp: src.timestamp ?? Date.now(),
+                    nome_completo: base.nome_completo ?? base.usuario ?? null,
+                };
+                return normalized;
+            };
+
+            try {
+                const raw = localStorage.getItem('astronomo_session');
+                const s = raw ? JSON.parse(raw) : null;
+                const norm = normalizeSession(s);
+                if (norm && norm.loggedIn && norm.id_astronomo != null) return norm;
+                if (norm && norm.loggedIn && norm.id_astronomo == null) {
+                    // tenta salvar de volta se conseguir derivar depois
+                    localStorage.setItem('astronomo_session', JSON.stringify(norm));
+                }
+            } catch (e) { /* ignora */ }
+
+            // Fallback: se existir a sessão antiga (userSession) vinda do login,
+            // tenta normalizar para astronomo_session.
+            try {
+                const legacyRaw = localStorage.getItem('userSession');
+                const legacySess = legacyRaw ? JSON.parse(legacyRaw) : null;
+                const normalized = normalizeSession(legacySess);
+                if (normalized && normalized.loggedIn && normalized.id_astronomo != null) {
+                    localStorage.setItem('astronomo_session', JSON.stringify(normalized));
+                    return normalized;
+                }
+            } catch (_) { /* ignora */ }
+            return null;
+        }
+
+        function describeSession(sess){
+            if (!sess) return 'Nenhum astrônomo logado.';
+            const nome = sess.nome_completo || sess.astronomo || sess.usuario || sess.username || 'Astrônomo';
+            const id   = sess.id_astronomo != null ? `ID ${sess.id_astronomo}` : '';
+            return `${nome}${id ? ' · ' + id : ''}`;
+        }
+
+        // ==== Util: normalizar tipo de tarefa em categoria (visita, pre, reserva, nao_marcar, outros) ====
+        function classifyTaskType(rawTipo){
+            if (!rawTipo) return 'outros';
+            const t = String(rawTipo)
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/ñ/gi, 'n')
+                .toLowerCase()
+                .trim();
+            if (t.includes('visita')) return 'visita';
+            if (t.includes('pre') || t.includes('pre ')) return 'pre';
+            if (t.includes('reserva')) return 'reserva';
+            if (t.includes('nao marcar') || t.includes('nao_marcar') || t.includes('n marcar')) return 'nao_marcar';
+            return 'outros';
+        }
+
+        function getSessionTaskIds(sess){
+            const parseId = (v) => {
+                if (v === undefined || v === null || v === '') return null;
+                const n = toNumber(v);
+                if (n !== null) return String(n);
+                const s = String(v).trim();
+                return s || null;
+            };
+            return {
+                visita: parseId(sess?.id_visita || sess?.visita_id),
+                pre: parseId(sess?.id_pre || sess?.pre_id),
+                reserva: parseId(sess?.id_reserva || sess?.reserva_id),
+                nao_marcar: parseId(sess?.id_n_marcar || sess?.id_nao_marcar || sess?.nao_marcar_id)
+            };
+        }
+
+        // ==== Util: campo dinâmico por usuário (ex.: json.<usuario>_VISITA) ====
+        function normalizeFieldName(str){
+            return String(str || '')
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .trim().toLowerCase()
+                .replace(/[\s-]+/g, '_');
+        }
+
+        function getUserTaskType(event, session){
+            if (!event || typeof event !== 'object') return null;
+            const userRaw = (session && (session.usuario || session.username || session.astronomo)) || '';
+            const userKey = normalizeFieldName(userRaw);
+            if (!userKey) return null;
+
+            const prefix = `${userKey}_`;
+            for (const originalKey of Object.keys(event)) {
+                const normalizedKey = normalizeFieldName(originalKey);
+                if (!normalizedKey.startsWith(prefix)) continue;
+
+                const value = event[originalKey];
+                const hasValue = value !== undefined && value !== null && String(value).trim() !== '';
+                if (!hasValue) continue;
+
+                const suffix = normalizedKey.slice(prefix.length);
+                if (suffix === 'visita') return 'visita';
+                if (suffix === 'pre') return 'pre';
+                if (suffix === 'reserva') return 'reserva';
+                if (suffix === 'nao_marcar') return 'nao_marcar';
+            }
+            return null;
+        }
+
+        // ==== Util: pegar data do evento ====
+        function getEventDate(ev){
+            const raw = ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data || ev.date;
+            if (!raw) return null;
+            const d = new Date(raw);
+            if (Number.isNaN(d.getTime())) return null;
+            return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        }
+
+        function sameDay(d1, d2){
+            return d1.getFullYear() === d2.getFullYear() &&
+                   d1.getMonth()    === d2.getMonth() &&
+                   d1.getDate()     === d2.getDate();
+        }
+
+        function dateKey(d){
+            if (!(d instanceof Date) || Number.isNaN(d.getTime())) return '';
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${dd}`;
+        }
+
+        function parseDateKey(str){
+            if (!str || typeof str !== 'string') return null;
+            const parts = str.split('-').map(Number);
+            if (parts.length !== 3 || parts.some(n => !Number.isFinite(n))) return null;
+            const [y, m, d] = parts;
+            return new Date(y, m - 1, d);
+        }
+
+        function formatDateBr(d){
+            if (!(d instanceof Date) || Number.isNaN(d.getTime())) return 'Data indefinida';
+            return d.toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'2-digit' });
+        }
+
+        function formatMonthYearBr(d){
+            return d.toLocaleDateString('pt-BR', { month:'long', year:'numeric' });
+        }
+
+        function normalizeCityUF(str){
+            if (!str) return '';
+            const tokens = String(str).split('-').map(s => s.trim()).filter(Boolean);
+            if (!tokens.length) return '';
+            const city = tokens[0];
+            const uf = tokens.find(t => t.length === 2 && /^[A-Za-z]{2}$/.test(t)) || tokens[1];
+            return uf ? `${city} - ${uf.toUpperCase()}` : city;
+        }
+
+        function formatOrigemDestino(ev){
+            const origem = normalizeCityUF(ev.cidade_base || ev.origem_real || ev.base || '');
+            const destino = normalizeCityUF(ev.cidade_destino || ev.cidade || '');
+            if (origem && destino) return `${origem} → ${destino}`;
+            if (destino) return `→ ${destino}`;
+            return origem || 'Local não informado';
+        }
+
+        function formatCurrencyBR(val){
+            const n = Number(val);
+            if (!Number.isFinite(n)) return '—';
+            return n.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+        }
+
+        function formatDurationHours(val){
+            const n = Number(val);
+            if (!Number.isFinite(n)) return null;
+            if (n >= 24) return `${(n/24).toFixed(1)} dia(s)`;
+            return `${n.toFixed(1)} h`;
+        }
+
+        function getDurationLabel(ev){
+            const override = ev && ev._dur_override_h;
+            const candidates = [override, ev?.duracao_horas, ev?.duracao, ev?.duration_hours];
+            let raw = null;
+            for (const v of candidates){
+                const n = Number(v);
+                if (Number.isFinite(n)) { raw = n; break; }
+            }
+            if (raw === null) return null;
+            const isContinua = ev.rota_continua === true || ev.rota_continua === 'true' || ev.rota === true || ev.continua === true;
+            const adjusted = isContinua ? raw : raw * 2; // ida e volta quando não é rota contínua
+            const formatted = formatDurationHours(adjusted);
+            if (!formatted) return null;
+            return isContinua ? formatted : `${formatted} (ida e volta)`;
+        }
+
+        function getResultadoLabel(ev){
+            const raw = ev && (ev.resultado ?? ev.result ?? ev.status_resultado);
+            const s = raw === null || raw === undefined ? '' : String(raw).trim();
+            return s || 'Resultado não informado';
+        }
+
+        function formatCoord(val){
+            const n = Number(val);
+            if (!Number.isFinite(n)) return '—';
+            return n.toFixed(5);
+        }
+
+        function parseNum(v){
+            if (v==null) return 0;
+            if (typeof v === 'number' && isFinite(v)) return v;
+            const s = String(v);
+            const m = s.match(/-?\d{1,3}(?:[\.\s]\d{3})*(?:[\.,]\d+)?|-?\d+(?:[\.,]\d+)?/);
+            if (!m) return 0;
+            let num = m[0].trim();
+            if (num.includes('.') && num.includes(',')) num = num.replace(/\./g,'').replace(',', '.');
+            else if (num.includes(',')) num = num.replace(',', '.');
+            else num = num.replace(/\s+/g,'');
+            const n = Number(num);
+            return isFinite(n) ? n : 0;
+        }
+
+        const eventColorMap = new Map();
+        function hashCode(str){
+            let h = 0;
+            for (let i = 0; i < str.length; i++) {
+                h = ((h << 5) - h) + str.charCodeAt(i);
+                h |= 0;
+            }
+            return h;
+        }
+        function colorForEvent(id){
+            const key = String(id || '');
+            if (eventColorMap.has(key)) return eventColorMap.get(key);
+            const h = Math.abs(hashCode(key)) % 360;
+            const color = `hsl(${h}, 75%, 60%)`;
+            eventColorMap.set(key, color);
+            return color;
+        }
+
+        function updateTaskFilterLabels(sess){
+            if (!taskTypeFilterEl) return;
+            const ids = getSessionTaskIds(sess);
+            const mapping = [
+                { key:'visita', label:'VISITA', id: ids.visita },
+                { key:'pre', label:'PRÉ', id: ids.pre },
+                { key:'reserva', label:'RESERVA', id: ids.reserva },
+                { key:'nao_marcar', label:'NÃO MARCAR', id: ids.nao_marcar },
+            ];
+
+            const opts = taskTypeFilterEl.querySelectorAll('option');
+            opts.forEach(opt => {
+                if (opt.value !== 'all') opt.remove();
+            });
+
+            mapping.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.id || item.key;
+                opt.dataset.type = item.key;
+                opt.textContent = item.id ? `${item.label} (${item.id})` : item.label;
+                taskTypeFilterEl.appendChild(opt);
+            });
+
+            const visitaOpt = taskTypeFilterEl.querySelector('option[data-type="visita"]');
+            if (visitaOpt) {
+                visitaOpt.selected = true;
+            } else {
+                taskTypeFilterEl.value = 'visita';
+            }
+        }
+
+        function resolveTaskType(event, session, fallbackTipo){
+            const ids = getSessionTaskIds(session);
+            const candidate = event.id_tipo_tarefa ?? event.id_tipo ?? event.tipo_id ?? event.tipo_tarefa_id ?? fallbackTipo;
+            const candidateStr = candidate !== undefined && candidate !== null ? String(candidate) : null;
+
+            const checkById = (idStr) => {
+                if (!idStr) return null;
+                if (ids.visita && ids.visita === idStr) return 'visita';
+                if (ids.pre && ids.pre === idStr) return 'pre';
+                if (ids.reserva && ids.reserva === idStr) return 'reserva';
+                if (ids.nao_marcar && ids.nao_marcar === idStr) return 'nao_marcar';
+                return null;
+            };
+
+            const byId = checkById(candidateStr);
+            if (byId) return { type: byId, id: candidateStr };
+
+            const userType = getUserTaskType(event, session);
+            if (userType) return { type: userType, id: null };
+
+            // Prefere um campo textual (com letras) para classificar o tipo
+            const pickText = (...vals) => {
+                for (const v of vals) {
+                    const s = v !== undefined && v !== null ? String(v).trim() : '';
+                    if (!s) continue;
+                    if (/[a-zA-Z\u00C0-\u017F]/.test(s)) return s;
+                }
+                return vals.find(v => v !== undefined && v !== null) || '';
+            };
+            const textSource = pickText(
+                event.tipo_da_tarefa,
+                event.tipo_evento,
+                event.tipo,
+                event.TIPO,
+                fallbackTipo,
+                candidateStr
+            );
+            const textType = classifyTaskType(textSource);
+            return { type: textType, id: null };
+        }
+
+        function formatTaskLabel(taskType){
+            const map = {
+                visita: 'VISITA',
+                pre: 'PRÉ',
+                reserva: 'RESERVA',
+                nao_marcar: 'NÃO MARCAR'
+            };
+            return map[taskType] || '—';
+        }
+
+        function toNumber(val){
+            if (val === null || val === undefined) return null;
+            if (typeof val === 'number') return Number.isFinite(val) ? val : null;
+            const str = String(val).trim();
+            if (!str) return null;
+
+            // Captura números em formatos brasileiros (com vírgula) ou com milhares
+            const match = str.match(/-?\d{1,3}(?:[.\s]\d{3})*(?:[.,]\d+)?|-?\d+(?:[.,]\d+)?/);
+            if (!match) return null;
+
+            let numStr = match[0].replace(/\s+/g, '');
+            if (numStr.includes(',') && numStr.includes('.')) {
+                // 1.234,56 -> 1234.56
+                numStr = numStr.replace(/\./g, '').replace(',', '.');
+            } else if (numStr.includes(',')) {
+                numStr = numStr.replace(',', '.');
+            }
+
+            const n = Number(numStr);
+            return Number.isFinite(n) ? n : null;
+        }
+
+        function getDistanceKmValue(ev, includeOverride = true){
+            const routeInfo = ev && ev.routeInfo ? ev.routeInfo : {};
+            const candidates = [
+                includeOverride ? ev && ev._dist_override_km : null,
+                routeInfo.distanceKm,
+                routeInfo.distance_km,
+                routeInfo.distancia_km,
+                ev && ev.distancia_km,
+                ev && ev.distance_km,
+                ev && ev.distancia,
+                ev && ev.distance,
+                ev && ev.km,
+                ev && ev.km_total,
+                ev && ev.distancia_prevista,
+                ev && ev.rota_distancia_km
+            ];
+            for (const val of candidates){
+                const num = toNumber(val);
+                if (num !== null) return num;
+            }
+            return null;
+        }
+
+        function formatYesNo(val){
+            if (val === null || val === undefined || val === '') return 'Não informado';
+            if (typeof val === 'string'){
+                const s = val.trim().toLowerCase();
+                if (['sim','true','1','yes','y','ok'].includes(s)) return 'Sim';
+                if (['nao','não','false','0','no','n'].includes(s)) return 'Não';
+            }
+            if (val === true || val === 1) return 'Sim';
+            if (val === false || val === 0) return 'Não';
+            return String(val);
+        }
+
+        function computeDistanceKm(lat1, lon1, lat2, lon2){
+            const toRad = (deg) => deg * Math.PI / 180;
+            const r = 6371;
+            const dLat = toRad(lat2 - lat1);
+            const dLon = toRad(lon2 - lon1);
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return r * c;
+        }
+
+        function getDistanceLabel(ev){
+            const isContinua = ev.rota_continua === true || ev.rota_continua === 'true' || ev.rota === true || ev.continua === true;
+            const overrideNum = toNumber(ev && ev._dist_override_km);
+            const baseDist = overrideNum !== null ? overrideNum : getDistanceKmValue(ev, false);
+            if (baseDist !== null) {
+                const adjusted = isContinua ? baseDist : baseDist * 2; // ida e volta quando não é rota contínua
+                return `${adjusted.toFixed(1)} km${isContinua ? '' : ' (ida e volta)'}`;
+            }
+
+            const oLat = toNumber(ev.origem_lat ?? ev.lat_origem ?? ev.latitude_origem);
+            const oLon = toNumber(ev.origem_lon ?? ev.lon_origem ?? ev.longitude_origem);
+            const dLat = toNumber(ev.destino_lat ?? ev.lat_destino ?? ev.latitude_destino);
+            const dLon = toNumber(ev.destino_lon ?? ev.lon_destino ?? ev.longitude_destino);
+            if (oLat === null || oLon === null || dLat === null || dLon === null) return '—';
+            const dist = computeDistanceKm(oLat, oLon, dLat, dLon);
+            const adjustedCoordDist = isContinua ? dist : dist * 2;
+            return `${adjustedCoordDist.toFixed(1)} km${isContinua ? '' : ' (ida e volta)'}`;
+        }
+
+        // ==== Previsão do tempo (Open-Meteo) ====
+        function extractEventLocations(ev){
+            const origem = {
+                lat: toNumber(ev?.origem_lat ?? ev?.lat_origem ?? ev?.latitude_origem),
+                lon: toNumber(ev?.origem_lon ?? ev?.lon_origem ?? ev?.longitude_origem),
+                label: normalizeCityUF(ev?.cidade_base || ev?.origem_real || ev?.base || ev?.cidade_origem || '')
+            };
+            const destino = {
+                lat: toNumber(ev?.destino_lat ?? ev?.lat_destino ?? ev?.latitude_destino ?? ev?.lat),
+                lon: toNumber(ev?.destino_lon ?? ev?.lon_destino ?? ev?.longitude_destino ?? ev?.lon),
+                label: normalizeCityUF(ev?.cidade_destino || ev?.cidade || ev?.destino || '')
+            };
+            return { origem, destino };
+        }
+
+        function hasValidCoords(point){
+            return point && Number.isFinite(point.lat) && Number.isFinite(point.lon);
+        }
+
+        function describeWeatherCode(code){
+            const map = {
+                0:'Céu limpo', 1:'Principalmente limpo', 2:'Parcialmente nublado', 3:'Nublado',
+                45:'Neblina', 48:'Neblina',
+                51:'Garoa leve', 53:'Garoa moderada', 55:'Garoa densa',
+                56:'Garoa congelante leve', 57:'Garoa congelante',
+                61:'Chuva fraca', 63:'Chuva moderada', 65:'Chuva forte',
+                66:'Chuva congelante', 67:'Chuva forte congelante',
+                71:'Neve fraca', 73:'Neve', 75:'Neve intensa',
+                77:'Cristais de gelo',
+                80:'Pancadas leves', 81:'Pancadas moderadas', 82:'Pancadas fortes',
+                85:'Pancadas de neve leve', 86:'Pancadas de neve forte',
+                95:'Tempestade', 96:'Tempestade com granizo', 99:'Tempestade forte com granizo'
+            };
+            return map[code] || 'Condição não informada';
+        }
+
+        function extractPrecipitationProbability(data){
+            const times = (data && data.hourly && Array.isArray(data.hourly.time)) ? data.hourly.time : [];
+            const probs = (data && data.hourly && Array.isArray(data.hourly.precipitation_probability)) ? data.hourly.precipitation_probability : [];
+            if (!probs.length) return null;
+            const cur = data && data.current_weather && data.current_weather.time;
+            const idx = cur ? times.indexOf(cur) : -1;
+            const val = idx >= 0 ? probs[idx] : probs[0];
+            const num = toNumber(val);
+            return Number.isFinite(num) ? num : null;
+        }
+
+        async function fetchWeather(lat, lon){
+            if (!Number.isFinite(lat) || !Number.isFinite(lon)) throw new Error('Coordenadas inválidas para clima');
+            const key = `${lat.toFixed(2)},${lon.toFixed(2)}`;
+            const cached = weatherCache.get(key);
+            if (cached && (Date.now() - cached.ts) < WEATHER_CACHE_TTL) return cached.data;
+
+            const url = `${WEATHER_API_BASE}?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,precipitation_probability&forecast_days=1&timezone=auto`;
+            const resp = await fetch(url, { headers:{'Accept':'application/json'}, method:'GET' });
+            const body = await resp.text().catch(()=> '');
+            if (!resp.ok) throw new Error(body || 'Falha ao buscar clima');
+            let data = null;
+            try{ data = body ? JSON.parse(body) : null; }catch(_){ data = null; }
+            if (!data) throw new Error('Resposta de clima vazia');
+
+            const cw = data.current_weather || {};
+            const precipitation = extractPrecipitationProbability(data);
+            const parsed = {
+                temperature: cw.temperature != null ? Number(cw.temperature) : null,
+                wind: cw.windspeed != null ? Number(cw.windspeed) : null,
+                weathercode: cw.weathercode,
+                description: describeWeatherCode(cw.weathercode),
+                precipitation,
+                time: cw.time || null
+            };
+            weatherCache.set(key, { ts: Date.now(), data: parsed });
+            return parsed;
+        }
+
+        function pickEventForWeather(dayEvents){
+            if (!Array.isArray(dayEvents) || !dayEvents.length) return null;
+            const withCoords = dayEvents.find(ev => {
+                const locs = extractEventLocations(ev);
+                return hasValidCoords(locs.origem) || hasValidCoords(locs.destino);
+            });
+            return withCoords || dayEvents[0];
+        }
+
+        async function renderWeatherForSelection(dayEvents){
+            if (!dayWeatherEl || !dayWeatherBodyEl || !dayWeatherMetaEl) return;
+            const token = ++weatherRenderToken;
+
+            if (!Array.isArray(dayEvents) || !dayEvents.length) {
+                dayWeatherMetaEl.textContent = 'Sem eventos para esta data';
+                dayWeatherBodyEl.innerHTML = `<div class="day-weather__empty">Aguardando eventos com coordenadas para mostrar o clima.</div>`;
+                return;
+            }
+
+            const eventTarget = pickEventForWeather(dayEvents);
+            const { origem, destino } = extractEventLocations(eventTarget || {});
+            const locations = [];
+            if (hasValidCoords(origem)) locations.push({ ...origem, role:'Origem' });
+            if (hasValidCoords(destino)) locations.push({ ...destino, role:'Destino' });
+
+            if (!locations.length) {
+                dayWeatherMetaEl.textContent = 'Evento sem coordenadas';
+                dayWeatherBodyEl.innerHTML = `<div class="day-weather__empty">Não encontramos coordenadas de origem/destino para consultar o clima.</div>`;
+                return;
+            }
+
+            const dateLabel = selectedDate ? formatDateBr(selectedDate) : 'dia selecionado';
+            dayWeatherMetaEl.textContent = `Previsão para ${dateLabel}`;
+            dayWeatherBodyEl.innerHTML = `<div class="day-weather__empty">Buscando previsão para origem e destino...</div>`;
+
+            const results = await Promise.all(locations.map(async (loc) => {
+                try{
+                    const data = await fetchWeather(loc.lat, loc.lon);
+                    return { loc, data };
+                }catch(err){
+                    return { loc, error: err };
+                }
+            }));
+
+            if (token !== weatherRenderToken) return;
+
+            dayWeatherBodyEl.innerHTML = results.map(res => {
+                const loc = res.loc;
+                if (res.error){
+                    const errMsg = res.error && res.error.message ? res.error.message : 'Erro ao carregar clima';
+                    return `<div class="day-weather__card"><h5><i class="fas fa-location-dot"></i> ${loc.role}</h5><div class="day-weather__empty">Erro ao carregar clima: ${errMsg}</div></div>`;
+                }
+                const temp = res.data.temperature != null ? `${res.data.temperature.toFixed(1)}°C` : '—';
+                const wind = res.data.wind != null ? `${res.data.wind.toFixed(1)} km/h` : '—';
+                const precip = res.data.precipitation != null ? `${res.data.precipitation}%` : '—';
+                const coordLabel = `${loc.lat.toFixed(2)}, ${loc.lon.toFixed(2)}`;
+                const place = loc.label || coordLabel;
+                return `
+                    <div class="day-weather__card">
+                        <h5><i class="fas fa-location-dot"></i> ${loc.role}${place ? ' · ' + place : ''}</h5>
+                        <div class="day-weather__metrics">
+                            <span class="day-weather__metric"><i class="fas fa-temperature-half"></i> ${temp}</span>
+                            <span class="day-weather__metric"><i class="fas fa-cloud"></i> ${res.data.description}</span>
+                            <span class="day-weather__metric"><i class="fas fa-umbrella"></i> Chuva: ${precip}</span>
+                            <span class="day-weather__metric"><i class="fas fa-wind"></i> Vento: ${wind}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function normalizePhone(phone){
+            if (!phone) return null;
+            const digits = String(phone).replace(/\D/g, '');
+            if (digits.length < 8) return null;
+            return digits;
+        }
+
+        function buildWhatsappLink(ev){
+            const phone =
+                ev.telefone_responsavel ||
+                ev.telefone_responsavel_evento ||
+                ev.telefone ||
+                ev.whatsapp ||
+                ev.celular ||
+                ev.contato ||
+                ev.fone ||
+                ev.phone ||
+                ev.phone_number ||
+                null;
+            const digits = normalizePhone(phone);
+            if (!digits) return null;
+            return `https://wa.me/${digits}`;
+        }
+
+        function buildRouteLink(ev){
+            const oLat = toNumber(ev.origem_lat ?? ev.lat_origem ?? ev.latitude_origem);
+            const oLon = toNumber(ev.origem_lon ?? ev.lon_origem ?? ev.longitude_origem);
+            const dLat = toNumber(ev.destino_lat ?? ev.lat_destino ?? ev.latitude_destino);
+            const dLon = toNumber(ev.destino_lon ?? ev.lon_destino ?? ev.longitude_destino);
+            if (oLat === null || oLon === null || dLat === null || dLon === null) return null;
+            return `https://www.google.com/maps/dir/?api=1&origin=${oLat},${oLon}&destination=${dLat},${dLon}`;
+        }
+
+        function buildSearchLinks(ev){
+            const destCity = ev.cidade_destino || ev.cidade || ev.destino || ev.escola || '';
+            const dLat = toNumber(ev.destino_lat ?? ev.lat_destino ?? ev.latitude_destino);
+            const dLon = toNumber(ev.destino_lon ?? ev.lon_destino ?? ev.longitude_destino);
+            const hasCoords = dLat !== null && dLon !== null;
+            const baseHotels = hasCoords
+                ? `https://www.google.com/maps/search/hotel/@${dLat},${dLon},14z`
+                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('hotel ' + destCity)}`;
+            const baseFood = hasCoords
+                ? `https://www.google.com/maps/search/restaurante/@${dLat},${dLon},14z`
+                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('restaurante ' + destCity)}`;
+            return { hotels: baseHotels, food: baseFood };
+        }
+
+        function prettifyKey(key){
+            return String(key || '')
+                .replace(/^_+/, '')
+                .replace(/_/g, ' ')
+                .replace(/\b\w/g, m => m.toUpperCase());
+        }
+
+        // ==== Normalização leve dos eventos ====
+        function normalizeEvent(event, session){
+            // Nome da escola
+            const nome_escola =
+                (event.nome_da_escola ||
+                 event.nome_escola ||
+                 event.escola ||
+                 event.nome_lead ||
+                 'Escola não informada');
+
+            const cidade =
+                (event.cidade_destino ||
+                 event.cidade ||
+                 'Cidade não informada');
+
+            const tipo_da_tarefa =
+                (event.tipo_da_tarefa ||
+                 event.tipo_evento ||
+                 event.tipo ||
+                 event.id_tipo_tarefa ||
+                 event.id_tipo ||
+                 event.tipo_id ||
+                 event.tipo_tarefa_id ||
+                 'Evento');
+
+            const dataObj = getEventDate(event);
+            const taskMeta = resolveTaskType(event, session, tipo_da_tarefa);
+            const eventId = getEventId(event);
+            const diariasRaw = event.numero_de_diarias ?? event.diarias ?? event.qtd_diarias ?? event.numero_diarias ?? 1;
+            const diariasNum = Math.max(1, parseInt(parseNum(diariasRaw), 10) || 1);
+            const spanStart = dataObj instanceof Date ? dataObj : null;
+            const spanEnd = spanStart ? new Date(spanStart.getFullYear(), spanStart.getMonth(), spanStart.getDate() + diariasNum - 1) : null;
+            const color = colorForEvent(eventId);
+
+            return {
+                ...event,
+                _id: eventId,
+                _date: dataObj,
+                _taskType: taskMeta.type,
+                _taskTypeId: taskMeta.id,
+                nome_da_escola: nome_escola,
+                cidade: cidade,
+                tipo_da_tarefa: tipo_da_tarefa,
+                _spanStart: spanStart,
+                _spanEnd: spanEnd,
+                _color: color
+            };
+        }
+
+        function getEventId(ev){
+            return ev.id_evento || ev.id_evento_unico || ev.id || ev.id_agendamento || ev.uuid || String(Math.random()).slice(2);
+        }
+
+        function isDateInEventSpan(date, ev){
+            if (!(date instanceof Date) || Number.isNaN(date.getTime())) return false;
+            const start = ev._spanStart || ev._date;
+            const end = ev._spanEnd || ev._date;
+            if (!(start instanceof Date) || Number.isNaN(start.getTime())) return false;
+            const endDate = (end instanceof Date && !Number.isNaN(end.getTime())) ? end : start;
+            const target = startOfDay(date);
+            const startDay = startOfDay(start);
+            const endDay = startOfDay(endDate);
+            return target >= startDay && target <= endDay;
+        }
+
+        function buildEventsByDay(list){
+            const map = new Map();
+            if (!Array.isArray(list)) return map;
+            list.forEach(ev => {
+                const start = ev._spanStart || ev._date;
+                const end = ev._spanEnd || ev._date;
+                if (!(start instanceof Date) || Number.isNaN(start.getTime())) return;
+                const endDate = (end instanceof Date && !Number.isNaN(end.getTime())) ? end : start;
+                const cursor = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+                while (cursor <= endDate) {
+                    const k = dateKey(cursor);
+                    if (k) {
+                        if (!map.has(k)) map.set(k, []);
+                        map.get(k).push(ev);
+                    }
+                    cursor.setDate(cursor.getDate() + 1);
+                }
+            });
+            return map;
+        }
+
+        function uniqueEventsById(arr){
+            if (!Array.isArray(arr)) return [];
+            const seen = new Set();
+            return arr.filter(ev => {
+                const id = getEventId(ev);
+                if (seen.has(id)) return false;
+                seen.add(id);
+                return true;
+            });
+        }
+
+        function dedupeEventsById(list){
+            return uniqueEventsById(Array.isArray(list) ? list : []);
+        }
+
+        function isVisitaEvent(ev){
+            const t = (ev && (ev._taskType || ev.tipo_da_tarefa || ev.tipo_evento || ev.tipo || '')).toString().toLowerCase();
+            return t.includes('visita');
+        }
+
+        async function lancarDespesas(ev, btn){
+            const id = getEventId(ev);
+            if (!id) return;
+            // Salva o evento selecionado para ser usado no formulário real em despesas.html
+            try{
+                localStorage.setItem('despesas_evento_selecionado', JSON.stringify(ev));
+            }catch(_){}
+            window.location.href = 'despesas.html';
+        }
+
+        function removeEventById(id){
+            if (!id) return;
+            const idStr = String(id);
+            eventsData = eventsData.filter(ev => String(getEventId(ev)) !== idStr);
+        }
+
+        async function finalizarEvento(ev, btn){
+            const id = getEventId(ev);
+            if (!id) return;
+            if (btn){
+                btn.disabled = true;
+                btn.dataset.prevLabel = btn.innerHTML;
+                btn.innerHTML = 'Finalizando...';
+            }
+            try{
+                const payload = { action:'finalizar_evento', id_evento:id, finalizado:true };
+                const resp = await fetch(API_AGENDA, {
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                const txt = await resp.text().catch(()=> '');
+                if (!resp.ok) throw new Error(txt || `HTTP ${resp.status}`);
+                removeEventById(id);
+                renderCalendar();
+                renderEventsList();
+                renderDayEventsDetails();
+                alert('Evento finalizado e removido da lista.');
+            }catch(err){
+                console.error('Erro ao finalizar evento:', err);
+                alert('Erro ao finalizar evento: ' + (err && err.message));
+            }finally{
+                if (btn){
+                    btn.disabled = false;
+                    btn.innerHTML = btn.dataset.prevLabel || '✅ Finalizar';
+                }
+            }
+        }
+
+        async function deletarEvento(ev, btn){
+            const id = getEventId(ev);
+            if (!id) return;
+            if (!window.confirm('Deseja realmente deletar este evento?')) return;
+            if (btn){
+                btn.disabled = true;
+                btn.dataset.prevLabel = btn.innerHTML;
+                btn.innerHTML = 'Deletando...';
+            }
+            try{
+                const payload = { action:'delete_evento', id_evento:id };
+                const resp = await fetch(API_AGENDA, {
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                const txt = await resp.text().catch(()=> '');
+                if (!resp.ok) throw new Error(txt || `HTTP ${resp.status}`);
+                removeEventById(id);
+                renderCalendar();
+                renderEventsList();
+                renderDayEventsDetails();
+                alert('Evento deletado com sucesso.');
+                closeEventModal();
+            }catch(err){
+                console.error('Erro ao deletar evento:', err);
+                alert('Erro ao deletar evento: ' + (err && err.message));
+            }finally{
+                if (btn){
+                    btn.disabled = false;
+                    btn.innerHTML = btn.dataset.prevLabel || '🗑️ Deletar';
+                }
+            }
+        }
+
+        function canonicalEventSignature(ev){
+            if (!ev || typeof ev !== 'object') return '';
+            const baseDate = ev._date || getEventDate(ev);
+            const dateStr = baseDate ? dateKey(baseDate) : '';
+            const horarioRaw = ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data;
+            const horario = horarioRaw ? new Date(horarioRaw) : null;
+            const horaStr = horario instanceof Date && !Number.isNaN(horario.getTime()) ? horario.toISOString() : '';
+            const escola = (ev.nome_da_escola || ev.nome_escola || ev.escola || '').toString().trim().toLowerCase();
+            const cidade = normalizeCityUF(ev.cidade || ev.cidade_destino || '').toLowerCase();
+            const conteudo = (ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao || '').toString().trim().toLowerCase();
+            const tipo = (ev._taskType || ev.tipo_da_tarefa || ev.tipo_evento || ev.tipo || '').toString().trim().toLowerCase();
+            const diarias = getDiariasCount(ev);
+            const valor = ev.valor_total ?? ev.total ?? ev.valor ?? ev.custo_total ?? null;
+            const dist = getDistanceKmValue(ev);
+            const lat = toNumber(ev.destino_lat ?? ev.lat_destino ?? ev.latitude_destino);
+            const lon = toNumber(ev.destino_lon ?? ev.lon_destino ?? ev.longitude_destino);
+            return JSON.stringify({ dateStr, horaStr, escola, cidade, conteudo, tipo, diarias, valor, dist, lat, lon });
+        }
+
+        function getDiariasCount(ev){
+            if (!ev) return 1;
+            const start = ev._spanStart || ev._date;
+            const end = ev._spanEnd || ev._date;
+            if (!(start instanceof Date) || Number.isNaN(start)) return 1;
+            if (!(end instanceof Date) || Number.isNaN(end)) return 1;
+            const diff = Math.round((end.getTime() - start.getTime()) / 86400000) + 1;
+            return Math.max(1, diff);
+        }
+
+        // ==== Filtro por tipo de tarefa ====
+        function getFilteredEvents(){
+            if (!Array.isArray(eventsData) || eventsData.length === 0) return [];
+            if (!currentTaskFilter || currentTaskFilter.type === 'all') return eventsData;
+            const sameType = ev => ev._taskType === currentTaskFilter.type;
+            const byType = eventsData.filter(sameType);
+            if (!currentTaskFilter.id) return byType;
+
+            const byId = byType.filter(ev => String(ev._taskTypeId || '') === String(currentTaskFilter.id));
+            if (byId.length) return byId;
+
+            // Fallback: se o ID não bateu (ou veio vazio do backend), mantemos apenas o tipo
+            console.warn('Filtro por ID de tarefa não encontrou eventos; aplicando somente o tipo.', currentTaskFilter);
+            return byType;
+        }
+
+        // ==== Render do calendário ====
+        function renderCalendar(){
+            if (!currentMonthDate) currentMonthDate = new Date();
+            // Garante que está no dia 1 do mês
+            currentMonthDate = new Date(currentMonthDate.getFullYear(), currentMonthDate.getMonth(), 1);
+            saveIndexUIState();
+
+            currentMonthLabel.textContent = formatMonthYearBr(currentMonthDate);
+
+            const year = currentMonthDate.getFullYear();
+            const month = currentMonthDate.getMonth();
+
+            const firstDayOfWeek = new Date(year, month, 1).getDay(); // 0=Dom
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            const filtered = getFilteredEvents();
+            const eventsByDay = buildEventsByDay(filtered);
+
+            let html = '';
+            let dayOfWeekCounter = 0;
+
+            html += '<tr>';
+            // Células vazias antes do dia 1
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                html += '<td class="calendar-day empty"></td>';
+                dayOfWeekCounter++;
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cellDate = new Date(year, month, day);
+                const cellKey = dateKey(cellDate);
+
+                const eventsForDayRaw = eventsByDay.get(cellKey) || [];
+                const eventsForDay = uniqueEventsById(eventsForDayRaw);
+                const hasEvents = eventsForDay.length > 0;
+
+                const isSelected = selectedDate && sameDay(selectedDate, cellDate);
+                const mainColor = hasEvents ? (eventsForDay[0]?._color || null) : null;
+                const dayStyle = mainColor ? `style="--day-color:${mainColor}"` : '';
+                const chips = hasEvents
+                    ? eventsForDay.slice(0,4).map((ev) => {
+                        const diarias = getDiariasCount(ev);
+                        const title = ev.nome_da_escola || ev.cidade || 'Evento';
+                        return `<span class="day-event-chip" style="--ev-color:${ev._color || '#7b5cff'}" title="${title}">${diarias}</span>`;
+                    }).join('') + (eventsForDay.length > 4 ? `<span class="day-event-chip more">+${eventsForDay.length - 4}</span>` : '')
+                    : '';
+
+                html += `
+                    <td class="calendar-day ${hasEvents ? 'has-events' : ''} ${isSelected ? 'selected' : ''}"
+                        data-date="${cellKey}" ${dayStyle}>
+                        <div class="day-number">${day}</div>
+                        ${hasEvents ? `<div class="day-event-chip-container">${chips}</div>` : ''}
+                    </td>
+                `;
+
+                dayOfWeekCounter++;
+                if (dayOfWeekCounter === 7 && day < daysInMonth) {
+                    html += '</tr><tr>';
+                    dayOfWeekCounter = 0;
+                }
+            }
+
+            // completa a última linha com vazios se necessário
+            if (dayOfWeekCounter > 0 && dayOfWeekCounter < 7) {
+                for (let i = dayOfWeekCounter; i < 7; i++) {
+                    html += '<td class="calendar-day empty"></td>';
+                }
+                html += '</tr>';
+            } else {
+                html += '</tr>';
+            }
+
+            calendarBody.innerHTML = html;
+
+            // Listeners para clicar nos dias
+            Array.from(calendarBody.querySelectorAll('.calendar-day'))
+                .forEach(td => {
+                    if (td.classList.contains('empty')) return;
+                    td.addEventListener('click', () => {
+                        const iso = td.dataset.date;
+                        const d = parseDateKey(iso);
+                        if (d && !Number.isNaN(d.getTime())) {
+                            selectedDate = d;
+                            saveIndexUIState();
+                            renderCalendar();  // re-render para aplicar classe selected
+                            renderDayEventsDetails(); // mostra eventos do dia abaixo do calendário
+                        }
+                    });
+                });
+        }
+
+        // ==== Lista de eventos do dia selecionado ====
+        function renderDayEventsDetails(){
+            if (!dayDetailBody || !dayDetailLabel || !dayDetailCount) return;
+
+            if (!selectedDate) {
+                const today = startOfDay(new Date());
+                selectedDate = today;
+            }
+
+            const baseList = getFilteredEvents();
+            const dayEvents = uniqueEventsById(baseList.filter(ev => isDateInEventSpan(selectedDate, ev)));
+
+            dayDetailLabel.textContent = formatDateBr(selectedDate);
+            dayDetailCount.textContent = `${dayEvents.length} evento(s)`;
+            saveIndexUIState();
+
+            if (!dayEvents.length) {
+                dayDetailBody.innerHTML = `<div class="day-detail__empty">Clique em um dia do calendário para ver os eventos dessa data.</div>`;
+                renderWeatherForSelection([]);
+                return;
+            }
+
+            let html = '';
+            dayEvents.forEach((ev, idx) => {
+                const escola = ev.nome_da_escola || 'Escola não informada';
+                const cidade = formatOrigemDestino(ev);
+                const conteudo = ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao || '—';
+                const valor = formatCurrencyBR(ev.valor_total ?? ev.total ?? ev.valor ?? ev.custo_total);
+                const distancia = getDistanceLabel(ev);
+                    const duracao = getDurationLabel(ev);
+                html += `
+                    <div class="day-detail__card" data-day-ev="${idx}">
+                        <h4><span style="color:${ev._color || '#7b5cff'};">●</span> ${escola}</h4>
+                        <div class="day-detail__meta">
+                            <span><i class="fas fa-location-dot"></i> ${cidade || 'Cidade não informada'}</span>
+                            <span><i class="fas fa-calendar-day"></i> ${formatDateBr(ev._date || selectedDate)}</span>
+                        </div>
+                        <div class="day-detail__chips">
+                            <span class="day-detail__chip"><i class="fas fa-meteor"></i> ${conteudo}</span>
+                            <span class="day-detail__chip"><i class="fas fa-route"></i> ${distancia}</span>
+                            <span class="day-detail__chip"><i class="fas fa-coins"></i> ${valor}</span>
+                            ${duracao ? `<span class="day-detail__chip"><i class="fas fa-hourglass-half"></i> ${duracao}</span>` : ''}
+                            <span class="day-detail__chip"><i class="fas fa-clipboard-check"></i> Resultado: ${getResultadoLabel(ev)}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            dayDetailBody.innerHTML = html;
+            const cards = Array.from(dayDetailBody.querySelectorAll('[data-day-ev]'));
+            cards.forEach(card => {
+                const idx = Number(card.dataset.dayEv);
+                const ev = dayEvents[idx];
+                if (!ev) return;
+                card.addEventListener('click', () => openEventModal(ev));
+            });
+        }
+
+        // ==== Imagens do evento (carrossel) ====
+        async function fetchEventImages(eventId, extraPayload){
+            const formData = new FormData();
+            formData.append('action', 'get_img');
+            if (eventId) {
+                formData.append('id_evento', eventId);
+                formData.append('id_evento_unico', eventId);
+            }
+            const row = extraPayload && (extraPayload.row_number ?? extraPayload.row ?? extraPayload.row_num);
+            if (row != null) formData.append('row_number', String(row));
+            if (extraPayload && extraPayload.school) formData.append('nome_da_escola', extraPayload.school);
+
+            const response = await fetch(API_EVENT_IMAGES, { method:'POST', body: formData });
+            const bodyText = await response.text().catch(() => '');
+            if (!response.ok) throw new Error(bodyText || 'Erro ao buscar imagens');
+
+            let entries = [];
+            try {
+                const data = bodyText ? JSON.parse(bodyText) : null;
+                if (Array.isArray(data) && data.length && typeof data[0] === 'object' && ('img' in data[0])) {
+                    entries = data
+                        .map(item => {
+                            if (!item || typeof item.img !== 'string') return null;
+                            const url = item.img.trim();
+                            if (!url || !url.startsWith('http')) return null;
+                            const name = (item.name || '').toString().trim();
+                            const rowNum = item.row_number != null ? Number(item.row_number) : null;
+                            return { url, name, row: rowNum };
+                        })
+                        .filter(Boolean);
+                } else if (data && Array.isArray(data.links)) {
+                    entries = data.links
+                        .map(link => {
+                            const url = String(link || '').trim();
+                            return url && url.startsWith('http') ? { url, name: '', row: null } : null;
+                        })
+                        .filter(Boolean);
+                } else if (data && Array.isArray(data.data)) {
+                    entries = data.data
+                        .map(link => {
+                            const url = String(link || '').trim();
+                            return url && url.startsWith('http') ? { url, name: '', row: null } : null;
+                        })
+                        .filter(Boolean);
+                } else if (data && typeof data === 'object') {
+                    Object.values(data).forEach(v => {
+                        if (typeof v === 'string' && v.startsWith('http')) {
+                            entries.push({ url: v, name: '', row: null });
+                        } else if (Array.isArray(v)) {
+                            v.forEach(inner => {
+                                if (typeof inner === 'string' && inner.startsWith('http')) {
+                                    entries.push({ url: inner, name: '', row: null });
+                                }
+                            });
+                        }
+                    });
+                }
+            } catch (_) {
+                const regex = /(https?:\/\/[^\s"']+)/g;
+                let match;
+                while ((match = regex.exec(bodyText)) !== null) {
+                    const url = match[1];
+                    if (url && url.startsWith('http')) entries.push({ url, name: '', row: null });
+                }
+            }
+
+            const seen = new Set();
+            return entries.filter(entry => {
+                const key = entry && entry.url ? String(entry.url) : '';
+                if (!key || seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+        }
+
+        function renderImageCarousel(container, entries){
+            if (!container) return;
+            if (!Array.isArray(entries) || !entries.length) {
+                container.innerHTML = `<div class="event-images-placeholder">Nenhuma imagem encontrada para este evento.</div>`;
+                return;
+            }
+
+            let idx = 0;
+            container.innerHTML = `
+                <div class="img-carousel">
+                    <button class="img-carousel-nav" data-dir="-1" aria-label="Imagem anterior">‹</button>
+                    <div class="img-carousel-frame">
+                        <img data-carousel-img src="" alt="Imagem do evento" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+                    </div>
+                    <button class="img-carousel-nav" data-dir="1" aria-label="Próxima imagem">›</button>
+                </div>
+                <div class="img-carousel-meta">
+                    <span data-carousel-counter></span>
+                    <a data-carousel-link href="#" target="_blank" rel="noopener noreferrer">Abrir imagem</a>
+                </div>
+            `;
+
+            const imgEl = container.querySelector('[data-carousel-img]');
+            const counterEl = container.querySelector('[data-carousel-counter]');
+            const linkEl = container.querySelector('[data-carousel-link]');
+            const navButtons = Array.from(container.querySelectorAll('.img-carousel-nav'));
+            navButtons.forEach(btn => { btn.disabled = entries.length <= 1; });
+
+            const update = () => {
+                const item = entries[idx];
+                if (!item) return;
+                imgEl.src = item.url;
+                imgEl.alt = item.name || 'Imagem do evento';
+                counterEl.textContent = `${idx + 1} / ${entries.length}`;
+                linkEl.href = item.url;
+                linkEl.textContent = item.name ? `Abrir ${item.name}` : 'Abrir imagem em nova aba';
+            };
+
+            navButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const dir = Number(btn.dataset.dir) || 1;
+                    idx = (idx + dir + entries.length) % entries.length;
+                    update();
+                });
+            });
+
+            update();
+        }
+
+        function setLightboxImages(entries){
+            lightboxImages = Array.isArray(entries) ? entries.filter(e => e && e.url) : [];
+            lightboxIndex = 0;
+            updateImageLightbox();
+        }
+
+        function updateImageLightbox(){
+            if (!lightboxEl || !lightboxImg || !lightboxCounter) return;
+            if (!lightboxImages.length) {
+                lightboxEl.classList.remove('show');
+                lightboxEl.setAttribute('aria-hidden','true');
+                return;
+            }
+            const cur = lightboxImages[lightboxIndex];
+            lightboxImg.src = cur.url;
+            lightboxImg.alt = cur.name || 'Imagem do evento';
+            lightboxCounter.textContent = `${lightboxIndex + 1} / ${lightboxImages.length}`;
+        }
+
+        function openImageLightbox(idx = 0){
+            if (!lightboxImages.length || !lightboxEl) return;
+            lightboxIndex = Math.max(0, Math.min(idx, lightboxImages.length - 1));
+            updateImageLightbox();
+            lightboxEl.classList.add('show');
+            lightboxEl.setAttribute('aria-hidden','false');
+        }
+
+        function closeImageLightbox(){
+            if (!lightboxEl) return;
+            lightboxEl.classList.remove('show');
+            lightboxEl.setAttribute('aria-hidden','true');
+        }
+
+        function nextLightboxImage(){
+            if (!lightboxImages.length) return;
+            lightboxIndex = (lightboxIndex + 1) % lightboxImages.length;
+            updateImageLightbox();
+        }
+
+        function prevLightboxImage(){
+            if (!lightboxImages.length) return;
+            lightboxIndex = (lightboxIndex - 1 + lightboxImages.length) % lightboxImages.length;
+            updateImageLightbox();
+        }
+
+        async function loadEventImagesIntoContainer(eventId, container, triggerBtn, extraPayload){
+            if (!container || !eventId) return;
+            container.innerHTML = `<div class="event-images-placeholder">Carregando imagens...</div>`;
+            if (triggerBtn) {
+                triggerBtn.disabled = true;
+                triggerBtn.dataset.prevLabel = triggerBtn.innerHTML;
+                triggerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Carregando';
+            }
+            try {
+                const entries = await fetchEventImages(eventId, extraPayload);
+                if (Array.isArray(entries) && entries.length) {
+                    container.innerHTML = `
+                        <div class="event-images-placeholder">
+                            ${entries.length} imagem(ns) encontrada(s). Clique em "Ver imagens" para abrir em tela cheia.
+                        </div>
+                    `;
+                    setLightboxImages(entries);
+                    openImageLightbox(0);
+                    if (triggerBtn) {
+                        triggerBtn.innerHTML = '<i class="fas fa-image"></i> Abrir em tela cheia';
+                        triggerBtn.disabled = false;
+                        triggerBtn.onclick = () => openImageLightbox(0);
+                    }
+                } else {
+                    container.innerHTML = `<div class="event-images-placeholder">Nenhuma imagem encontrada para este evento.</div>`;
+                }
+            } catch (err) {
+                console.error('Erro ao carregar imagens do evento:', err);
+                container.innerHTML = `<div class="event-images-placeholder">Erro ao carregar imagens. Tente novamente.</div>`;
+            } finally {
+                if (triggerBtn) {
+                    triggerBtn.disabled = false;
+                    triggerBtn.innerHTML = triggerBtn.dataset.prevLabel || '<i class="fas fa-image"></i> Ver imagens';
+                }
+            }
+        }
+
+        // ==== Modal de detalhes ====
+        function closeEventModal(){
+            if (eventModal) {
+                eventModal.classList.remove('show');
+                eventModal.setAttribute('aria-hidden', 'true');
+            }
+        }
+
+        function openEventModal(ev){
+            if (!ev || !eventModalBody) return;
+
+            const eventId = getEventId(ev);
+            const rotaLabel = formatYesNo(ev.rota_continua ?? ev.rota ?? ev.continua);
+            const valorTotal = ev.valor_total ?? ev.total ?? ev.valor ?? ev.custo_total ?? null;
+            const brindeInfo = formatYesNo(ev.brinde ?? ev.gift);
+            const diarias = ev.numero_de_diarias ?? ev.diarias ?? ev.qtd_diarias ?? null;
+            const conteudo = ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao || 'Não informado';
+            const distancia = getDistanceLabel(ev);
+            const duracao = getDurationLabel(ev);
+            const destLatVal = formatCoord(ev.destino_lat ?? ev.lat_destino ?? ev.latitude_destino);
+            const destLonVal = formatCoord(ev.destino_lon ?? ev.lon_destino ?? ev.longitude_destino);
+            const origLatVal = formatCoord(ev.origem_lat ?? ev.lat_origem ?? ev.latitude_origem);
+            const origLonVal = formatCoord(ev.origem_lon ?? ev.lon_origem ?? ev.longitude_origem);
+
+            const headerHtml = `
+                <div class="event-modal-quick">
+                    <span class="event-chip"><strong>Rota contínua?</strong> ${rotaLabel}</span>
+                    <span class="event-chip"><strong>Valor total</strong> ${valorTotal !== null ? valorTotal : 'Não informado'}</span>
+                    <span class="event-chip"><strong>Brinde</strong> ${brindeInfo}</span>
+                    <span class="event-chip"><strong>Diárias</strong> ${diarias !== null ? diarias : 'Não informado'}</span>
+                    <span class="event-chip"><strong>Conteúdo</strong> ${conteudo}</span>
+                    <span class="event-chip"><strong>Distância</strong> ${distancia}</span>
+                    ${duracao ? `<span class="event-chip"><strong>Duração</strong> ${duracao}</span>` : ''}
+                    <span class="event-chip"><strong>Resultado</strong> ${getResultadoLabel(ev)}</span>
+                    <span class="event-chip"><strong>destino_lat</strong> ${destLatVal}</span>
+                    <span class="event-chip"><strong>destino_lon</strong> ${destLonVal}</span>
+                    <span class="event-chip"><strong>origem_lat</strong> ${origLatVal}</span>
+                    <span class="event-chip"><strong>origem_lon</strong> ${origLonVal}</span>
+                </div>
+            `;
+
+            const whatsappLink = buildWhatsappLink(ev);
+            const routeLink = buildRouteLink(ev);
+            const searchLinks = buildSearchLinks(ev);
+            const despesasBtn = `<button class="btn btn-secondary btn-compact" data-ev-action="despesas" data-ev-id="${eventId}">💰 Lançar despesas</button>`;
+            const finalizarBtn = `<button class="btn btn-secondary btn-compact" data-ev-action="finalizar" data-ev-id="${eventId}">✅ Finalizar</button>`;
+            const deletarBtn = `<button class="btn btn-danger btn-compact" data-ev-action="deletar" data-ev-id="${eventId}">🗑️ Deletar</button>`;
+
+            const responsavel = ev.responsavel || ev.responsavel_visita || ev.contato_responsavel || ev.nome_responsavel || ev.responsavel_pelo_evento || ev.professor || '';
+            const escola = ev.nome_da_escola || ev.nome_escola || ev.escola || '';
+            const cidade = normalizeCityUF(ev.cidade_destino || ev.cidade || '');
+            const whatsappDisplay = whatsappLink
+                ? `<a href="${whatsappLink}" target="_blank" rel="noopener noreferrer">${ev.telefone_responsavel_evento || ev.telefone_responsavel || ev.telefone || ev.whatsapp || 'Abrir'}</a>`
+                : 'Não informado';
+            const infoAdicional =
+                ev.informacoes_adicionais ??
+                ev.informacoes ??
+                ev.observacoes ??
+                ev.observacao ??
+                '';
+
+            const linksHtmlParts = [];
+            if (whatsappLink) linksHtmlParts.push(`<a href="${whatsappLink}" target="_blank" rel="noopener noreferrer"><i class="fas fa-whatsapp"></i> WhatsApp</a>`);
+            if (routeLink) linksHtmlParts.push(`<a href="${routeLink}" target="_blank" rel="noopener noreferrer"><i class="fas fa-route"></i> Rota</a>`);
+            if (searchLinks?.hotels) linksHtmlParts.push(`<a href="${searchLinks.hotels}" target="_blank" rel="noopener noreferrer"><i class="fas fa-bed"></i> Hotéis</a>`);
+            if (searchLinks?.food) linksHtmlParts.push(`<a href="${searchLinks.food}" target="_blank" rel="noopener noreferrer"><i class="fas fa-utensils"></i> Restaurantes</a>`);
+            linksHtmlParts.push(`<div class="modal-actions-inline">${despesasBtn}${finalizarBtn}${deletarBtn}</div>`);
+
+            const linksHtml = linksHtmlParts.length
+                ? `<div class="event-modal-section event-modal-links"><h4>Links úteis</h4>${linksHtmlParts.join('')}</div>`
+                : '';
+
+            const imagesSection = `
+                <div class="event-modal-section event-images-section">
+                    <div class="event-images-header">
+                        <h4>Imagens do evento</h4>
+                        <button class="event-images-btn" ${eventId ? '' : 'disabled'} data-event-id="${eventId || ''}">
+                            <i class="fas fa-image"></i> Ver imagens
+                        </button>
+                    </div>
+                    <div class="event-images-body" id="event-images-body">
+                        <div class="event-images-placeholder">
+                            ${eventId ? 'Clique em "Ver imagens" para carregar as fotos deste evento.' : 'ID do evento não encontrado para buscar imagens.'}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const detailRows = [];
+            Object.entries(ev).forEach(([key, val]) => {
+                // pula metadados e campos sensíveis
+                if (key === '_taskType') return;
+                if (key === '_date') {
+                    detailRows.push(`<div class="event-detail-row"><strong>Data</strong><span>${val instanceof Date ? formatDateBr(val) : String(val)}</span></div>`);
+                    return;
+                }
+                const sensitiveKeys = ['senha_usuario', 'senha', 'password', 'pass'];
+                if (sensitiveKeys.includes(String(key).toLowerCase())) return;
+
+                if (typeof val === 'object') {
+                    try {
+                        const label = key === 'faixa_de_alunos' ? 'Número de Alunos' : prettifyKey(key);
+                        detailRows.push(`<div class="event-detail-row"><strong>${label}</strong><span>${JSON.stringify(val)}</span></div>`);
+                    } catch(_) {}
+                    return;
+                }
+                const label = key === 'faixa_de_alunos' ? 'Número de Alunos' : prettifyKey(key);
+                detailRows.push(`<div class="event-detail-row"><strong>${label}</strong><span>${val !== undefined && val !== null ? String(val) : '—'}</span></div>`);
+            });
+
+            const titleLabel = escola || cidade || (ev.tipo_da_tarefa || 'Evento');
+
+            eventModalBody.innerHTML = `
+                <h3 class="event-modal-title">${titleLabel}</h3>
+                ${headerHtml}
+                <div class="event-modal-section">
+                    <h4>Responsável</h4>
+                    <div class="event-details-grid">
+                        <div class="event-detail-row"><strong>Nome</strong><span>${responsavel || 'Não informado'}</span></div>
+                        <div class="event-detail-row"><strong>WhatsApp</strong><span>${whatsappDisplay}</span></div>
+                        ${cidade ? `<div class="event-detail-row"><strong>Destino</strong><span>${cidade}</span></div>` : ''}
+                    </div>
+                </div>
+                <div class="event-modal-section">
+                    <h4>Informações adicionais</h4>
+                    <div class="event-details-grid">
+                        <div class="event-detail-row" style="grid-column:1/-1; white-space:pre-wrap;">
+                            <strong>Observações</strong>
+                            <span>${infoAdicional ? infoAdicional : 'Não informado'}</span>
+                        </div>
+                    </div>
+                </div>
+                ${linksHtml}
+                ${imagesSection}
+                <div class="event-modal-section">
+                    <h4>Detalhes do evento</h4>
+                    <div class="event-details-grid">
+                        ${detailRows.join('')}
+                    </div>
+                </div>
+            `;
+
+            eventModal.classList.add('show');
+            eventModal.setAttribute('aria-hidden', 'false');
+
+            const imagesBody = eventModalBody.querySelector('#event-images-body');
+            const imagesBtn = eventModalBody.querySelector('.event-images-btn');
+            if (imagesBtn && imagesBody && eventId) {
+                imagesBtn.addEventListener('click', () => {
+                    loadEventImagesIntoContainer(
+                        eventId,
+                        imagesBody,
+                        imagesBtn,
+                        {
+                            row_number: ev.row_number ?? ev.row_num ?? ev.row,
+                            school: escola || ev.nome_da_escola || ''
+                        }
+                    );
+                });
+            }
+
+            // Ações internas do modal (lançar despesas/finalizar/deletar)
+            eventModalBody.querySelectorAll('[data-ev-action]').forEach(btn => {
+                const action = btn.dataset.evAction;
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (action === 'despesas') {
+                        lancarDespesas(ev, btn);
+                    } else if (action === 'finalizar') {
+                        finalizarEvento(ev, btn);
+                    } else if (action === 'deletar') {
+                        deletarEvento(ev, btn);
+                    }
+                });
+            });
+        }
+
+        // ==== Render da lista de eventos ====
+        function renderEventsList(){
+            const filtered = getFilteredEvents();
+            let list = filtered.slice();
+
+            // Ordena por data crescente; eventos sem data vão para o final (pendentes)
+            list.sort((a, b) => {
+                const da = a._date ? a._date.getTime() : Number.POSITIVE_INFINITY;
+                const db = b._date ? b._date.getTime() : Number.POSITIVE_INFINITY;
+                return da - db;
+            });
+
+            eventsCountEl.textContent = `${list.length} evento(s)`;
+
+            if (list.length === 0) {
+                eventsListEl.innerHTML = `
+                    <div class="empty-state">
+                        Nenhum evento encontrado com o filtro atual.
+                    </div>
+                `;
+                return;
+            }
+
+            // Helpers para separar visitas antes/depois de hoje
+            const startOfToday = (() => {
+                const t = new Date();
+                return new Date(t.getFullYear(), t.getMonth(), t.getDate());
+            })();
+            const isBeforeToday = (d) => d instanceof Date && d.getTime() < startOfToday.getTime();
+
+            const visitas = list.filter(ev => ev._taskType === 'visita');
+            const outros = list.filter(ev => ev._taskType !== 'visita');
+
+            const visitasPassadas = visitas.filter(ev => ev._date && isBeforeToday(ev._date));
+            const visitasFuturas = visitas.filter(ev => !ev._date || !isBeforeToday(ev._date));
+
+            const renderedEvents = [];
+            const parts = [];
+
+            function renderCards(label, items, extraClass){
+                if (!items.length) return;
+                const icon = extraClass === 'upcoming' ? 'fa-rocket' : extraClass === 'pending' ? 'fa-clock' : 'fa-circle';
+                const stateLabel = extraClass === 'pending' ? 'Pendente' : 'Próximo';
+                const stateClass = extraClass === 'pending' ? 'state-pending' : 'state-upcoming';
+                parts.push(`
+                    <section class="events-block">
+                        <header class="events-header">
+                            <div><i class="fas ${icon}"></i> ${label}</div>
+                            <span class="meta">${items.length} evento(s)</span>
+                        </header>
+                        <div class="events-scroll">
+                            <div class="event-card-grid">
+                `);
+
+                items.forEach(ev => {
+                    const idx = renderedEvents.length;
+                    renderedEvents.push(ev);
+
+                    const d = ev._date;
+                    const dataLabel = d ? formatDateBr(d) : 'Data não informada';
+                    const escola = ev.nome_da_escola || 'Escola não informada';
+                    const cidade = formatOrigemDestino(ev);
+                    const conteudo = ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao || '—';
+                    const valor = formatCurrencyBR(ev.valor_total ?? ev.total ?? ev.valor ?? ev.custo_total);
+                    const distancia = getDistanceLabel(ev);
+                    const brindeField = (ev.brinde ?? ev.gift ?? '').toString().trim().toLowerCase();
+                    const brindeOk = ['1','true','sim','yes','ok','s'].includes(brindeField);
+                    const brindeLabel = brindeOk ? 'Brinde incluso' : 'Sem brinde';
+                    const duracao = getDurationLabel(ev);
+                    const diariasCount = getDiariasCount(ev);
+                    const rotaContinua = ev.rota_continua === true || ev.rota_continua === 'true' || ev.rota_continua === 1;
+                    const destLatVal = formatCoord(ev.destino_lat ?? ev.lat_destino ?? ev.latitude_destino);
+                    const destLonVal = formatCoord(ev.destino_lon ?? ev.lon_destino ?? ev.longitude_destino);
+                    const origLatVal = formatCoord(ev.origem_lat ?? ev.lat_origem ?? ev.latitude_origem);
+                    const origLonVal = formatCoord(ev.origem_lon ?? ev.lon_origem ?? ev.longitude_origem);
+
+                    parts.push(`
+                        <div class="event-card ${ev.rota_continua && ev.blocoIndex != null ? ('rota-continua-bloco-' + (ev.blocoIndex % 3)) : ''}" data-ev-idx="${idx}">
+                            <div class="event-card__header">
+                                <div class="event-card__school">${escola}</div>
+                                <div class="event-state ${stateClass}">${stateLabel}</div>
+                            </div>
+                        <div class="event-card__meta-row">
+                            <div class="event-card__date"><i class="fas fa-calendar-day"></i>${dataLabel}</div>
+                            <div class="event-card__chips" style="margin-top:0;">
+                                <span class="chip ${brindeOk ? 'gold' : 'muted'}"><i class="fas fa-gift"></i>${brindeLabel}</span>
+                                <span class="chip"><i class="fas fa-coins"></i>${valor}</span>
+                                    <span class="chip"><i class="fas fa-route"></i>${distancia}</span>
+                                    ${diariasCount ? `<span class="chip"><i class="fas fa-bed"></i>${diariasCount} diária(s)</span>` : ''}
+                                    <span class="chip"><i class="fas fa-clipboard-check"></i>${getResultadoLabel(ev)}</span>
+                                    <span class="chip"><i class="fas fa-infinity"></i>${rotaContinua ? 'Rota contínua: Sim' : 'Rota contínua: Não'}</span>
+                                    <span class="chip"><i class="fas fa-flag"></i>${formatTaskLabel(ev._taskType)}</span>
+                            </div>
+                        </div>
+                        <div class="event-card__city">${cidade}</div>
+                        <div class="event-card__chips">
+                            <span class="chip"><i class="fas fa-meteor"></i>${conteudo}</span>
+                            ${duracao ? `<span class="chip"><i class="fas fa-hourglass-half"></i>${duracao}</span>` : ''}
+                        </div>
+                        <div class="event-card__actions">
+                            <button class="btn btn-secondary btn-compact" data-ev-action="despesas" data-ev-idx="${idx}">💰 Lançar despesas</button>
+                            <button class="btn btn-secondary btn-compact" data-ev-action="finalizar" data-ev-idx="${idx}">✅ Finalizar</button>
+                        </div>
+                    </div>
+                `);
+            });
+
+                parts.push(`
+                            </div>
+                        </div>
+                    </section>
+                `);
+            }
+
+            parts.push('<div class="events-container">');
+            renderCards('Próximos', visitasFuturas, 'upcoming');
+            renderCards('Pendentes de finalizar', visitasPassadas, 'pending');
+            parts.push('</div>');
+            if (outros.length) {
+                renderCards('Outros eventos', outros, 'other');
+            }
+
+            eventsListEl.innerHTML = parts.join('');
+
+            // Clique para abrir modal e ações nos cards
+            const items = Array.from(eventsListEl.querySelectorAll('[data-ev-idx]'));
+            items.forEach(item => {
+                const idx = Number(item.dataset.evIdx);
+                const ev = renderedEvents[idx];
+                if (!ev) return;
+
+                item.addEventListener('click', () => openEventModal(ev));
+
+                const cardButtons = item.querySelectorAll('[data-ev-action]');
+                cardButtons.forEach(btn => {
+                    const action = btn.dataset.evAction;
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (action === 'despesas') {
+                            lancarDespesas(ev, btn);
+                        } else if (action === 'finalizar') {
+                            finalizarEvento(ev, btn);
+                        }
+                    });
+                });
+            });
+        }
+
+        // ==== Carregar agenda do webhook (action=atualizar_agenda) ====
+        async function carregarAgenda(){
+            const sess = getLoggedSession();
+            currentSession = sess;
+            const hasSession = !!(sess && sess.id_astronomo != null);
+            statusTextEl.textContent = hasSession
+                ? 'Conectando ao servidor...'
+                : 'Sessão não encontrada. Carregando agenda sem login...';
+            btnRefreshAgenda.disabled = true;
+                btnRefreshAgenda.textContent = 'Carregando...';
+                if (btnOpenRotas) btnOpenRotas.disabled = true;
+
+            try {
+                // Monta URL com parâmetros (mantido para uso futuro)
+                // const buildUrl = () => {
+                //     const u = new URL(API_AGENDA);
+                //     u.searchParams.set('action', 'atualizar_agenda');
+                //     u.searchParams.set('tipo', 'atualizar_agenda');
+                //     if (sess && sess.id_astronomo != null) u.searchParams.set('id_astronomo', String(sess.id_astronomo));
+                //     if (sess && sess.usuario) u.searchParams.set('usuario', String(sess.usuario));
+                //     return u.toString();
+                // };
+
+                let resp = null;
+                let data = null;
+                let lastErr = null;
+
+                // 1ª tentativa: POST (padrão do webhook)
+                try {
+                    resp = await fetch(API_AGENDA, {
+                        method: 'POST',
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (resp && resp.ok) {
+                        try { data = await resp.json(); } catch (_) { data = null; }
+                    } else {
+                        const txt = resp ? await resp.text().catch(()=>'') : '';
+                        throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
+                    }
+                } catch (err) {
+                    lastErr = err;
+                }
+
+                if (!data) {
+                    throw lastErr || new Error('Não foi possível obter dados da agenda');
+                }
+
+                let rawEventos = [];
+                if (!data) {
+                    rawEventos = [];
+                } else if (Array.isArray(data)) {
+                    rawEventos = data;
+                } else if (Array.isArray(data.eventos)) {
+                    rawEventos = data.eventos;
+                } else if (Array.isArray(data.data)) {
+                    rawEventos = data.data;
+                } else {
+                    // fallback: se vier um objeto único já de evento
+                    rawEventos = [data];
+                }
+
+                eventsData = dedupeEventsById(rawEventos.map(ev => normalizeEvent(ev, sess)));
+                applyRotaContinuaBlocks(eventsData);
+                applyRouteOverrides(eventsData, sess);
+                saveAgendaCache(eventsData, sess);
+                syncRotasCache(eventsData, sess);
+                if (btnOpenRotas) btnOpenRotas.disabled = false;
+                // redefine filtro (ids podem mudar conforme login)
+                if (taskTypeFilterEl) {
+                    currentTaskFilter = getSelectedTaskFilter();
+                }
+
+                statusTextEl.textContent = `Agenda carregada: ${eventsData.length} evento(s).`;
+                if (!selectedDate || !(selectedDate instanceof Date) || Number.isNaN(selectedDate.getTime())) {
+                    const firstEvent = eventsData
+                        .map(ev => ev && ev._date)
+                        .filter(d => d instanceof Date && !Number.isNaN(d.getTime()))
+                        .sort((a, b) => a - b)[0];
+                    const baseDate = firstEvent ? startOfDay(firstEvent) : startOfDay(new Date());
+                    selectedDate = baseDate;
+                    currentMonthDate = baseDate;
+                } else {
+                    selectedDate = startOfDay(selectedDate);
+                }
+                renderCalendar();
+                renderEventsList();
+                renderDayEventsDetails();
+
+                refreshRotasOverrides(sess, eventsData)
+                    .then(payload => {
+                        if (payload && payload.overrides) {
+                            applyRouteOverrides(eventsData, sess);
+                            renderEventsList();
+                            renderDayEventsDetails();
+                        }
+                    })
+                    .catch(err => console.warn('Erro ao aplicar overrides de rota contínua:', err));
+                computeContinuousRoutes(eventsData)
+                    .then(metrics => {
+                        applyContinuousRouteMetrics(eventsData, metrics);
+                        renderEventsList();
+                        renderDayEventsDetails();
+                    })
+                    .catch(err => console.warn('Erro ao calcular rota contínua OSRM:', err));
+            } catch (err) {
+                console.error('Erro ao carregar agenda:', err);
+                statusTextEl.textContent = 'Erro ao carregar agenda: ' + (err && err.message || err);
+                eventsListEl.innerHTML = `
+                    <div class="empty-state">
+                        Erro ao buscar dados do webhook. Tente novamente.
+                    </div>
+                `;
+            } finally {
+                btnRefreshAgenda.disabled = false;
+                btnRefreshAgenda.textContent = '🔄 Atualizar agenda';
+            }
+        }
+
+        // ==== Inicialização ====
+        function goToRotas(){
+            const sess = getLoggedSession() || currentSession;
+            syncRotasCache(eventsData, sess);
+            window.location.href = 'rotas.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const sess = getLoggedSession();
+            currentSession = sess;
+            if (!sess || sess.id_astronomo == null) {
+                astroInfoEl.textContent = 'Nenhum astrônomo logado.';
+            } else {
+                astroInfoEl.textContent = describeSession(sess);
+            }
+
+            taskTypeFilterEl.addEventListener('change', () => {
+                currentTaskFilter = getSelectedTaskFilter();
+                renderCalendar();
+                renderEventsList();
+                renderDayEventsDetails();
+            });
+
+            btnRefreshAgenda.addEventListener('click', () => {
+                carregarAgenda();
+            });
+
+            if (btnOpenRotas) {
+                btnOpenRotas.addEventListener('click', goToRotas);
+                // Habilita se já existe cache anterior
+                try{
+                    const cacheKey = agendaCacheKey(sess);
+                        const rawCache = cacheKey ? localStorage.getItem(cacheKey) : null;
+                        const parsed = rawCache ? JSON.parse(rawCache) : null;
+                        if (parsed && Array.isArray(parsed.events) && parsed.events.length) {
+                            eventsData = dedupeEventsById(parsed.events.map(ev => normalizeEvent(ev, sess)));
+                            applyRotaContinuaBlocks(eventsData);
+                            applyRouteOverrides(eventsData, sess);
+                            syncRotasCache(eventsData, sess);
+                            btnOpenRotas.disabled = false;
+                            computeContinuousRoutes(eventsData)
+                                .then(metrics => {
+                                    applyContinuousRouteMetrics(eventsData, metrics);
+                                    renderEventsList();
+                                    renderDayEventsDetails();
+                                })
+                                .catch(err => console.warn('Erro ao calcular rota contínua OSRM (cache):', err));
+                        }
+                }catch(_){}
+            }
+
+            btnPrevMonth.addEventListener('click', () => {
+                currentMonthDate = new Date(currentMonthDate.getFullYear(), currentMonthDate.getMonth() - 1, 1);
+                renderCalendar();
+            });
+
+            btnNextMonth.addEventListener('click', () => {
+                currentMonthDate = new Date(currentMonthDate.getFullYear(), currentMonthDate.getMonth() + 1, 1);
+                renderCalendar();
+            });
+
+            if (eventModalClose) eventModalClose.addEventListener('click', closeEventModal);
+            if (eventModalBackdrop) eventModalBackdrop.addEventListener('click', closeEventModal);
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeEventModal();
+            });
+            if (lightboxClose) lightboxClose.addEventListener('click', closeImageLightbox);
+            if (lightboxBackdrop) lightboxBackdrop.addEventListener('click', closeImageLightbox);
+            if (lightboxNext) lightboxNext.addEventListener('click', nextLightboxImage);
+            if (lightboxPrev) lightboxPrev.addEventListener('click', prevLightboxImage);
+
+            updateTaskFilterLabels(sess);
+            // força estado inicial para VISITA
+            const savedUI = loadIndexUIState();
+            if (taskTypeFilterEl) {
+                if (savedUI && savedUI.taskFilter) {
+                    taskTypeFilterEl.value = savedUI.taskFilter;
+                } else {
+                    const visitaOpt = taskTypeFilterEl.querySelector('option[data-type="visita"]');
+                    if (visitaOpt) visitaOpt.selected = true;
+                }
+            }
+            currentTaskFilter = getSelectedTaskFilter();
+
+            // Estado inicial do calendário (antes de ter eventos)
+            const today = startOfDay(new Date());
+            currentMonthDate = today;
+            selectedDate = today;
+            renderCalendar();
+            renderEventsList(); // mostra vazio
+            renderDayEventsDetails();
+
+            // Carrega agenda imediatamente
+            carregarAgenda();
+        });
+
+        // ================================
+        //  ROTA CONTÍNUA (sem IA em runtime)
+        // ================================
+        const ROUTE_CACHE_KEY = 'route_cache_osrm_v1';
+        const COORD_CACHE_KEY = 'coord_cache_nominatim_v1';
+
+        function loadCache(key){
+            try{ return JSON.parse(localStorage.getItem(key)||'{}'); }catch(_){ return {}; }
+        }
+        function saveCache(key,obj){
+            try{ localStorage.setItem(key, JSON.stringify(obj||{})); }catch(_){}
+        }
+
+        function buildRouteCacheId(aLat,aLon,bLat,bLon){
+            return [Number(aLat).toFixed(5), Number(aLon).toFixed(5), Number(bLat).toFixed(5), Number(bLon).toFixed(5)].join('|');
+        }
+
+        async function delay(ms){ return new Promise(res=>setTimeout(res, ms)); }
+
+        async function getCoordinates(cityName){
+            if (!cityName) return null;
+            const cache = loadCache(COORD_CACHE_KEY);
+            const key = cityName.toLowerCase();
+            if (cache[key]) return cache[key];
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`;
+            const resp = await fetch(url, { headers:{'Accept':'application/json'}, method:'GET' });
+            if (!resp.ok) throw new Error('Nominatim error');
+            const data = await resp.json();
+            const hit = Array.isArray(data) && data[0] ? { lat: Number(data[0].lat), lon: Number(data[0].lon) } : null;
+            cache[key] = hit;
+            saveCache(COORD_CACHE_KEY, cache);
+            await delay(1000);
+            return hit;
+        }
+
+        async function getRoute(lat1, lon1, lat2, lon2){
+            const cache = loadCache(ROUTE_CACHE_KEY);
+            const id = buildRouteCacheId(lat1,lon1,lat2,lon2);
+            if (cache[id]) return cache[id];
+            const url = `https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=false&geometries=geojson&alternatives=false&steps=false`;
+            const resp = await fetch(url, { headers:{'Accept':'application/json'}, method:'GET' });
+            if (!resp.ok) throw new Error('OSRM error');
+            const data = await resp.json();
+            const route = data && data.routes && data.routes[0] ? {
+                distance_km: (data.routes[0].distance || 0) / 1000,
+                duration_h: (data.routes[0].duration || 0) / 3600
+            } : null;
+            cache[id] = route;
+            saveCache(ROUTE_CACHE_KEY, cache);
+            await delay(1000);
+            return route;
+        }
+
+        function parseDay(dateStr){
+            if (!dateStr) return null;
+            const d = new Date(dateStr);
+            if (Number.isNaN(d.getTime())) return null;
+            return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        }
+
+        function daysBetween(d1,d2){
+            const ms = d2.getTime() - d1.getTime();
+            return Math.round(ms / 86400000);
+        }
+
+        function detectContinuousRoutes(events){
+            if (!Array.isArray(events)) return [];
+            // já ordenados por data (garantia do backend/agenda)
+            const groups = [];
+            let current = [];
+            const isLongTrip = (ev) => {
+                const dist = getDistanceKmValue(ev);
+                return dist !== null && dist > 250;
+            };
+
+            for (let i=0;i<events.length;i++){
+                const ev = events[i];
+                const day = parseDay(ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data || ev._date);
+                if (!day || !isLongTrip(ev)) {
+                    if (current.length > 0) { groups.push(current.slice()); current = []; }
+                    continue;
+                }
+                const next = events[i+1];
+                if (next) {
+                    const nextDay = parseDay(next.data_e_hora_do_agendamento || next.data_agendamento || next.data || next._date);
+                    const consecutive = nextDay && day && daysBetween(day, nextDay) === 1;
+                    const nextLong = isLongTrip(next);
+                    if (consecutive && nextLong) {
+                        current.push(ev);
+                        continue;
+                    }
+                }
+                // fecha bloco (inclui atual se não entrou acima)
+                current.push(ev);
+                if (current.length > 0) { groups.push(current.slice()); current = []; }
+            }
+            if (current.length) groups.push(current);
+            return groups.filter(g => g.length > 1);
+        }
+
+        async function calculateContinuousRouteGroups(groups){
+            if (!Array.isArray(groups) || !groups.length) return [];
+            const results = [];
+            for (const group of groups){
+                if (!group.length) continue;
+                const baseLat = Number(group[0].origem_lat ?? group[0].lat_origem ?? group[0].latitude_origem);
+                const baseLon = Number(group[0].origem_lon ?? group[0].lon_origem ?? group[0].longitude_origem);
+                const routes = [];
+                // Base -> primeiro
+                if (Number.isFinite(baseLat) && Number.isFinite(baseLon)){
+                    const r = await getRoute(baseLat, baseLon, Number(group[0].destino_lat), Number(group[0].destino_lon));
+                    routes.push({ from:'base', to: group[0].id || 0, ...r });
+                }
+                // Entre eventos
+                for (let i=0;i<group.length-1;i++){
+                    const a = group[i];
+                    const b = group[i+1];
+                    const r = await getRoute(Number(a.destino_lat), Number(a.destino_lon), Number(b.destino_lat), Number(b.destino_lon));
+                    routes.push({ from: a.id || i, to: b.id || (i+1), ...r });
+                }
+                // Último -> base
+                const last = group[group.length-1];
+                if (Number.isFinite(baseLat) && Number.isFinite(baseLon)){
+                    const r = await getRoute(Number(last.destino_lat), Number(last.destino_lon), baseLat, baseLon);
+                    routes.push({ from: last.id || group.length-1, to:'base', ...r });
+                }
+                results.push({ events: group, routes });
+            }
+            return results;
+        }
+
+        // ==== LÓGICA CORRIGIDA DE ROTA CONTÍNUA ====
+        function applyRotaContinuaBlocks(events) {
+            if (!Array.isArray(events)) return [];
+            
+            // Limpa flags anteriores
+            events.forEach(ev => { 
+                ev.rota_continua = false; 
+                ev.blocoIndex = null;
+                ev._rota_idx = null;
+                ev._rota_total = null;
+            });
+
+            // Filtra e ordena eventos futuros
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const sorted = events
+                .filter(ev => {
+                    const date = getEventDate(ev);
+                    return date && date >= today;
+                })
+                .sort((a, b) => {
+                    const dateA = getEventDate(a);
+                    const dateB = getEventDate(b);
+                    return dateA - dateB;
+                });
+
+            const blocos = [];
+            let blocoAtual = [];
+
+            for (let i = 0; i < sorted.length; i++) {
+                const atual = sorted[i];
+                
+                // Verifica se é candidato a iniciar/bloco
+                const isCandidate = isLongTrip(atual) || atual.precisa_voltar_para_base === false;
+                
+                if (!isCandidate) {
+                    // Finaliza bloco atual se existir
+                    if (blocoAtual.length >= 2) {
+                        blocos.push([...blocoAtual]);
+                    }
+                    blocoAtual = [];
+                    continue;
+                }
+
+                if (blocoAtual.length === 0) {
+                    // Inicia novo bloco
+                    blocoAtual.push(atual);
+                } else {
+                    const ultimoBloco = blocoAtual[blocoAtual.length - 1];
+                    const isConsecutive = areEventsConsecutive(ultimoBloco, atual);
+                    
+                    if (isConsecutive) {
+                        blocoAtual.push(atual);
+                    } else {
+                        // Finaliza bloco atual e inicia novo
+                        if (blocoAtual.length >= 2) {
+                            blocos.push([...blocoAtual]);
+                        }
+                        blocoAtual = [atual];
+                    }
+                }
+            }
+
+            // Finaliza último bloco
+            if (blocoAtual.length >= 2) {
+                blocos.push([...blocoAtual]);
+            }
+
+            // Aplica flags aos eventos
+            blocos.forEach((bloco, blocoIndex) => {
+                bloco.forEach((evento, eventoIndex) => {
+                    evento.rota_continua = true;
+                    evento.blocoIndex = blocoIndex;
+                    evento._rota_idx = eventoIndex + 1;
+                    evento._rota_total = bloco.length;
+                    evento._rota_colorIndex = blocoIndex % 3;
+                });
+            });
+
+            return blocos;
+        }
+
+        // Funções auxiliares
+        function isLongTrip(event) {
+            const dist = getDistanceKmValue(event);
+            return dist !== null && dist >= 250;
+        }
+
+        function getEventDate(event) {
+            const raw = event.data_e_hora_do_agendamento || event.data_agendamento || event.data || event._date;
+            if (!raw) return null;
+            const d = new Date(raw);
+            return Number.isNaN(d.getTime()) ? null : d;
+        }
+
+        function areEventsConsecutive(eventA, eventB) {
+            const dateA = getEventDate(eventA);
+            const dateB = getEventDate(eventB);
+            
+            if (!dateA || !dateB) return false;
+
+            // Considera diárias do evento A
+            const diarias = Number(eventA.numero_de_diarias ?? eventA.diarias ?? 1);
+            const endDateA = new Date(dateA);
+            endDateA.setDate(endDateA.getDate() + diarias - 1);
+
+            // Data B deve ser dia seguinte ao término de A
+            const expectedDateB = new Date(endDateA);
+            expectedDateB.setDate(expectedDateB.getDate() + 1);
+
+            return dateB.toDateString() === expectedDateB.toDateString();
+        }
+
+        function applyRouteOverrides(events, sess){
+            if (!Array.isArray(events)) return;
+            const data = loadRouteOverrides(sess);
+            const overrides = (data && data.overrides) || {};
+            events.forEach(ev => {
+                const id = getEventId(ev);
+                const key = id != null ? String(id) : null;
+                const dist = key && Object.prototype.hasOwnProperty.call(overrides, key) ? overrides[key] : null;
+                if (dist !== null && dist !== undefined && Number.isFinite(Number(dist))) {
+                    ev._dist_override_km = Number(dist);
+                } else {
+                    ev._dist_override_km = null;
+                }
+            });
+        }
+        // ==== Nova lógica de rota contínua baseada em dias consecutivos e distância ====
+        const ROUTE_BLOCK_CACHE_KEY = 'route_block_cache_v1';
+
+        function startOfDay(d){
+            return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        }
+
+        function normalizeDate(val){
+            if (val instanceof Date) return startOfDay(val);
+            const d = new Date(val);
+            if (Number.isNaN(d.getTime())) return null;
+            return startOfDay(d);
+        }
+
+        function isFutureOrToday(d){
+            const today = startOfDay(new Date());
+            return d && d.getTime() >= today.getTime();
+        }
+
+        function isCandidate(ev){
+            const dist = getDistanceKmValue(ev);
+            const longTrip = dist !== null && dist >= 250;
+            const noReturn = ev.precisa_voltar_para_base === false;
+            return longTrip || noReturn;
+        }
+
+        function applyContinuousFlags(events){
+            if (!Array.isArray(events)) return { blocks: [], byId: {} };
+            // zera flags
+            events.forEach(ev => { ev.rota_continua = false; ev._rota_idx = null; ev._rota_total = null; });
+
+            // filtra futuros
+            const future = events
+                .map(ev => ({ ev, day: normalizeDate(ev.data_e_hora_do_agendamento || ev.data || ev.data_agendamento || ev._date) }))
+                .filter(v => v.day && isFutureOrToday(v.day))
+                .sort((a,b)=> a.day - b.day);
+
+            const blocks = [];
+            let i = 0;
+            while (i < future.length){
+                const cur = future[i];
+                if (!isCandidate(cur.ev)) { i++; continue; }
+                const block = [cur];
+                while (i + 1 < future.length){
+                    const next = future[i+1];
+                    if (!isCandidate(next.ev)) break;
+                    const diff = (next.day - cur.day) / 86400000;
+                    if (diff === 1) {
+                        block.push(next);
+                        i++;
+                        cur.day = next.day;
+                        cur.ev = next.ev;
+                        continue;
+                    }
+                    break;
+                }
+                // fecha bloco
+                if (block.length >= 2) {
+                    blocks.push(block);
+                    block.forEach((item, idx) => {
+                        item.ev.rota_continua = true;
+                        item.ev._rota_idx = idx + 1;
+                        item.ev._rota_total = block.length;
+                    });
+                }
+                i++;
+            }
+
+            const byId = {};
+            blocks.forEach((block, bi) => {
+                block.forEach(({ev}) => { byId[getEventId(ev)] = bi; });
+            });
+            return { blocks, byId };
+        }
+
+        async function getMultiRoute(coordsKey, coords){
+            const cache = loadCache(ROUTE_BLOCK_CACHE_KEY);
+            if (cache[coordsKey]) return cache[coordsKey];
+            const url = `https://router.project-osrm.org/route/v1/driving/${coords.join(';')}?overview=false&annotations=distance,duration&alternatives=false&steps=false`;
+            const resp = await fetch(url, { headers:{'Accept':'application/json'}, method:'GET' });
+            if (!resp.ok) throw new Error('OSRM error');
+            const data = await resp.json();
+            cache[coordsKey] = data;
+            saveCache(ROUTE_BLOCK_CACHE_KEY, cache);
+            await delay(1000);
+            return data;
+        }
+
+        async function computeContinuousRoutes(events){
+            const blocks = applyRotaContinuaBlocks(events);
+            const results = [];
+            for (const block of blocks){
+                const evs = block.map(b => b.ev);
+                if (!evs.length) continue;
+                const baseLat = Number(evs[0].origem_lat ?? evs[0].lat_origem ?? evs[0].latitude_origem);
+                const baseLon = Number(evs[0].origem_lon ?? evs[0].lon_origem ?? evs[0].longitude_origem);
+                if (!Number.isFinite(baseLat) || !Number.isFinite(baseLon)) continue;
+
+                const coords = [];
+                coords.push(`${baseLon},${baseLat}`);
+                evs.forEach(ev => {
+                    const dLat = Number(ev.destino_lat);
+                    const dLon = Number(ev.destino_lon);
+                    if (Number.isFinite(dLat) && Number.isFinite(dLon)) coords.push(`${dLon},${dLat}`);
+                });
+                coords.push(`${baseLon},${baseLat}`);
+
+                if (coords.length < 3) continue;
+                const coordsKey = coords.join('|');
+                const data = await getMultiRoute(coordsKey, coords);
+                const legs = (data && data.routes && data.routes[0] && data.routes[0].legs) || [];
+                const mappedLegs = [];
+                let totalDist = 0;
+                let totalDur = 0;
+                for (let i=0;i<legs.length;i++){
+                    const leg = legs[i];
+                    const distKm = (leg.distance || 0) / 1000;
+                    const durH = (leg.duration || 0) / 3600;
+                    totalDist += distKm;
+                    totalDur += durH;
+                    const fromLabel = i === 0 ? 'BASE' : getEventId(evs[i-1]);
+                    const toLabel = i < evs.length ? getEventId(evs[i]) : 'BASE';
+                    mappedLegs.push({ from: fromLabel, to: toLabel, distancia_km: Number(distKm.toFixed(2)), duracao_h: Number(durH.toFixed(2)) });
+                }
+                results.push({
+                    eventos: evs,
+                    legs: mappedLegs,
+                    distancia_total_km: Number(totalDist.toFixed(2)),
+                    duracao_total_h: Number(totalDur.toFixed(2))
+                });
+            }
+            return results;
+        }
+
+        function applyContinuousRouteMetrics(events, metrics){
+            if (!Array.isArray(metrics) || !Array.isArray(events)) return;
+            const byId = new Map();
+            events.forEach(ev => { const id = getEventId(ev); if (id != null) byId.set(String(id), ev); });
+
+            metrics.forEach(block => {
+                const { eventos, legs } = block || {};
+                if (!Array.isArray(eventos) || !Array.isArray(legs)) return;
+                eventos.forEach((ev, idx) => {
+                    const leg = legs[idx];
+                    const evId = getEventId(ev);
+                    if (!leg || evId == null) return;
+                    const target = byId.get(String(evId));
+                    if (!target) return;
+                    // Distância: primeiro evento usa base->evento, intermediários usam perna OSRM,
+                    // último evento pode usar a distância original do n8n (base <-> evento) para o trecho de volta.
+                    const isLast = idx === eventos.length - 1;
+                    const distN8n = getDistanceKmValue(target, false);
+                    if (Number.isFinite(leg.distancia_km)) {
+                        target._dist_override_km = isLast && Number.isFinite(distN8n) ? distN8n : leg.distancia_km;
+                    }
+                    if (Number.isFinite(leg.duracao_h)) {
+                        target._dur_override_h = leg.duracao_h;
+                    }
+                });
+            });
+        }
+
+        function rotaEventoId(ev){
+            return ev && (ev.id_evento || ev.id_evento_unico || ev.id_agendamento || ev.id || ev.uuid || ev.evento_id);
+        }
+
+        function rotaEventoCoords(ev){
+            const lat = toNumber(ev?.destino_lat ?? ev?.lat_destino ?? ev?.latitude_destino ?? ev?.lat);
+            const lon = toNumber(ev?.destino_lon ?? ev?.lon_destino ?? ev?.longitude_destino ?? ev?.lon);
+            if (lat === null || lon === null) return null;
+            return { lat, lon };
+        }
+
+        function rotaPertenceASessao(rota, sess){
+            if (!rota || !sess) return false;
+            const rotaId = rota.id_astronomo ?? rota.astronomo_id ?? rota.astronomer_id ?? rota.usuario_id ?? rota.user_id;
+            if (rotaId != null && sess.id_astronomo != null) {
+                return String(rotaId) === String(sess.id_astronomo);
+            }
+            const rotaNome = (rota.astronomo || rota.usuario || rota.nome || rota.nome_completo || '').toString().toLowerCase();
+            const sessNome = (sess.usuario || sess.username || sess.astronomo || '').toString().toLowerCase();
+            if (rotaNome && sessNome) return rotaNome === sessNome;
+            return true;
+        }
+
+        function buildOverridesFromRota(rota, continuousIds){
+            const overrides = {};
+            const eventos = Array.isArray(rota?.eventos) ? rota.eventos.slice() : [];
+            if (!eventos.length) return overrides;
+
+            eventos.sort((a,b) => {
+                const da = getEventDate(a);
+                const db = getEventDate(b);
+                if (!da || !db) return 0;
+                return da - db;
+            });
+
+            const rotaContinua = rota?.rota_continua === true || rota?.continua === true || (rota?.tipo || '').toString().toLowerCase().includes('continua');
+
+            for (let i = 1; i < eventos.length; i++){
+                const atual = eventos[i];
+                const anterior = eventos[i-1];
+                const evId = rotaEventoId(atual);
+                const prevId = rotaEventoId(anterior);
+                const marcadoContinua = rotaContinua ||
+                    (continuousIds && continuousIds.has(String(evId))) ||
+                    (continuousIds && continuousIds.has(String(prevId))) ||
+                    atual?.rota_continua === true ||
+                    anterior?.rota_continua === true;
+                if (!marcadoContinua || evId == null) continue;
+
+                const coordPrev = rotaEventoCoords(anterior);
+                const coordCur = rotaEventoCoords(atual);
+                let dist = null;
+                if (coordPrev && coordCur) {
+                    dist = computeDistanceKm(coordPrev.lat, coordPrev.lon, coordCur.lat, coordCur.lon);
+                } else {
+                    const raw = toNumber(atual.distancia_rota_continua ?? atual.distancia_rota ?? atual.distancia_entre_eventos);
+                    dist = raw;
+                }
+                if (dist !== null && Number.isFinite(dist) && dist > 0) {
+                    overrides[String(evId)] = Number(dist.toFixed(2));
+                }
+            }
+            return overrides;
+        }
+
+        async function fetchRotasSessao(sess){
+            if (!sess) return null;
+            const buildUrl = () => {
+                const u = new URL("https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo");
+                if (sess.id_astronomo != null) u.searchParams.set('id_astronomo', String(sess.id_astronomo));
+                if (sess.usuario) u.searchParams.set('usuario', String(sess.usuario));
+                return u.toString();
+            };
+
+            let data = null;
+            let lastErr = null;
+
+            try{
+                const url = buildUrl();
+                const resp = await fetch(url, { method:'POST', headers:{'Accept':'application/json'} });
+                if (resp && resp.ok) {
+                    try{ data = await resp.json(); }catch(_){ data = null; }
+                } else {
+                    const txt = resp ? await resp.text().catch(()=>'') : '';
+                    throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
+                }
+            }catch(err){
+                lastErr = err;
+            }
+
+            if (!data){
+                try{
+                    const url = buildUrl();
+                    const resp = await fetch(url, { method:'GET', headers:{'Accept':'application/json'} });
+                    if (resp && resp.ok) {
+                        try{ data = await resp.json(); }catch(_){ data = null; }
+                    } else {
+                        const txt = resp ? await resp.text().catch(()=>'') : '';
+                        throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
+                    }
+                }catch(err){
+                    lastErr = err;
+                }
+            }
+
+            if (!data) {
+                if (lastErr) throw lastErr;
+                return null;
+            }
+
+            if (Array.isArray(data)) return data;
+            if (Array.isArray(data.rotas)) return data.rotas;
+            if (Array.isArray(data.data)) return data.data;
+            return [];
+        }
+
+        async function refreshRotasOverrides(sess, events){
+            try{
+                const rotas = await fetchRotasSessao(sess);
+                if (!Array.isArray(rotas) || !rotas.length) return null;
+                const idsRotaContinua = new Set(
+                    (events || [])
+                        .filter(ev => ev && ev.rota_continua)
+                        .map(ev => String(getEventId(ev)))
+                );
+                const overrides = {};
+                rotas
+                    .filter(rota => rotaPertenceASessao(rota, sess))
+                    .forEach(rota => Object.assign(overrides, buildOverridesFromRota(rota, idsRotaContinua)));
+
+                if (Object.keys(overrides).length) {
+                    return saveRouteOverrides(overrides, sess);
+                }
+            }catch(err){
+                console.warn('Falha ao atualizar rotas contínuas do webhook:', err);
+            }
+            return null;
+        }
+        // Exponibiliza utilitário para outras páginas (reutiliza cache salvo)
+        window.detectContinuousRoutes = detectContinuousRoutes;
+        window.calculateContinuousRouteGroups = calculateContinuousRouteGroups;
+    </script>
+</body>
+</html>

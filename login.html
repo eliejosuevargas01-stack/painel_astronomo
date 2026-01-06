@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistema Astronômico</title>
+    <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- CSS do Tema Espacial Galáctico -->
+    <!-- <link rel="stylesheet" href="login.css"> -->
+    
+    <!-- Font Awesome para ícones -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+    
+    <!-- Fonte Space Grotesk -->
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"> -->
+</head>
+<body class="presentation-page">
+    <!-- Fundo galáctico (igual ao da apresentação) -->
+    <div class="space-layer stars"></div>
+    <div class="space-layer twinkle"></div>
+    <div class="space-layer nebula"></div>
+    <div class="space-layer galaxies"></div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Cabeçalho -->
+            <div class="login-header">
+                <div class="logo">
+                    <i class="fas fa-rocket"></i>
+                    <h1>AstroEvents</h1>
+                </div>
+                <p>Sistema de Gestão Astronômica</p>
+            </div>
+
+            <!-- Status da Conexão -->
+            <div class="webhook-status" id="webhook-status">
+                <div class="info-item">
+                    <span class="info-label">Status:</span>
+                    <span class="info-value" id="connection-status">Conectando...</span>
+                </div>
+                <button class="login-btn" id="btn-refresh-data" style="margin-top: 10px; padding: 10px;">
+                    <i class="fas fa-sync-alt"></i> Atualizar Lista
+                </button>
+            </div>
+
+            <!-- Astrônomo Selecionado -->
+            <div class="selected-astronomer hidden" id="selected-astronomer">
+                <div class="astronomer-avatar" id="astronomer-avatar">?</div>
+                <div id="astronomer-name">Selecionando...</div>
+            </div>
+
+            <!-- Formulário de Login -->
+            <form class="login-form" id="login-form">
+                <div class="form-group">
+                    <label for="astronomer-select">
+                        <i class="fas fa-user-astronaut"></i> Selecione seu usuário:
+                    </label>
+                    <select id="astronomer-select" required>
+                        <option value="">Selecione um astrônomo...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i> Senha:
+                    </label>
+                    <div class="password-container">
+                        <input type="password" id="password" placeholder="Digite sua senha" required>
+                        <button type="button" class="toggle-password" id="toggle-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Opções Lembrar Senha -->
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="remember-me">
+                        <span class="checkmark"></span>
+                        Lembrar acesso
+                    </label>
+                    <a href="#" class="forgot-password">Esqueceu a senha?</a>
+                </div>
+
+                <button type="submit" class="login-btn" id="login-button">
+                    <i class="fas fa-sign-in-alt"></i> Entrar no Sistema
+                </button>
+            </form>
+
+            <!-- Informações do Astrônomo -->
+            <div class="astronomer-info hidden" id="astronomer-info">
+                <div class="info-item">
+                    <span class="info-label">Cidade Base:</span>
+                    <span class="info-value" id="info-city">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Veículo:</span>
+                    <span class="info-value" id="info-vehicle">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Contato:</span>
+                    <span class="info-value" id="info-phone">-</span>
+                </div>
+            </div>
+
+            <!-- Mensagens de Feedback -->
+            <div class="login-message" id="login-message"></div>
+
+        </div>
+    </div>
+
+    <script>
+        // Limpa caches no reload (F5), preservando apenas sessões
+        (function(){
+            const isReload = (() => {
+                try{
+                    const nav = performance.getEntriesByType('navigation')[0];
+                    if (nav && nav.type) return nav.type === 'reload';
+                    if (performance.navigation) return performance.navigation.type === 1;
+                }catch(_){}
+                return false;
+            })();
+            if (!isReload) return;
+            try{
+                const keep = new Set(['astronomo_session','userSession']);
+                const prefixes = ['agenda_cache_v1','rotas_cache_v1','rotas_override_v1','route_cache_osrm_v1','coord_cache_nominatim_v1','route_block_cache_v1'];
+                const contains = ['user_theme','savedUser','astronomersData','astronomersLastUpdate'];
+                const toDelete = [];
+                for (let i=0;i<localStorage.length;i++){
+                    const k = localStorage.key(i);
+                    if (!k) continue;
+                    if (keep.has(k)) continue;
+                    if (prefixes.some(p => k.startsWith(p)) || contains.some(c => k.includes(c))) {
+                        toDelete.push(k);
+                    }
+                }
+                toDelete.forEach(k => localStorage.removeItem(k));
+            }catch(_){}
+        })();
+        // Elementos DOM
+        const loginForm = document.getElementById('login-form');
+        const astronomerSelect = document.getElementById('astronomer-select');
+        const passwordInput = document.getElementById('password');
+        const loginButton = document.getElementById('login-button');
+        const togglePasswordButton = document.getElementById('toggle-password');
+        const loginMessage = document.getElementById('login-message');
+        const connectionStatus = document.getElementById('connection-status');
+        const webhookStatus = document.getElementById('webhook-status');
+        const btnRefreshData = document.getElementById('btn-refresh-data');
+        const astronomerInfo = document.getElementById('astronomer-info');
+        const selectedAstronomer = document.getElementById('selected-astronomer');
+        const astronomerAvatar = document.getElementById('astronomer-avatar');
+        const astronomerName = document.getElementById('astronomer-name');
+        const infoCity = document.getElementById('info-city');
+        const infoVehicle = document.getElementById('info-vehicle');
+        const infoPhone = document.getElementById('info-phone');
+        const rememberMe = document.getElementById('remember-me');
+
+        // Configuração do Webhook
+        const ASTRONOMER_WEBHOOK_URL = 'https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo';
+
+        // Estado da aplicação
+        let astronomersData = [];
+        let selectedAstronomerData = null;
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Event Listeners
+            loginForm.addEventListener('submit', handleLogin);
+            astronomerSelect.addEventListener('change', handleAstronomerSelect);
+            togglePasswordButton.addEventListener('click', togglePasswordVisibility);
+            btnRefreshData.addEventListener('click', fetchAstronomersData);
+            
+            // Verificar se há credenciais salvas
+            checkSavedCredentials();
+            
+            // Carregar dados dos astrônomos
+            fetchAstronomersData();
+        });
+
+        // ========== BUSCAR DADOS DOS ASTRÔNOMOS ==========
+
+        async function fetchAstronomersData() {
+            try {
+                loginButton.disabled = true;
+                connectionStatus.textContent = 'Conectando...';
+                webhookStatus.classList.remove('status-connected', 'status-error');
+
+                let data = null;
+                // 1) POST sem action (mantém URLs com action comentadas para uso futuro)
+                try{
+                    const response = await fetch(ASTRONOMER_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Accept': 'application/json' },
+                        mode: 'cors'
+                    });
+                    if (!response.ok) throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+                    data = await response.json();
+                }catch(err){
+                    // const response = await fetch(ASTRONOMER_WEBHOOK_URL, {
+                    //     method: 'POST',
+                    //     headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                    //     mode: 'cors',
+                    //     body: JSON.stringify({ action: 'list' })
+                    // });
+                    // const url = `${ASTRONOMER_WEBHOOK_URL}?action=list`;
+                    throw err;
+                }
+
+                if (Array.isArray(data)) astronomersData = data;
+                else if (typeof data === 'object') astronomersData = [data];
+                else throw new Error('Formato de dados inválido recebido');
+
+                // Salvar no cache
+                localStorage.setItem('astronomersData', JSON.stringify(astronomersData));
+                localStorage.setItem('astronomersLastUpdate', new Date().toISOString());
+                
+                populateAstronomerSelect();
+                connectionStatus.textContent = `Conectado - ${astronomersData.length} astrônomos`;
+                webhookStatus.classList.add('status-connected');
+                showMessage('Lista de astrônomos atualizada com sucesso!', 'success');
+                
+            } catch (error) {
+                // Tenta cache
+                const cached = localStorage.getItem('astronomersData');
+                if (cached) {
+                    astronomersData = JSON.parse(cached);
+                    populateAstronomerSelect();
+                    connectionStatus.textContent = `Offline - ${astronomersData.length} astrônomos (cache)`;
+                    showMessage('Usando dados em cache. Verifique a conexão.', 'info');
+                } else {
+                    connectionStatus.textContent = `Erro: ${error.message}`;
+                    webhookStatus.classList.add('status-error');
+                    showMessage(`Erro ao carregar dados: ${error.message}`, 'error');
+                }
+            } finally { 
+                loginButton.disabled = false; 
+            }
+        }
+
+        // ========== PREENCHER SELECT ==========
+        function populateAstronomerSelect() {
+            astronomerSelect.innerHTML = '<option value="">Selecione um astrônomo...</option>';
+            const sorted = (astronomersData || []).slice().sort((a, b) => {
+                const nameA = (a && (a.nome_completo || a.usuario || '')).toString().trim();
+                const nameB = (b && (b.nome_completo || b.usuario || '')).toString().trim();
+                return nameA.localeCompare(nameB, 'pt', { sensitivity: 'base' });
+            });
+            sorted.forEach(astronomer => {
+                const option = document.createElement('option');
+                option.value = astronomer.usuario;
+                option.textContent = `${astronomer.nome_completo} (${astronomer.usuario}) - ${astronomer.cidade_base}`;
+                option.dataset.astronomer = JSON.stringify(astronomer);
+                astronomerSelect.appendChild(option);
+            });
+        }
+
+        // ========== SELEÇÃO ==========
+        function handleAstronomerSelect(e) {
+            const selectedUser = e.target.value;
+            selectedAstronomerData = astronomersData.find(a => a.usuario === selectedUser);
+            
+            if (selectedAstronomerData) {
+                updateAstronomerInfo(selectedAstronomerData);
+                selectedAstronomer.classList.remove('hidden');
+                astronomerInfo.classList.remove('hidden');
+                
+                // Focar no campo de senha
+                passwordInput.focus();
+            } else {
+                selectedAstronomer.classList.add('hidden');
+                astronomerInfo.classList.add('hidden');
+            }
+        }
+
+        function updateAstronomerInfo(astronomer) {
+            astronomerAvatar.textContent = astronomer.nome_completo.charAt(0);
+            astronomerName.textContent = astronomer.nome_completo;
+            infoCity.textContent = `${astronomer.cidade_base} - ${astronomer.estado}`;
+            infoVehicle.textContent = `${astronomer.veiculo} (${astronomer.combustivel})`;
+            infoPhone.textContent = formatPhone(astronomer.telefone);
+        }
+
+        function formatPhone(phone) {
+            if (!phone) return '-';
+            const cleaned = phone.replace(/\D/g, '');
+            const match = cleaned.match(/^(\d{2})(\d{5})(\d{4})$/);
+            return match ? `(${match[1]}) ${match[2]}-${match[3]}` : phone;
+        }
+
+        function parseProfitRate(raw) {
+            if (raw === undefined || raw === null) return null;
+            const cleaned = (typeof raw === 'string' ? raw.replace('%', '').replace(',', '.').trim() : raw);
+            const num = Number(cleaned);
+            if (!Number.isFinite(num)) return null;
+            if (num >= 0 && num <= 1) return num;       // já em decimal
+            if (num > 1 && num <= 100) return num / 100; // valor em %
+            return null;
+        }
+
+        function extractProfitRate(astronomer) {
+            if (!astronomer || typeof astronomer !== 'object') return null;
+            const candidates = [
+                astronomer.percentual_lucro,
+                astronomer.porcentagem_lucro,
+                astronomer.porcentagem_de_lucro,
+                astronomer.lucro_percentual,
+                astronomer.taxa_lucro,
+                astronomer.percentual_de_lucro,
+                astronomer.comissao,
+                astronomer.comissao_percentual,
+                astronomer.percentual,
+                astronomer.porcentagem,
+            ];
+            for (const raw of candidates) {
+                const rate = parseProfitRate(raw);
+                if (rate !== null) return rate;
+            }
+            return null;
+        }
+
+        // ========== AUTENTICAÇÃO ==========
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            if (!selectedAstronomerData) {
+                showMessage('Selecione um astrônomo primeiro', 'error');
+                astronomerSelect.focus();
+                return;
+            }
+
+            const password = passwordInput.value.trim();
+            if (!password) {
+                showMessage('Digite sua senha', 'error');
+                passwordInput.focus();
+                return;
+            }
+
+            // Mostrar loading
+            loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Autenticando...';
+            loginButton.disabled = true;
+
+            // Simular delay de autenticação
+            setTimeout(() => {
+                if (authenticateUser(selectedAstronomerData, password)) {
+                    loginSuccess(selectedAstronomerData);
+                } else {
+                    showMessage('Senha incorreta. Tente novamente.', 'error');
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }
+                
+                // Restaurar botão
+                loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar no Sistema';
+                loginButton.disabled = false;
+            }, 1000);
+        }
+
+        function authenticateUser(astronomer, password) {
+            return astronomer.senha_usuario === password;
+        }
+
+        function loginSuccess(astronomer) {
+            // Deriva ID do astrônomo com múltiplos fallbacks
+            const deriveId = (a) => {
+                const candidates = [
+                    a.id_astronomo, a.astronomo_id, a.id, a.user_id, a.usuario_id, a.assistant_id, a.row_number, a.row_num
+                ];
+                for (const v of candidates){
+                    if (v === undefined || v === null || v === '') continue;
+                    const num = Number(v);
+                    if (Number.isFinite(num)) return num;
+                    return v;
+                }
+                return null;
+            };
+
+            // Salvar sessão
+            const token = generateToken();
+            const sessionData = { 
+                astronomer, 
+                loginTime: new Date().toISOString(), 
+                token
+            };
+            const lucroPercentualDecimal = extractProfitRate(astronomer);
+            const lucroPercentual = lucroPercentualDecimal != null ? lucroPercentualDecimal * 100 : null;
+            const astronomerFull = { ...astronomer };
+            if (lucroPercentualDecimal != null) {
+                astronomerFull.lucro_percentual_normalizado = lucroPercentualDecimal;
+                astronomerFull.lucro_percentual = astronomerFull.lucro_percentual ?? lucroPercentual;
+                astronomerFull.percentual_lucro = astronomerFull.percentual_lucro ?? lucroPercentual;
+                astronomerFull.taxa_lucro = astronomerFull.taxa_lucro ?? lucroPercentualDecimal;
+            }
+
+            // Preferir médias (quando > 0) antes de salvar defaults de custos
+            const pickWithAverage = (mediaKey, fallbackKey) => {
+                const mediaVal = astronomer[mediaKey];
+                const fallbackVal = astronomer[fallbackKey];
+                const mediaNum = Number(mediaVal);
+                if (Number.isFinite(mediaNum) && mediaNum > 0) return mediaNum;
+                const fbNum = Number(fallbackVal);
+                return Number.isFinite(fbNum) ? fbNum : null;
+            };
+
+            // Compat: sessão usada por páginas atuais
+            localStorage.setItem('userSession', JSON.stringify(sessionData));
+            // Sessão unificada para páginas públicas (Minha Conta, Despesas, etc.)
+            try {
+                const astroId = deriveId(astronomer);
+                const unified = {
+                    ...astronomerFull, // inclui todos os campos brutos
+                    loggedIn: true,
+                    username: astronomer.usuario,
+                    usuario: astronomer.usuario,
+                    astronomo: astronomer.astronomo || astronomer.nome_completo || astronomer.usuario || null,
+                    id_astronomo: astroId,
+                    assistant_id: astronomer.assistant_id ?? null,
+                    row_number: astronomer.row_number ?? astronomer.row_num ?? null,
+                    sessionId: token,
+                    session_id: token,
+                    timestamp: Date.now(),
+                    nome_completo: astronomer.nome_completo || astronomer.nome || null,
+                    telefone: astronomer.telefone || astronomer.celular || astronomer.whatsapp || astronomer.contato || null,
+                    email: astronomer.email || null,
+                    cidade_base: astronomer.cidade_base || null,
+                    estado: astronomer.estado || astronomer.uf || null,
+                    veiculo: astronomer.veiculo || null,
+                    consumo_km_l: astronomer.consumo_km_l || astronomer.consumo || null,
+                    combustivel: astronomer.combustivel || null,
+                    valor_litro: astronomer.valor_litro || null,
+                    diaria_hospedagem: astronomer.diaria_hospedagem || null,
+                    monitor: astronomer.monitor || null,
+                    pedagios: astronomer.pedagios || null,
+                    alimentacao_diaria: astronomer.alimentacao_diaria || null,
+                    origem_real: astronomer.origem_real || null,
+                    precisa_voltar_para_base: astronomer.precisa_voltar_para_base ?? null,
+                    origem_lat: astronomer.origem_lat ?? astronomer.lat_origem ?? null,
+                    origem_lon: astronomer.origem_lon ?? astronomer.lon_origem ?? null,
+                    senha: passwordInput.value || null,
+                    senha_usuario: astronomer.senha_usuario || null,
+                    lucro_percentual: lucroPercentual,
+                    percentual_lucro: lucroPercentual,
+                    lucro_percentual_decimal: lucroPercentualDecimal,
+                    taxa_lucro: lucroPercentualDecimal,
+                    // custos base: usam médias se disponíveis (>0)
+                    valor_litro_real: pickWithAverage('valor_litro_real_media', 'valor_litro_real') ?? pickWithAverage('valor_litro_media', 'valor_litro'),
+                    valor_litro: pickWithAverage('valor_litro_media', 'valor_litro'),
+                    valor_diaria_hospedagem: pickWithAverage('diaria_hospedagem_media', 'diaria_hospedagem'),
+                    diaria_hospedagem: pickWithAverage('diaria_hospedagem_media', 'diaria_hospedagem'),
+                    alimentacao_diaria: pickWithAverage('alimentacao_diaria_media', 'alimentacao_diaria'),
+                    monitor: pickWithAverage('monitor_media', 'monitor'),
+                    pedagios: pickWithAverage('pedagios_media', 'pedagios'),
+                    consumo_km_l: pickWithAverage('consumo_km_l_media', 'consumo_km_l') ?? pickWithAverage('consumo_media', 'consumo'),
+                    custo_combustivel_medio: pickWithAverage('custo_combustivel_medio', 'custo_combustivel'),
+                    // alias de médias para consumo pelas outras telas
+                    valor_litro_media: pickWithAverage('valor_litro_media', 'valor_litro'),
+                    diaria_hospedagem_media: pickWithAverage('diaria_hospedagem_media', 'diaria_hospedagem'),
+                    alimentacao_diaria_media: pickWithAverage('alimentacao_diaria_media', 'alimentacao_diaria'),
+                    monitor_media: pickWithAverage('monitor_media', 'monitor'),
+                    pedagios_media: pickWithAverage('pedagios_media', 'pedagios'),
+                    consumo_km_l_media: pickWithAverage('consumo_km_l_media', 'consumo_km_l'),
+                    dados_completos: astronomerFull,
+                };
+                localStorage.setItem('astronomo_session', JSON.stringify(unified));
+            } catch(_) {}
+            
+            // Salvar credenciais se solicitado
+            if (rememberMe.checked) {
+                localStorage.setItem('savedUser', astronomer.usuario);
+            } else {
+                localStorage.removeItem('savedUser');
+            }
+            
+            showMessage(`Bem-vindo(a), ${astronomer.nome_completo}!`, 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
+        }
+
+        function generateToken() {
+            return 'astro_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
+        }
+
+        // ========== UTILITÁRIOS ==========
+        function togglePasswordVisibility() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            togglePasswordButton.innerHTML = type === 'password' 
+                ? '<i class="fas fa-eye"></i>' 
+                : '<i class="fas fa-eye-slash"></i>';
+        }
+
+        function showMessage(message, type) {
+            loginMessage.textContent = message;
+            loginMessage.className = `login-message ${type}`;
+            loginMessage.style.display = 'block';
+            
+            setTimeout(() => {
+                loginMessage.style.display = 'none';
+            }, 4000);
+        }
+
+        function checkSavedCredentials() {
+            const savedUser = localStorage.getItem('savedUser');
+            if (savedUser) {
+                rememberMe.checked = true;
+                // O select será preenchido após carregar os dados
+            }
+        }
+
+        // Adicionar alguns estilos específicos para elementos do formulário
+        const style = document.createElement('style');
+        style.textContent = `
+            .password-container {
+                position: relative;
+                display: flex;
+                align-items: center;
+            }
+            
+            .password-container input {
+                width: 100%;
+                padding-right: 45px;
+            }
+            
+            .toggle-password {
+                position: absolute;
+                right: 12px;
+                background: none;
+                border: none;
+                color: var(--muted-2);
+                cursor: pointer;
+                padding: 5px;
+                z-index: 2;
+            }
+            
+            .toggle-password:hover {
+                color: var(--accent-cyan);
+            }
+            
+            .webhook-status {
+                background: rgba(255,255,255,0.05);
+                padding: 15px;
+                border-radius: var(--radius-md);
+                border-left: 3px solid var(--accent-cyan);
+                margin-bottom: 20px;
+            }
+            
+            .info-item {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 8px;
+            }
+            
+            .info-label {
+                color: var(--muted);
+                font-size: 0.9em;
+            }
+            
+            .info-value {
+                color: var(--accent-cyan);
+                font-weight: 600;
+                font-size: 0.9em;
+            }
+            
+            .astronomer-info {
+                background: rgba(255,255,255,0.05);
+                padding: 15px;
+                border-radius: var(--radius-md);
+                margin-top: 20px;
+                border-left: 3px solid var(--accent-purple);
+            }
+            
+            .selected-astronomer {
+                text-align: center;
+                padding: 15px;
+                background: rgba(52,209,243,0.1);
+                border-radius: var(--radius-md);
+                margin-bottom: 20px;
+                border: 1px solid rgba(52,209,243,0.3);
+            }
+            
+            .astronomer-avatar {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                color: white;
+                font-size: 1.5rem;
+                margin: 0 auto 10px;
+            }
+            
+            .hidden {
+                display: none !important;
+            }
+            
+            .status-connected {
+                border-left-color: var(--accent-cyan);
+            }
+            
+            .status-error {
+                border-left-color: var(--accent-magenta);
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

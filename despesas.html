@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Despesas - Urânia</title>
+    <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
+    <!-- <link rel="stylesheet" href="css/style.css"> -->
+    <!-- <link rel="stylesheet" href="css/despesas-modern.css"> -->
+    <!-- <link rel="stylesheet" href="css/docs-urania.css"> -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+</head>
+<body class="presentation-page despesas-page">
+    <div class="space-layer stars"></div>
+    <div class="space-layer twinkle"></div>
+    <div class="space-layer nebula"></div>
+    <div class="space-layer galaxies"></div>
+
+    <div class="page-wrapper">
+        <div class="page-container container">
+            <header class="page-header">
+                <div>
+                    <h1>Despesas</h1>
+                    <p class="subtitle">Agenda Inteligente Urânia</p>
+                </div>
+            </header>
+            
+            <div class="navigation">
+                <a href="apresentacao.html" class="nav-button"><i class="fas fa-clipboard-list"></i> Apresentação</a>
+                <a href="index.html" class="nav-button"><i class="fas fa-calendar-alt"></i> Agenda</a>
+                <a href="feedbacks.html" class="nav-button"><i class="fas fa-comment-dots"></i> Feedbacks</a>
+                <a href="despesas.html" class="nav-button active"><i class="fas fa-file-invoice-dollar"></i> Despesas</a>
+                <a href="historico.html" class="nav-button"><i class="fas fa-history"></i> Históricos</a>
+                <a href="account.html" class="nav-button account-header-btn"><i class="fas fa-user-astronaut"></i> Minha Conta</a>
+                <a href="rotas.html" class="nav-button"><i class="fas fa-route"></i> Rotas</a>
+            </div>
+
+            <main>
+                <section class="hero">
+                    <div>
+                        <span class="hero-eyebrow"><i class="fas fa-file-invoice-dollar"></i> Despesas</span>
+                        <h1>Gestão de custos com precisão operacional.</h1>
+                        <p>Consolide estimativas, compare com despesas reais e acompanhe o desempenho financeiro por evento.</p>
+                        <div class="hero-actions period-filter-buttons">
+                            <button class="btn btn-secondary period-filter-button active" data-period="all">Todos</button>
+                            <button class="btn btn-secondary period-filter-button" data-period="day">Dia</button>
+                            <button class="btn btn-secondary period-filter-button" data-period="week">Semana</button>
+                            <button class="btn btn-secondary period-filter-button" data-period="month">Mês</button>
+                        </div>
+                    </div>
+                    <div class="panel-card">
+                        <div class="panel-title">
+                            <span>Resumo executivo</span>
+                            <span class="panel-tag">Atualização automática</span>
+                        </div>
+                        <div class="panel-list">
+                            <div class="panel-item">
+                                <span class="panel-label">Eventos ativos</span>
+                                <span class="panel-value">Controle em tempo real</span>
+                            </div>
+                            <div class="panel-item">
+                                <span class="panel-label">Despesas estimadas</span>
+                                <span class="panel-value">Comparativo por evento</span>
+                            </div>
+                            <div class="panel-item">
+                                <span class="panel-label">Margem prevista</span>
+                                <span class="panel-value">Acompanhamento contínuo</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="estimados">
+                    <div class="section-header">
+                        <h2>Estimados</h2>
+                        <p>Visão consolidada dos custos previstos por evento e margem estimada.</p>
+                    </div>
+                    <div class="summary-grid grid-3">
+                        <div class="summary-card feature-card">
+                            <span class="label">⛽ Combustível (Evento - ida/volta)</span>
+                            <span class="value" id="est-cost-fuel">R$ 0,00</span>
+                        </div>
+                        <div class="summary-card feature-card">
+                            <span class="label">🏨 Hospedagem (Evento)</span>
+                            <span class="value" id="est-cost-hotel">R$ 0,00</span>
+                        </div>
+                        <div class="summary-card feature-card">
+                            <span class="label">🍽️ Alimentação (Evento)</span>
+                            <span class="value" id="est-cost-food">R$ 0,00</span>
+                        </div>
+                        <div class="summary-card feature-card">
+                            <span class="label">🛣️ Pedágios (Evento)</span>
+                            <span class="value" id="est-cost-pedagios">R$ 0,00</span>
+                        </div>
+                        <div class="summary-card feature-card">
+                            <span class="label">🧑‍🏫 Monitor (Evento)</span>
+                            <span class="value" id="est-cost-monitor">R$ 0,00</span>
+                        </div>
+                        <div class="summary-card feature-card">
+                            <span class="label">💲 Faturamento Total</span>
+                            <span class="value" id="event-total-value">R$ 0,00</span>
+                        </div>
+                        <div class="summary-card feature-card">
+                            <span class="label" id="astronomer-profit-label">💸 Lucro Astrônomo</span>
+                            <span class="value" id="astronomer-profit">R$ 0,00</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="reais">
+                    <div class="section-header">
+                        <h2>Reais (somente finalizados)</h2>
+                        <p>Valores confirmados após encerramento do evento e apuração final.</p>
+                    </div>
+                    <div class="summary-grid grid-3">
+                        <div class="summary-card feature-card">
+                            <span class="label">⛽ Despesas reais (Combustível)</span>
+                            <span class="value" id="real-cost-fuel">R$ 0,00</span>
+                        </div>
+                        <div class="summary-card feature-card">
+                            <span class="label">🏨 Despesas reais (Hospedagem)</span>
+                            <span class="value" id="real-cost-hotel">R$ 0,00</span>
+                        </div>
+                        <div class="summary-card feature-card">
+                            <span class="label">🍽️ Despesas reais (Alimentação)</span>
+                            <span class="value" id="real-cost-food">R$ 0,00</span>
+                        </div>
+                        <div class="summary-card feature-card">
+                            <span class="label">🛣️ Despesas reais (Pedágios)</span>
+                            <span class="value" id="real-cost-pedagios">R$ 0,00</span>
+                        </div>
+                        <div class="summary-card feature-card">
+                            <span class="label">🧑‍🏫 Despesas reais (Monitor)</span>
+                            <span class="value" id="real-cost-monitor">R$ 0,00</span>
+                        </div>
+                        <div class="summary-card feature-card">
+                            <span class="label">➕ Despesas reais (Outros)</span>
+                            <span class="value" id="real-cost-outros">R$ 0,00</span>
+                        </div>
+                        <div class="summary-card feature-card">
+                            <span class="label">💲 Total despesas reais</span>
+                            <span class="value" id="real-cost-total">R$ 0,00</span>
+                        </div>
+                        <div class="summary-card feature-card">
+                            <span class="label" id="real-profit-label">💸 Lucro Astrônomo (real)</span>
+                            <span class="value" id="real-profit">R$ 0,00</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section events-section" id="eventos">
+                    <div class="section-header">
+                        <h2>Detalhes dos eventos e despesas</h2>
+                        <p>Selecione um evento para ver a composição detalhada dos custos.</p>
+                    </div>
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label class="filter-label" for="event-select-despesas">Selecione um Evento para ver os detalhes de despesa:</label>
+                            <select class="filter-select" id="event-select-despesas">
+                                <option value="">Carregando eventos...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="despesas-events-list" style="margin-top: 1.5rem;">
+                        <!-- A lista de eventos será renderizada aqui pelo JavaScript -->
+                    </div>
+                </section>
+            </main>
+
+        </div>
+    </div>
+
+    <script>
+    // Limpa caches no reload (F5), preservando apenas sessões
+    (function(){
+        const isReload = (() => {
+            try{
+                const nav = performance.getEntriesByType('navigation')[0];
+                if (nav && nav.type) return nav.type === 'reload';
+                if (performance.navigation) return performance.navigation.type === 1;
+            }catch(_){}
+            return false;
+        })();
+        if (!isReload) return;
+        try{
+            const keep = new Set(['astronomo_session','userSession']);
+            const prefixes = ['agenda_cache_v1','rotas_cache_v1','rotas_override_v1','route_cache_osrm_v1','coord_cache_nominatim_v1','route_block_cache_v1'];
+            const contains = ['user_theme','savedUser','astronomersData','astronomersLastUpdate'];
+            const toDelete = [];
+            for (let i=0;i<localStorage.length;i++){
+                const k = localStorage.key(i);
+                if (!k) continue;
+                if (keep.has(k)) continue;
+                if (prefixes.some(p => k.startsWith(p)) || contains.some(c => k.includes(c))) {
+                    toDelete.push(k);
+                }
+            }
+            toDelete.forEach(k => localStorage.removeItem(k));
+        }catch(_){}
+    })();
+    (() => {
+        console.log('despesas (inline) carregado');
+
+        // ===================== Helpers básicos =====================
+        const AGENDA_WEBHOOK_URL = 'https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo';
+        const DEFAULT_PROFIT_RATE = 0.26;
+
+        const formatCurrencyBr = (v) => {
+            const n = Number(v);
+            return Number.isFinite(n) ? n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) : 'R$ 0,00';
+        };
+        const parseCurrencyBR = (val) => {
+            if (val == null || val === '') return 0;
+            const raw = String(val).trim();
+            // Se usar vírgula, remove pontos (milhar) e troca vírgula por ponto.
+            const normalized = raw.includes(',')
+                ? raw.replace(/\./g, '').replace(',', '.')
+                : raw;
+            const n = Number(normalized);
+            return Number.isFinite(n) ? n : 0;
+        };
+        const parseDatePreserveUTC = (v) => v ? new Date(v) : null;
+        const startOfDay = (d => { const x=new Date(d||new Date()); x.setHours(0,0,0,0); return x; });
+        const endOfDay   = (d => { const x=new Date(d||new Date()); x.setHours(23,59,59,999); return x; });
+        const startOfWeek = (d => { const x=new Date(d||new Date()); const day=x.getDay(); x.setDate(x.getDate()-(day===0?6:day-1)); x.setHours(0,0,0,0); return x; });
+        const endOfWeek   = (d => { const x=startOfWeek(d); x.setDate(x.getDate()+6); x.setHours(23,59,59,999); return x; });
+        const startOfMonth = (d => { const x=new Date(d||new Date()); return new Date(x.getFullYear(), x.getMonth(),1); });
+        const endOfMonth   = (d => { const x=new Date(d||new Date()); return new Date(x.getFullYear(), x.getMonth()+1,0,23,59,59,999); });
+
+        const showNotification = (msg, type) => {
+            try { console.log(type ? `[${type}] ${msg}` : msg); } catch(_){}
+        };
+
+        const normalizeUrl = (input) => {
+            try{
+                const base = (typeof window !== 'undefined' && window.location && window.location.origin) ? window.location.origin : undefined;
+                return new URL(String(input), base).toString();
+            }catch(_){ return String(input||''); }
+        };
+
+        // const appendQueryParams = (url, params) => {
+        //     try{
+        //         const u = new URL(url);
+        //         Object.entries(params||{}).forEach(([k,v])=>{
+        //             if (v === undefined || v === null) return;
+        //             u.searchParams.set(k, String(v));
+        //         });
+        //         return u.toString();
+        //     }catch(_){ return url; }
+        // };
+
+        const getUserSession = () => {
+            try{
+                const raw = localStorage.getItem('astronomo_session');
+                if (raw){ 
+                    const s = JSON.parse(raw); 
+                    if (s && s.loggedIn !== false) {
+                        console.log('Sessão encontrada (astronomo_session):', s);
+                        return s;
+                    }
+                }
+            }catch(e){
+                console.warn('Erro ao ler astronomo_session:', e);
+            }
+            try{
+                const raw = localStorage.getItem('userSession');
+                if (raw){
+                    const s = JSON.parse(raw);
+                    if (s && typeof s === 'object'){
+                        console.log('Sessão encontrada (userSession):', s);
+                        if (s.astronomer) return { ...s.astronomer, ...s };
+                        return s;
+                    }
+                }
+            }catch(e){
+                console.warn('Erro ao ler userSession:', e);
+            }
+            console.warn('Nenhuma sessão válida encontrada');
+            return null;
+        };
+
+        async function callAgendaWebhook(action, params){
+            const payload = { ...(params||{}) };
+            const sess = getUserSession();
+            if (sess && sess.id_astronomo != null){
+                if (payload.id_astronomo == null) payload.id_astronomo = sess.id_astronomo;
+                if (payload.user_id == null) payload.user_id = sess.id_astronomo;
+            }
+            let lastErr = null;
+            try{
+                const resp = await fetch(AGENDA_WEBHOOK_URL, {
+                    method:'POST',
+                    headers:{ Accept:'application/json', 'Content-Type':'application/json' },
+                    cache:'no-store',
+                    mode:'cors',
+                    body: JSON.stringify(payload)
+                });
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const ct = (resp.headers.get('content-type')||'').toLowerCase();
+                const data = ct.includes('application/json') ? await resp.json() : await resp.text();
+                return data;
+            }catch(err){ lastErr = err; }
+            throw lastErr || new Error('Falha ao chamar webhook');
+        }
+
+        // ===================== Profit helpers =====================
+        function parseProfitRate(raw) {
+            if (raw === undefined || raw === null) return null;
+            const cleaned = typeof raw === 'string' ? raw.replace('%', '').replace(',', '.').trim() : raw;
+            const num = Number(cleaned);
+            if (!Number.isFinite(num)) return null;
+            if (num >= 0 && num <= 1) return num;
+            if (num > 1 && num <= 100) return num / 100;
+            return null;
+        }
+        function normalizeProfitKey(key){
+            try{
+                return String(key||'')
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g,'')
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g,' ')
+                    .trim();
+            }catch(_){ return String(key||''); }
+        }
+        function resolveProfitRate(source) {
+            if (!source || typeof source !== 'object') return null;
+            const candidates = [
+                source.lucro_percentual_decimal,
+                source.taxa_lucro,
+                source.percentual_lucro_decimal,
+                source.percentual_lucro,
+                source.porcentagem_lucro,
+                source.porcentagem_de_lucro,
+                source['porcentagem do astronomo'],
+                source.porcentagem_do_astronomo,
+                source.percentual_do_astronomo,
+                source.comissao_percentual,
+                source.comissao,
+                source.percentual,
+                source.porcentagem,
+            ];
+            for (const raw of candidates) {
+                const rate = parseProfitRate(raw);
+                if (rate != null) {
+                    console.log('Taxa de lucro encontrada em campo:', raw, '=', rate);
+                    return rate;
+                }
+            }
+            try{
+                for (const [k,v] of Object.entries(source)){
+                    const nk = normalizeProfitKey(k);
+                    if (!nk) continue;
+                    if (/porcentagem.*astronom/.test(nk) || /percentual.*astronom/.test(nk) || (/lucro/.test(nk) && /astronom/.test(nk))){
+                        const r = parseProfitRate(v);
+                        if (r != null) {
+                            console.log('Taxa de lucro encontrada em campo dinâmico:', k, '=', r);
+                            return r;
+                        }
+                    }
+                }
+            }catch(e){
+                console.warn('Erro ao buscar campos dinâmicos de lucro:', e);
+            }
+            return null;
+        }
+        function readLegacyAstronomerFromSession() {
+            try {
+                const raw = localStorage.getItem('userSession');
+                if (!raw) return null;
+                const parsed = JSON.parse(raw);
+                return parsed && typeof parsed === 'object' ? parsed.astronomer || null : null;
+            } catch (_) { return null; }
+        }
+        function readAstronomerSession(){
+            const s = getUserSession();
+            if (s) {
+                console.log('Sessão do astrônomo carregada:', s);
+                return s;
+            }
+            try{
+                const raw = localStorage.getItem('astronomo_session');
+                const parsed = raw ? JSON.parse(raw) : null;
+                console.log('Sessão alternativa carregada:', parsed);
+                return parsed;
+            }catch(e){
+                console.warn('Erro ao ler sessão alternativa:', e);
+                return null;
+            }
+        }
+        function getProfitRateInfo() {
+            console.log('=== BUSCANDO TAXA DE LUCRO ===');
+            const session = readAstronomerSession();
+            
+            const sources = [
+                session,
+                session && session.astronomer ? session.astronomer : null,
+                readLegacyAstronomerFromSession(),
+            ];
+            
+            for (const src of sources) {
+                if (!src) continue;
+                const rate = resolveProfitRate(src);
+                if (rate != null) {
+                    console.log('✅ Taxa de lucro encontrada na sessão:', rate);
+                    return { rate, source: 'session' };
+                }
+            }
+            
+            console.warn('❌ Nenhuma taxa de lucro encontrada na sessão, usando padrão:', DEFAULT_PROFIT_RATE);
+            return { rate: DEFAULT_PROFIT_RATE, source: 'default' };
+        }
+
+        // ===================== Agrupamento e cálculos =====================
+        function readNested(obj, path) {
+            if (!obj || !path) return undefined;
+            return path.split('.').reduce((acc, part) => (acc && typeof acc === 'object') ? acc[part] : undefined, obj);
+        }
+        function parseRouteNumber(raw) {
+            if (raw == null) return null;
+            const cleaned = String(raw).replace(',', '.').trim();
+            if (!cleaned) return null;
+            const parsed = Number.parseFloat(cleaned);
+            return Number.isFinite(parsed) ? parsed : null;
+        }
+        function sessionDefaults(){
+            const sess = getUserSession();
+            const sources = [sess, sess?.astronomer, sess?.astronomo, sess?.profile];
+            const pickNum = (keys) => {
+                for (const src of sources){
+                    if (!src || typeof src !== 'object') continue;
+                    for (const k of keys){
+                        const v = parseRouteNumber(src[k]);
+                        if (v != null) return v;
+                    }
+                }
+                return null;
+            };
+            return {
+                consumoKmL: pickNum(['consumo_km_l','km_por_litro','km_per_liter']),
+                valorLitro: pickNum(['valor_litro','valor_litro_real','preco_litro']),
+                monitor: pickNum(['monitor','custo_monitor','monitor_media']),
+            };
+        }
+
+        function isVisitaEvent(ev){
+            const t = String(ev?.tipo_da_tarefa || ev?.tipo || ev?.tipo_evento || '').toLowerCase();
+            return t.includes('visita');
+        }
+        function isFinalizadoEvent(ev){
+            const v = ev?.finalizado;
+            if (v === true || v === 'true' || v === 1 || v === '1') return true;
+            const status = String(ev?.status || ev?.status_evento || ev?.resultado || ev?.result || '').toLowerCase();
+            if (status.includes('finalizado') || status === 'done') return true;
+            return false;
+        }
+        function distanceKmFromEvent(ev, routeInfo){
+            const override = parseRouteNumber(ev && ev._dist_override_km);
+            if (override != null && override > 0) return override;
+            if (routeInfo && Number.isFinite(routeInfo.distanceKm)) return routeInfo.distanceKm;
+            if (routeInfo && Number.isFinite(routeInfo.distance)) {
+                const dKm = routeInfo.distance > 1000 ? routeInfo.distance / 1000 : routeInfo.distance;
+                return dKm;
+            }
+            const fields = ['distancia_km','km','km_total','distancia_prevista','rota_distancia_km','distance_km','distance'];
+            for (const k of fields){
+                const v = parseRouteNumber(ev?.[k]);
+                if (v != null && v > 0) return v;
+            }
+            return null;
+        }
+
+        function isContinuousRoute(ev, routeInfo){
+            // Somente eventos marcados explicitamente como rota contínua (ex.: vindos de rotas.html)
+            const values = [ev?.rota_continua, routeInfo?.rota_continua];
+            return values.some(v => v === true || v === 1 || v === '1' || v === 'true');
+        }
+        function extractExpenseEstimates(ev, routeInfo) {
+            try {
+                const isVisita = (() => {
+                    const t = String(ev?.tipo_da_tarefa || ev?.tipo || ev?.tipo_evento || '').toLowerCase();
+                    return t.includes('visita');
+                })();
+                if (!isVisita) {
+                    return { combustivel:null, hospedagem:null, alimentacao:null, pedagios:null, monitor:null, total:null };
+                }
+
+                const diarias = parseInt(ev?.numero_de_diarias ?? ev?.numero_diarias ?? ev?.diarias ?? 1, 10);
+                const diariasVal = Number.isFinite(diarias) && diarias > 0 ? diarias : 1;
+                const pick = (...keys) => {
+                    for (const k of keys) {
+                        const v = readNested(ev, k) ?? ev[k];
+                        const n = parseRouteNumber(v);
+                        if (n != null) return n;
+                    }
+                    return null;
+                };
+                const preferMedia = (mediaVal, normalVal) => Number.isFinite(mediaVal) ? mediaVal : normalVal;
+                const defaults = sessionDefaults();
+                const rotaContinua = isContinuousRoute(ev, routeInfo);
+                const combustivelMedia = pick('gasto_combustivel_media', 'combustivel_media');
+                let combustivelNormal = (routeInfo && routeInfo.fuelCost != null) ? routeInfo.fuelCost : null;
+                if (combustivelNormal == null) {
+                    const distKmRaw = distanceKmFromEvent(ev, routeInfo);
+                    const distKm = distKmRaw != null ? (rotaContinua ? distKmRaw : distKmRaw * 2) : null; // ida e volta quando não é rota contínua
+                    const consumo = pick('consumo_km_l','km_por_litro','km_per_liter') ?? defaults.consumoKmL;
+                    const valorLitro = pick('valor_litro','valor_litro_real','preco_litro','valor_litro_combustivel') ?? defaults.valorLitro;
+                    if (distKm != null && distKm > 0 && consumo && consumo > 0 && valorLitro && valorLitro > 0) {
+                        combustivelNormal = (distKm / consumo) * valorLitro;
+                    }
+                }
+                if (combustivelNormal == null) combustivelNormal = pick('custo_total_combustivel', 'gasto_combustivel', 'combustivel');
+                const combustivel = preferMedia(combustivelMedia, combustivelNormal);
+                // Regras fixas: alimentação = diárias * alimentação diária; hospedagem = (diárias - 1) * hospedagem diária
+                const hospDiaMedia = pick('diaria_hospedagem_media');
+                const hospDiaNormal = pick('valor_diaria_hospedagem', 'diaria_hospedagem', 'hospedagem_diaria');
+                const hospDia = preferMedia(hospDiaMedia, hospDiaNormal);
+                const diariasHosp = Math.max(diariasVal - 1, 0);
+                let hospedagem = Number.isFinite(hospDia) ? hospDia * diariasHosp : null;
+                const alimDiaMedia = pick('alimentacao_diaria_media');
+                const alimDiaNormal = pick('valor_diario_alimentacao', 'alimentacao_diaria');
+                const alimDia = preferMedia(alimDiaMedia, alimDiaNormal);
+                let alimentacao = Number.isFinite(alimDia) ? alimDia * Math.max(diariasVal, 1) : null;
+                const pedagios = preferMedia(pick('pedagios_media'), pick('pedagios', 'custo_pedagios'));
+                const monitorDia = preferMedia(pick('monitor_media'), (pick('monitor', 'custo_monitor') ?? defaults.monitor));
+                const monitor = Number.isFinite(monitorDia) ? monitorDia * Math.max(diariasVal, 1) : null;
+
+                const parts = [combustivel, hospedagem, alimentacao, pedagios, monitor].filter(v => Number.isFinite(v));
+                const total = parts.length ? parts.reduce((a, b) => a + b, 0) : null;
+                return { combustivel, hospedagem, alimentacao, pedagios, monitor, total };
+            } catch (_) {
+                console.warn('Erro ao extrair estimativas de despesas para evento:', ev?.id);
+                return { combustivel:null, hospedagem:null, alimentacao:null, pedagios:null, monitor:null, total:null };
+            }
+        }
+
+        function extractRealExpenses(ev){
+            const sources = [ev?.despesas_reais, ev?.despesas, ev?.gastos_reais, ev?.gastos, ev];
+            const pickReal = (...keys) => {
+                for (const src of sources){
+                    if (!src || typeof src !== 'object') continue;
+                    for (const k of keys){
+                        const v = readNested(src, k) ?? src[k];
+                        const n = parseRouteNumber(v);
+                        if (Number.isFinite(n)) return n;
+                    }
+                }
+                return null;
+            };
+            const combustivel = pickReal('combustivel_real','combustivel','despesa_combustivel','custo_combustivel','gasto_combustivel');
+            const hospedagem = pickReal('hospedagem_real','hospedagem','custo_hospedagem','gasto_hospedagem','diaria_hospedagem_total');
+            const alimentacao = pickReal('alimentacao_real','alimentacao','custo_alimentacao','gasto_alimentacao');
+            const pedagios = pickReal('pedagios_real','pedagios','custo_pedagios','gasto_pedagios');
+            const monitor = pickReal('monitor_real','monitor','custo_monitor','gasto_monitor');
+            const outros = pickReal('outros','outros_gastos','outros_despesas','gastos_outros');
+            const parts = [combustivel, hospedagem, alimentacao, pedagios, monitor, outros].filter(Number.isFinite);
+            const total = parts.length ? parts.reduce((a,b)=>a+b,0) : null;
+            return { combustivel, hospedagem, alimentacao, pedagios, monitor, outros, total };
+        }
+        function hasRealExpenses(exp){
+            if (!exp || typeof exp !== 'object') return false;
+            return ['combustivel','hospedagem','alimentacao','pedagios','monitor','outros','total'].some(k => Number.isFinite(exp[k]));
+        }
+
+        function normalizeEvent(ev){
+            const dataRaw = ev?.data_agendamento || ev?.data_e_hora_do_agendamento || ev?.data || ev?.date;
+            const d = dataRaw ? new Date(dataRaw) : null;
+            const id =
+                ev?.id ??
+                ev?.id_evento ??
+                ev?.id_evento_unico ??
+                ev?.id_agendamento ??
+                ev?.uuid ??
+                ev?.evento_id ??
+                null;
+            return {
+                ...(ev||{}),
+                id,
+                data_agendamento: ev?.data_agendamento || ev?.data_e_hora_do_agendamento || ev?.data,
+                _date: d instanceof Date && !Number.isNaN(d.getTime()) ? d : null
+            };
+        }
+
+        const buildRouteInfoHtml = (event) => {
+            try{
+                if (!event || !event.routeInfo) return '';
+                const ri = event.routeInfo;
+                const parts = [];
+                if (Number.isFinite(ri.distanceKm)) parts.push(`Distância: ${ri.distanceKm.toFixed(1)} km`);
+                if (Number.isFinite(ri.fuelCost)) parts.push(`Combustível: ${formatCurrencyBr(ri.fuelCost)}`);
+                if (!parts.length) return '';
+                return `<div class="route-info-inline">${parts.join(' • ')}</div>`;
+            }catch(_){ return ''; }
+        };
+
+        // ===================== Main page logic =====================
+        document.addEventListener('DOMContentLoaded', function() {
+            const eventSelect = document.getElementById('event-select-despesas');
+            const despesasEventsList = document.getElementById('despesas-events-list');
+            const estCostFuel = document.getElementById('est-cost-fuel');
+            const estCostHotel = document.getElementById('est-cost-hotel');
+            const estCostFood = document.getElementById('est-cost-food');
+            const estCostPedagios = document.getElementById('est-cost-pedagios');
+            const estCostMonitor = document.getElementById('est-cost-monitor');
+            const eventTotalValue = document.getElementById('event-total-value');
+            const astronomerProfit = document.getElementById('astronomer-profit');
+            const astronomerProfitLabel = document.getElementById('astronomer-profit-label');
+            const realCostFuel = document.getElementById('real-cost-fuel');
+            const realCostHotel = document.getElementById('real-cost-hotel');
+            const realCostFood = document.getElementById('real-cost-food');
+            const realCostPedagios = document.getElementById('real-cost-pedagios');
+            const realCostMonitor = document.getElementById('real-cost-monitor');
+            const realCostOutros = document.getElementById('real-cost-outros');
+            const realCostTotal = document.getElementById('real-cost-total');
+            const realProfit = document.getElementById('real-profit');
+            const realProfitLabel = document.getElementById('real-profit-label');
+
+            let allEvents = [];
+            let selectedEvent = null;
+            let currentPeriodFilter = 'all';
+            const PENDING_EXPENSE_EVENT_KEY = 'despesas_evento_selecionado';
+
+            function applyPendingSelectedEvent(){
+                try{
+                    const raw = localStorage.getItem(PENDING_EXPENSE_EVENT_KEY);
+                    if (!raw) return;
+                    const pending = JSON.parse(raw);
+                    const pendingId = pending && (pending.id || pending.id_evento || pending.id_evento_unico || pending.id_agendamento || pending.uuid);
+                    if (!pendingId) {
+                        localStorage.removeItem(PENDING_EXPENSE_EVENT_KEY);
+                        return;
+                    }
+                    const match = allEvents.find(ev => String(ev.id) === String(pendingId));
+                    if (!match) return;
+                    // Garante que o select mostra o evento e a lista é atualizada
+                    currentPeriodFilter = 'all';
+                    const selectEl = document.getElementById('event-select-despesas');
+                    if (selectEl) selectEl.value = match.id;
+                    selectedEvent = match;
+                    renderSelectedEventDetails(match);
+                    updateSummaryCards();
+                    localStorage.removeItem(PENDING_EXPENSE_EVENT_KEY);
+                }catch(err){
+                    console.warn('Não foi possível aplicar evento pendente de despesas:', err);
+                }
+            }
+
+            // Estilo local para cards em lista (alinhado ao visual do index)
+            (() => {
+                const style = document.createElement('style');
+                style.textContent = `
+                    .event-card-despesa{
+                        background: linear-gradient(160deg, rgba(12,14,34,0.5), rgba(6,8,22,0.65));
+                        border:1px solid var(--glass-border, rgba(255,255,255,0.08));
+                        border-radius:12px;
+                        padding:12px;
+                        box-shadow: 0 12px 28px rgba(0,0,0,0.35);
+                        margin-bottom:12px;
+                    }
+                    .event-card-despesa .event-header{
+                        display:flex;
+                        justify-content:space-between;
+                        align-items:center;
+                        gap:8px;
+                        margin-bottom:8px;
+                        font-weight:700;
+                        color:#e6f0ff;
+                    }
+                    .event-card-despesa .event-title{ font-size:1rem; }
+                    .event-card-despesa .event-date{
+                        font-size:0.9rem;
+                        color: var(--muted, rgba(255,255,255,0.7));
+                    }
+                    .event-card-despesa .event-meta-list{
+                        list-style:none;
+                        padding:0;
+                        margin:0;
+                        display:flex;
+                        flex-direction:column;
+                        gap:6px;
+                    }
+                    .event-card-despesa .event-meta-list li{
+                        display:flex;
+                        gap:8px;
+                        align-items:center;
+                        font-size:0.95rem;
+                        color: var(--muted, rgba(255,255,255,0.82));
+                    }
+                    .event-card-despesa .event-meta-list li .label{
+                        font-weight:700;
+                        color:#e6f0ff;
+                    }
+                    .event-card-despesa .group-badge{
+                        background: var(--accent-cyan, #34d1f3);
+                        color:#0b1024;
+                        padding:2px 8px;
+                        border-radius:12px;
+                        font-size:0.8rem;
+                        margin-left:8px;
+                        font-weight:800;
+                        box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+                    }
+                    .estimates-panel{
+                        background: rgba(255,255,255,0.03);
+                        border:1px solid rgba(255,255,255,0.08);
+                        border-radius:12px;
+                        padding:10px;
+                        margin:10px 0;
+                        display:grid;
+                        grid-template-columns: repeat(auto-fit, minmax(150px,1fr));
+                        gap:8px;
+                    }
+                    .estimate-item{
+                        display:flex;
+                        flex-direction:column;
+                        gap:2px;
+                        font-size:0.9rem;
+                        color: var(--muted, rgba(255,255,255,0.82));
+                    }
+                    .estimate-item .label{ font-weight:700; color:#e6f0ff; }
+                `;
+                document.head.appendChild(style);
+            })();
+
+            function updateProfitLabel(info) {
+                if (!astronomerProfitLabel) return;
+                const pct = (info && info.rate != null ? info.rate : DEFAULT_PROFIT_RATE) * 100;
+                const pctText = Number.isFinite(pct)
+                    ? pct.toLocaleString('pt-BR', { maximumFractionDigits: 2, minimumFractionDigits: pct % 1 === 0 ? 0 : 2 })
+                    : '--';
+                astronomerProfitLabel.textContent = `💸 Lucro Astrônomo (estimado, finalizados - ${pctText}%)`;
+                if (realProfitLabel) realProfitLabel.textContent = `💸 Lucro Astrônomo (real, finalizados - ${pctText}%)`;
+            }
+
+            function calculateAstronomerProfit(totalValue, profitRate) {
+                const rate = profitRate && Number.isFinite(profitRate) ? profitRate : DEFAULT_PROFIT_RATE;
+                const profit = totalValue * rate;
+                console.log(`Calculando lucro: ${totalValue} × ${rate} = ${profit}`);
+                return profit;
+            }
+
+            function formatProfitPercentage(rate) {
+                const pct = (rate || DEFAULT_PROFIT_RATE) * 100;
+                return pct.toLocaleString('pt-BR', { 
+                    maximumFractionDigits: 2, 
+                    minimumFractionDigits: pct % 1 === 0 ? 0 : 2 
+                });
+            }
+
+            async function fetchEvents() {
+                try {
+                    eventSelect.innerHTML = '<option value="">Carregando eventos...</option>';
+                    const s = getUserSession();
+                    let data;
+                    if (s?.id_astronomo != null) {
+                        data = await callAgendaWebhook('atualizar_agenda', { id_astronomo: s.id_astronomo });
+                    } else {
+                        data = await callAgendaWebhook('atualizar_agenda', {});
+                    }
+                    if (data == null) throw new Error('Sem dados retornados');
+                    let eventsArray = [];
+                    if (Array.isArray(data)) {
+                        eventsArray = data.map(normalizeEvent);
+                    } else if (typeof data === 'object' && Array.isArray(data.eventos)) {
+                        eventsArray = data.eventos.map(normalizeEvent);
+                    } else {
+                        throw new Error('Formato de dados inválido recebido do webhook');
+                    }
+                    // Mantém apenas eventos VISITA
+                    eventsArray = eventsArray.filter(isVisitaEvent);
+                    allEvents = eventsArray;
+                    populateEventSelect();
+                    updateSummaryCards();
+                    renderEventsForPeriod();
+                    applyPendingSelectedEvent();
+                } catch (error) {
+                console.error('Erro ao buscar eventos:', error);
+                eventSelect.innerHTML = '<option value="">Erro ao carregar eventos</option>';
+                showNotification(`Erro ao carregar eventos: ${error.message}`, 'error');
+            }
+            }
+
+            function getFilteredEventsByPeriod(events, period) {
+                const now = new Date();
+                let periodStart, periodEnd;
+                if (period === 'day') { periodStart = startOfDay(now); periodEnd = endOfDay(now); }
+                else if (period === 'week') { periodStart = startOfWeek(now); periodEnd = endOfWeek(now); }
+                else if (period === 'month') { periodStart = startOfMonth(now); periodEnd = endOfMonth(now); }
+                else { return events; }
+                return events.filter(event => {
+                    const eventDate = parseDatePreserveUTC(event.data_agendamento);
+                    return eventDate && eventDate >= periodStart && eventDate <= periodEnd;
+                });
+            }
+
+            function populateEventSelect() {
+                eventSelect.innerHTML = '<option value="">-- Selecione um Evento --</option>';
+                const eventsToDisplay = getFilteredEventsByPeriod(allEvents, currentPeriodFilter);
+                eventsToDisplay.forEach(event => {
+                    const option = document.createElement('option');
+                    option.value = event.id;
+                    const eventDate = parseDatePreserveUTC(event.data_agendamento);
+                    const formattedDate = eventDate ? eventDate.toLocaleDateString('pt-BR') : 'Data Indefinida';
+                    const groupIndicator = event._groupedCount > 1 ? ` (${event._groupedCount} dias)` : '';
+                    option.textContent = `${formattedDate} - ${event.nome_da_escola || event.cidade || 'Evento sem nome'}${groupIndicator}`;
+                    eventSelect.appendChild(option);
+                });
+            }
+
+            function handleEventSelect(event) {
+                const eventId = event.target.value;
+                selectedEvent = allEvents.find(ev => String(ev.id) === String(eventId));
+                renderSelectedEventDetails(selectedEvent);
+            }
+
+            function buildEventCard(event, profitInfo){
+                const eventDate = parseDatePreserveUTC(event.data_agendamento);
+                const formattedDate = eventDate ? eventDate.toLocaleDateString('pt-BR') : 'Data Indefinida';
+                const formattedTime = eventDate ? eventDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+                const dateDisplay = event._dateRange ? event._dateRange : `${formattedDate}${formattedTime ? ' ' + formattedTime : ''}`;
+                const totalEventValueNum = parseCurrencyBR(event.valor_total || 0);
+                const astronomerProfitNum = calculateAstronomerProfit(totalEventValueNum, profitInfo.rate);
+                const profitPercentage = formatProfitPercentage(profitInfo.rate);
+                const diarias = event.numero_diarias || event.numero_de_diarias || event.diarias || 1;
+                const groupBadge = event._groupedCount > 1 ? `<span class="group-badge">${event._groupedCount} eventos agrupados</span>` : '';
+                const distKm = event.routeInfo?.distanceKm;
+                const expenses = extractExpenseEstimates(event, event.routeInfo);
+                const fuelLabel = Number.isFinite(expenses.combustivel) ? formatCurrencyBr(expenses.combustivel) : null;
+                const routeLabel = Number.isFinite(distKm) ? `${distKm.toFixed(1)} km` : null;
+                const alunos = event.faixa_de_alunos || event.numero_alunos_empresa || event.numero_de_alunos || '—';
+                const responsavel = event.responsavel_pelo_evento || event.responsavel_visita || event.contato_responsavel || '—';
+                const local = event.local_instalacao || event.endereco || 'Local a definir';
+                const cidade = event.cidade || event.cidade_destino || 'Cidade não informada';
+                const conteudo = event.conteudo_da_apresentacao || event.conteudo_apresentacao || event.conteudo || '';
+
+                return `
+                    <div class="event-card-despesa" data-event-id="${event.id}" style="border-left: 4px solid ${event._color || '#4a90e2'}">
+                        <div class="event-header">
+                            <div class="event-title">${event.nome_da_escola || event.cidade || 'Evento sem nome'} ${groupBadge}</div>
+                            <div class="event-date">${dateDisplay}</div>
+                        </div>
+                        <ul class="event-meta-list">
+                            <li>📍 <span>${cidade} - ${local}</span></li>
+                            ${conteudo ? `<li>🎯 <span>${conteudo}</span></li>` : ''}
+                            <li>👥 <span>${alunos}</span></li>
+                            <li>👨‍🏫 <span class="label">Responsável:</span> <span>${responsavel}</span></li>
+                            <li>💰 <span class="label">Faturamento:</span> <span>${formatCurrencyBr(totalEventValueNum)}</span></li>
+                            <li>💸 <span class="label">Lucro Astrônomo:</span> <span>${profitPercentage}% (${formatCurrencyBr(astronomerProfitNum)})</span></li>
+                            <li>🛏️ <span class="label">Diárias:</span> <span>${diarias}</span></li>
+                            ${routeLabel || fuelLabel ? `<li>🚗 <span>${routeLabel || ''}${routeLabel && fuelLabel ? ' • ' : ''}${fuelLabel ? 'Combustível ' + fuelLabel : ''}</span></li>` : ''}
+                        </ul>
+                        ${buildRouteInfoHtml(event)}
+                        <div class="controls" style="margin-top:10px;">
+                            <button class="btn btn-secondary launch-expense-btn" data-event-id="${event.id}">
+                                <i class="fas fa-file-invoice-dollar"></i> Lançar Despesas
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function renderSelectedEventDetails(event) {
+                despesasEventsList.innerHTML = '';
+                const profitInfo = getProfitRateInfo();
+                updateProfitLabel(profitInfo);
+                
+                if (!event) {
+                    eventTotalValue.textContent = formatCurrencyBr(0);
+                    astronomerProfit.textContent = formatCurrencyBr(0);
+                    return;
+                }
+
+                const totalEventValueNum = parseCurrencyBR(event.valor_total || 0);
+                const astronomerProfitNum = calculateAstronomerProfit(totalEventValueNum, profitInfo.rate);
+                eventTotalValue.textContent = formatCurrencyBr(totalEventValueNum);
+                astronomerProfit.textContent = formatCurrencyBr(astronomerProfitNum);
+
+                despesasEventsList.innerHTML = buildEventCard(event, profitInfo);
+                despesasEventsList.querySelectorAll('.launch-expense-btn').forEach(button => {
+                    button.addEventListener('click', () => openExpensesModal(event));
+                });
+            }
+
+            function renderEventsForPeriod() {
+                despesasEventsList.innerHTML = '';
+                eventTotalValue.textContent = formatCurrencyBr(0);
+                astronomerProfit.textContent = formatCurrencyBr(0);
+                const profitInfo = getProfitRateInfo();
+                updateProfitLabel(profitInfo);
+                const eventsToRender = getFilteredEventsByPeriod(allEvents, currentPeriodFilter);
+                if (!eventsToRender.length) { despesasEventsList.innerHTML = '<p>Nenhum evento encontrado para o período selecionado.</p>'; return; }
+                eventsToRender.forEach(event => {
+                    const card = buildEventCard(event, profitInfo);
+                    despesasEventsList.insertAdjacentHTML('beforeend', card);
+                });
+                despesasEventsList.querySelectorAll('.launch-expense-btn').forEach(button => {
+                    button.replaceWith(button.cloneNode(true));
+                });
+                despesasEventsList.querySelectorAll('.launch-expense-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const btn = e.currentTarget;
+                        const eventId = btn.dataset.eventId;
+                        const eventToLaunch = allEvents.find(ev => String(ev.id) === String(eventId));
+                        if (eventToLaunch) openExpensesModal(eventToLaunch);
+                    });
+                });
+            }
+
+            function updateSummaryCards() {
+                const eventsForSummary = getFilteredEventsByPeriod(allEvents, currentPeriodFilter);
+                const finalizedEvents = eventsForSummary.filter(isFinalizadoEvent);
+                const profitInfo = getProfitRateInfo();
+                updateProfitLabel(profitInfo);
+                
+                let totalFuel = 0, totalHotel = 0, totalFood = 0, totalPedagios = 0, totalMonitor = 0, totalFaturamento = 0;
+                eventsForSummary.forEach(event => {
+                    const expenses = extractExpenseEstimates(event, event.routeInfo);
+                    const faturamentoEvento = parseCurrencyBR(event.valor_total || 0);
+                    totalFuel += expenses.combustivel || 0;
+                    totalHotel += expenses.hospedagem || 0;
+                    totalFood += expenses.alimentacao || 0;
+                    totalPedagios += expenses.pedagios || 0;
+                    totalMonitor += expenses.monitor || 0;
+                    totalFaturamento += faturamentoEvento;
+                });
+                
+                // Lucro (estimado) considera apenas finalizados, conforme requisito
+                const faturamentoFinalizados = finalizedEvents.reduce((sum, ev) => sum + parseCurrencyBR(ev.valor_total || 0), 0);
+                const totalLucroAstronomo = calculateAstronomerProfit(faturamentoFinalizados, profitInfo.rate);
+                
+                estCostFuel.textContent = formatCurrencyBr(totalFuel);
+                estCostHotel.textContent = formatCurrencyBr(totalHotel);
+                estCostFood.textContent = formatCurrencyBr(totalFood);
+                estCostPedagios.textContent = formatCurrencyBr(totalPedagios);
+                estCostMonitor.textContent = formatCurrencyBr(totalMonitor);
+                eventTotalValue.textContent = formatCurrencyBr(totalFaturamento);
+                astronomerProfit.textContent = formatCurrencyBr(totalLucroAstronomo);
+
+                // Despesas reais — apenas eventos finalizados com valores reais
+                let realFuel = 0, realHotel = 0, realFood = 0, realPedagios = 0, realMonitor = 0, realOutros = 0, realTotal = null, realRevenue = 0;
+                finalizedEvents.forEach(ev => {
+                    const realExp = extractRealExpenses(ev);
+                    if (!hasRealExpenses(realExp)) return;
+                    if (Number.isFinite(realExp.combustivel)) realFuel += realExp.combustivel;
+                    if (Number.isFinite(realExp.hospedagem)) realHotel += realExp.hospedagem;
+                    if (Number.isFinite(realExp.alimentacao)) realFood += realExp.alimentacao;
+                    if (Number.isFinite(realExp.pedagios)) realPedagios += realExp.pedagios;
+                    if (Number.isFinite(realExp.monitor)) realMonitor += realExp.monitor;
+                    if (Number.isFinite(realExp.outros)) realOutros += realExp.outros;
+                    if (Number.isFinite(realExp.total)) {
+                        if (!Number.isFinite(realTotal)) realTotal = 0;
+                        realTotal += realExp.total;
+                    }
+                    realRevenue += parseCurrencyBR(ev.valor_total || 0);
+                });
+                // Se total não foi calculado mas houve componentes, soma componentes
+                if (!Number.isFinite(realTotal)) {
+                    const parts = [realFuel, realHotel, realFood, realPedagios, realMonitor, realOutros].filter(v => Number.isFinite(v));
+                    realTotal = parts.length ? parts.reduce((a,b)=>a+b,0) : 0;
+                }
+                realCostFuel.textContent = formatCurrencyBr(realFuel);
+                realCostHotel.textContent = formatCurrencyBr(realHotel);
+                realCostFood.textContent = formatCurrencyBr(realFood);
+                realCostPedagios.textContent = formatCurrencyBr(realPedagios);
+                realCostMonitor.textContent = formatCurrencyBr(realMonitor);
+                realCostOutros.textContent = formatCurrencyBr(realOutros);
+                realCostTotal.textContent = formatCurrencyBr(realTotal);
+                realProfit.textContent = formatCurrencyBr(calculateAstronomerProfit(realRevenue, profitInfo.rate));
+            }
+
+            // --- Modal de despesas ---
+            const expensesModal = document.getElementById('expenses-modal');
+            const expensesModalClose = document.getElementById('expenses-modal-close');
+            const expensesForm = document.getElementById('expenses-form');
+            const expCancelBtn = document.getElementById('exp-cancel');
+            function openExpensesModal(ev) {
+                document.getElementById('exp-id-evento').value = ev?.id || '';
+                const estimates = extractExpenseEstimates(ev, ev.routeInfo);
+                document.getElementById('exp-combustivel').value = estimates.combustivel?.toFixed(2) || '';
+                document.getElementById('exp-hospedagem').value = estimates.hospedagem?.toFixed(2) || '';
+                document.getElementById('exp-alimentacao').value = estimates.alimentacao?.toFixed(2) || '';
+                document.getElementById('exp-pedagios').value = estimates.pedagios?.toFixed(2) || '';
+                document.getElementById('exp-monitor').value = estimates.monitor?.toFixed(2) || '';
+                document.getElementById('exp-outros').value = '';
+                const panel = document.getElementById('exp-estimates-panel');
+                if (panel){
+                    const fmt = (v) => Number.isFinite(v) ? formatCurrencyBr(v) : 'R$ 0,00';
+                    const diariasLabel = Number(ev?.numero_de_diarias || ev?.numero_diarias || ev?.diarias || 1);
+                    const tipo = (ev?.tipo_da_tarefa || ev?.tipo || ev?.tipo_evento || '').toString().toUpperCase() || '—';
+                    panel.innerHTML = `
+                        <div class="estimate-item"><span class="label">Tipo</span><span>${tipo}</span></div>
+                        <div class="estimate-item"><span class="label">Diárias</span><span>${diariasLabel}</span></div>
+                        <div class="estimate-item"><span class="label">Combustível (estimado)</span><span>${fmt(estimates.combustivel)}</span></div>
+                        <div class="estimate-item"><span class="label">Hospedagem</span><span>${fmt(estimates.hospedagem)}</span></div>
+                        <div class="estimate-item"><span class="label">Alimentação</span><span>${fmt(estimates.alimentacao)}</span></div>
+                        <div class="estimate-item"><span class="label">Pedágios</span><span>${fmt(estimates.pedagios)}</span></div>
+                        <div class="estimate-item"><span class="label">Monitor</span><span>${fmt(estimates.monitor)}</span></div>
+                        <div class="estimate-item"><span class="label">Total estimado</span><span>${fmt(estimates.total)}</span></div>
+                    `;
+                }
+                expensesModal.classList.add('open');
+                expensesModal.setAttribute('aria-hidden', 'false');
+            }
+            function closeExpensesModal() {
+                expensesModal.classList.remove('open');
+                expensesModal.setAttribute('aria-hidden', 'true');
+            }
+            async function submitExpensesForm(e) {
+                e.preventDefault();
+                const id_evento = document.getElementById('exp-id-evento').value;
+                const combustivel = parseCurrencyBR(document.getElementById('exp-combustivel').value || 0);
+                const hospedagem = parseCurrencyBR(document.getElementById('exp-hospedagem').value || 0);
+                const alimentacao = parseCurrencyBR(document.getElementById('exp-alimentacao').value || 0);
+                const pedagios = parseCurrencyBR(document.getElementById('exp-pedagios').value || 0);
+                const monitor = parseCurrencyBR(document.getElementById('exp-monitor').value || 0);
+                const outros = parseCurrencyBR(document.getElementById('exp-outros').value || 0);
+                if (!id_evento) { showNotification('Evento inválido.', 'error'); return; }
+                try {
+                    const result = await callAgendaWebhook('lancar_despesas', {
+                        id_evento,
+                        finalizado: true,
+                        combustivel,
+                        hospedagem,
+                        alimentacao,
+                        pedagios,
+                        monitor,
+                        outros
+                    });
+                    console.log('Resposta do webhook:', result);
+                    showNotification('Despesas lançadas com sucesso.', 'success');
+                    closeExpensesModal();
+                    const s = getUserSession();
+                    if (s?.id_astronomo != null) {
+                        try { await callAgendaWebhook('gerar_media_de_gastos', { id_astronomo: s.id_astronomo }); } catch (err) { console.warn('Não foi possível gerar médias:', err); }
+                    }
+                    fetchEvents();
+                } catch (err) {
+                    console.error('Erro ao lançar despesas:', err);
+                    showNotification('Falha ao lançar despesas: ' + err.message, 'error');
+                }
+            }
+            expensesModalClose.addEventListener('click', closeExpensesModal);
+            expCancelBtn.addEventListener('click', closeExpensesModal);
+            expensesForm.addEventListener('submit', submitExpensesForm);
+            expensesModal.addEventListener('click', (e) => { if (e.target === expensesModal) closeExpensesModal(); });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && expensesModal.classList.contains('open')) closeExpensesModal(); });
+
+            // Period filter buttons
+            document.querySelectorAll('.period-filter-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.period-filter-button').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    currentPeriodFilter = button.dataset.period;
+                    selectedEvent = null;
+                    eventSelect.value = "";
+                    populateEventSelect();
+                    updateSummaryCards();
+                    renderEventsForPeriod();
+                });
+            });
+
+            // Initial fetch
+            fetchEvents();
+            eventSelect.addEventListener('change', handleEventSelect);
+        });
+    })();
+    </script>
+
+    <!-- Modal: Lançar Despesas -->
+    <div class="modal" id="expenses-modal" aria-hidden="true" role="dialog">
+        <div class="modal-content" role="document">
+            <button class="close-btn" id="expenses-modal-close" aria-label="Fechar">&times;</button>
+            <div class="modal-title"><i class="fas fa-file-invoice-dollar"></i> Lançar Despesas</div>
+            <div class="estimates-panel" id="exp-estimates-panel"></div>
+            <form id="expenses-form" class="form-grid">
+                <input type="hidden" id="exp-id-evento" />
+                <div class="form-group">
+                    <label class="form-label" for="exp-combustivel">Combustível (R$)</label>
+                    <input class="form-input" id="exp-combustivel" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="exp-hospedagem">Hospedagem (R$)</label>
+                    <input class="form-input" id="exp-hospedagem" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="exp-alimentacao">Alimentação (R$)</label>
+                    <input class="form-input" id="exp-alimentacao" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="exp-pedagios">Pedágios (R$)</label>
+                    <input class="form-input" id="exp-pedagios" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="exp-monitor">Monitor (R$)</label>
+                    <input class="form-input" id="exp-monitor" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="exp-outros">Outros (R$)</label>
+                    <input class="form-input" id="exp-outros" type="number" step="0.01" min="0" placeholder="0,00" />
+                </div>
+                <div class="controls" style="margin-top: 8px; gap:8px; display:flex; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-secondary" id="exp-submit"><i class="fas fa-paper-plane"></i> Enviar</button>
+                    <button type="button" class="btn btn-secondary" id="exp-cancel">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
