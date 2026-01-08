@@ -1596,172 +1596,174 @@
             }
         }
 
-        function openEventModal(ev){
+        // ==== Modal de detalhes OTIMIZADO ====
+        function openEventModal(ev) {
             if (!ev || !eventModalBody) return;
 
             const eventId = getEventId(ev);
-            const rotaLabel = formatYesNo(ev.rota_continua ?? ev.rota ?? ev.continua);
-            const valorTotal = ev.valor_total ?? ev.total ?? ev.valor ?? ev.custo_total ?? null;
-            const brindeInfo = formatYesNo(ev.brinde ?? ev.gift);
-            const diarias = ev.numero_de_diarias ?? ev.diarias ?? ev.qtd_diarias ?? null;
-            const conteudo = ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao || 'Não informado';
-            const distancia = getDistanceLabel(ev);
-            const duracao = getDurationLabel(ev);
-            const destLatVal = formatCoord(ev.destino_lat ?? ev.lat_destino ?? ev.latitude_destino);
-            const destLonVal = formatCoord(ev.destino_lon ?? ev.lon_destino ?? ev.longitude_destino);
-            const origLatVal = formatCoord(ev.origem_lat ?? ev.lat_origem ?? ev.latitude_origem);
-            const origLonVal = formatCoord(ev.origem_lon ?? ev.lon_origem ?? ev.longitude_origem);
 
-            const headerHtml = `
-                <div class="event-modal-quick">
-                    <span class="event-chip"><strong>Rota contínua?</strong> ${rotaLabel}</span>
-                    <span class="event-chip"><strong>Valor total</strong> ${valorTotal !== null ? valorTotal : 'Não informado'}</span>
-                    <span class="event-chip"><strong>Brinde</strong> ${brindeInfo}</span>
-                    <span class="event-chip"><strong>Diárias</strong> ${diarias !== null ? diarias : 'Não informado'}</span>
-                    <span class="event-chip"><strong>Conteúdo</strong> ${conteudo}</span>
-                    <span class="event-chip"><strong>Distância</strong> ${distancia}</span>
-                    ${duracao ? `<span class="event-chip"><strong>Duração</strong> ${duracao}</span>` : ''}
-                    <span class="event-chip"><strong>Resultado</strong> ${getResultadoLabel(ev)}</span>
-                    <span class="event-chip"><strong>destino_lat</strong> ${destLatVal}</span>
-                    <span class="event-chip"><strong>destino_lon</strong> ${destLonVal}</span>
-                    <span class="event-chip"><strong>origem_lat</strong> ${origLatVal}</span>
-                    <span class="event-chip"><strong>origem_lon</strong> ${origLonVal}</span>
-                </div>
-            `;
+            // 1. Definição de dados principais
+            const titleLabel = ev.nome_da_escola || ev.cidade || (ev.tipo_da_tarefa || 'Evento Detalhado');
+            const responsavel = ev.responsavel || ev.responsavel_visita || ev.contato_responsavel || ev.nome_responsavel || '';
+            const cidade = normalizeCityUF(ev.cidade_destino || ev.cidade || '');
+            const dataFormatada = ev._date ? formatDateBr(ev._date) : 'Data a definir';
 
+            // Links e Ações
             const whatsappLink = buildWhatsappLink(ev);
             const routeLink = buildRouteLink(ev);
             const searchLinks = buildSearchLinks(ev);
-            const despesasBtn = `<button class="btn btn-secondary btn-compact" data-ev-action="despesas" data-ev-id="${eventId}">💰 Lançar despesas</button>`;
+
+            // Botões de ação principais
+            const despesasBtn = `<button class="btn btn-secondary btn-compact" data-ev-action="despesas" data-ev-id="${eventId}">💰 Despesas</button>`;
             const finalizarBtn = `<button class="btn btn-secondary btn-compact" data-ev-action="finalizar" data-ev-id="${eventId}">✅ Finalizar</button>`;
             const deletarBtn = `<button class="btn btn-danger btn-compact" data-ev-action="deletar" data-ev-id="${eventId}">🗑️ Deletar</button>`;
 
-            const responsavel = ev.responsavel || ev.responsavel_visita || ev.contato_responsavel || ev.nome_responsavel || ev.responsavel_pelo_evento || ev.professor || '';
-            const escola = ev.nome_da_escola || ev.nome_escola || ev.escola || '';
-            const cidade = normalizeCityUF(ev.cidade_destino || ev.cidade || '');
-            const whatsappDisplay = whatsappLink
-                ? `<a href="${whatsappLink}" target="_blank" rel="noopener noreferrer">${ev.telefone_responsavel_evento || ev.telefone_responsavel || ev.telefone || ev.whatsapp || 'Abrir'}</a>`
-                : 'Não informado';
-            const infoAdicional =
-                ev.informacoes_adicionais ??
-                ev.informacoes ??
-                ev.observacoes ??
-                ev.observacao ??
-                '';
+            // 2. Construção dos "Quick Chips" (Apenas info relevante)
+            let chipsHtml = '';
 
-            const linksHtmlParts = [];
-            if (whatsappLink) linksHtmlParts.push(`<a href="${whatsappLink}" target="_blank" rel="noopener noreferrer"><i class="fas fa-whatsapp"></i> WhatsApp</a>`);
-            if (routeLink) linksHtmlParts.push(`<a href="${routeLink}" target="_blank" rel="noopener noreferrer"><i class="fas fa-route"></i> Rota</a>`);
-            if (searchLinks?.hotels) linksHtmlParts.push(`<a href="${searchLinks.hotels}" target="_blank" rel="noopener noreferrer"><i class="fas fa-bed"></i> Hotéis</a>`);
-            if (searchLinks?.food) linksHtmlParts.push(`<a href="${searchLinks.food}" target="_blank" rel="noopener noreferrer"><i class="fas fa-utensils"></i> Restaurantes</a>`);
-            linksHtmlParts.push(`<div class="modal-actions-inline">${despesasBtn}${finalizarBtn}${deletarBtn}</div>`);
+            // Valor (se existir)
+            const valor = ev.valor_total ?? ev.total ?? ev.valor ?? ev.custo_total;
+            if (valor) chipsHtml += `<span class="event-chip"><i class="fas fa-coins"></i> <strong>Valor:</strong> ${formatCurrencyBR(valor)}</span>`;
 
-            const linksHtml = linksHtmlParts.length
-                ? `<div class="event-modal-section event-modal-links"><h4>Links úteis</h4>${linksHtmlParts.join('')}</div>`
-                : '';
+            // Distância (se existir)
+            const dist = getDistanceLabel(ev);
+            if (dist && dist !== '—') chipsHtml += `<span class="event-chip"><i class="fas fa-route"></i> ${dist}</span>`;
 
-            const imagesSection = `
-                <div class="event-modal-section event-images-section">
-                    <div class="event-images-header">
-                        <h4>Imagens do evento</h4>
-                        <button class="event-images-btn" ${eventId ? '' : 'disabled'} data-event-id="${eventId || ''}">
-                            <i class="fas fa-image"></i> Ver imagens
-                        </button>
-                    </div>
-                    <div class="event-images-body" id="event-images-body">
-                        <div class="event-images-placeholder">
-                            ${eventId ? 'Clique em "Ver imagens" para carregar as fotos deste evento.' : 'ID do evento não encontrado para buscar imagens.'}
-                        </div>
-                    </div>
-                </div>
-            `;
+            // Resultado (apenas se preenchido)
+            const resultado = getResultadoLabel(ev);
+            if (resultado && resultado !== 'Resultado não informado') {
+                chipsHtml += `<span class="event-chip"><i class="fas fa-clipboard-check"></i> ${resultado}</span>`;
+            }
 
-            const detailRows = [];
+            // Rota Contínua (APENAS se for true)
+            if (ev.rota_continua === true || ev.rota_continua === 'true' || ev.rota_continua === 1) {
+                chipsHtml += `<span class="event-chip" style="border-color:var(--neon-purple); color:var(--neon-purple);"><i class="fas fa-infinity"></i> Rota Contínua</span>`;
+            }
+
+            // 3. Renderização Dinâmica dos Detalhes (Filtrando lixo)
+            const excludeKeys = new Set([
+                'id', '_id', '_date', '_color', '_spanStart', '_spanEnd', '_taskType', '_taskTypeId',
+                'tasktypeid', 'spanstart', 'spanend', 'color',
+                'rota_continua', 'rotacontinua', 'rota', 'continua', 'blocoindex',
+                'rota_idx', '_rota_idx', 'rota_total', '_rota_total',
+                'dist_override_km', '_dist_override_km',
+                'createdat', 'created_at', 'updatedat', 'updated_at',
+                'origem_lat', 'origem_lon', 'destino_lat', 'destino_lon',
+                'lat_origem', 'lon_origem', 'lat_destino', 'lon_destino',
+                'latitude_origem', 'longitude_origem', 'latitude_destino', 'longitude_destino',
+                'nome_da_escola', 'cidade_destino', 'cidade', 'responsavel'
+            ]);
+
+            let detailsHtml = '';
+
+            // Adiciona Observações primeiro se existir (campo importante)
+            const obs = ev.informacoes_adicionais || ev.observacoes || ev.observacao || ev.obs;
+            if (obs) {
+                detailsHtml += `
+                    <div class="event-detail-box" style="grid-column: 1/-1;">
+                        <span class="event-detail-label">Observações</span>
+                        <span class="event-detail-value" style="white-space: pre-wrap;">${obs}</span>
+                    </div>`;
+            }
+
+            // Loop inteligente
             Object.entries(ev).forEach(([key, val]) => {
-                // pula metadados e campos sensíveis
-                if (key === '_taskType') return;
-                if (key === '_date') {
-                    detailRows.push(`<div class="event-detail-row"><strong>Data</strong><span>${val instanceof Date ? formatDateBr(val) : String(val)}</span></div>`);
-                    return;
-                }
-                const sensitiveKeys = ['senha_usuario', 'senha', 'password', 'pass'];
-                if (sensitiveKeys.includes(String(key).toLowerCase())) return;
+                const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-                if (typeof val === 'object') {
-                    try {
-                        const label = key === 'faixa_de_alunos' ? 'Número de Alunos' : prettifyKey(key);
-                        detailRows.push(`<div class="event-detail-row"><strong>${label}</strong><span>${JSON.stringify(val)}</span></div>`);
-                    } catch(_) {}
-                    return;
-                }
-                const label = key === 'faixa_de_alunos' ? 'Número de Alunos' : prettifyKey(key);
-                detailRows.push(`<div class="event-detail-row"><strong>${label}</strong><span>${val !== undefined && val !== null ? String(val) : '—'}</span></div>`);
+                // Filtros de exclusão
+                if (excludeKeys.has(key) || excludeKeys.has(normalizedKey)) return;
+                if (val === null || val === undefined || val === '' || val === 'null') return;
+                if ((typeof val === 'string') && val.trim() === '') return;
+
+                // Filtro específico: Se for booleano false, não mostra
+                if (val === false || val === 'false') return;
+
+                // Formatação da Chave (ex: numero_de_alunos -> Número de Alunos)
+                let label = key.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').trim();
+                label = label.charAt(0).toUpperCase() + label.slice(1);
+
+                // Formatação do Valor
+                let displayVal = val;
+                if (typeof val === 'object') displayVal = JSON.stringify(val);
+                if (val === true || val === 'true') displayVal = 'Sim';
+
+                detailsHtml += `
+                    <div class="event-detail-box">
+                        <span class="event-detail-label">${label}</span>
+                        <span class="event-detail-value">${displayVal}</span>
+                    </div>
+                `;
             });
 
-            const titleLabel = escola || cidade || (ev.tipo_da_tarefa || 'Evento');
+            // 4. Montagem dos Botões de Links
+            let linksHtml = '';
+            if (whatsappLink) linksHtml += `<a href="${whatsappLink}" target="_blank" class="modal-btn-link"><i class="fab fa-whatsapp"></i> WhatsApp</a>`;
+            if (routeLink) linksHtml += `<a href="${routeLink}" target="_blank" class="modal-btn-link"><i class="fas fa-location-arrow"></i> Rota GPS</a>`;
+            if (searchLinks?.hotels) linksHtml += `<a href="${searchLinks.hotels}" target="_blank" class="modal-btn-link"><i class="fas fa-bed"></i> Hotéis</a>`;
 
+            // 5. HTML Final do Modal
             eventModalBody.innerHTML = `
-                <h3 class="event-modal-title">${titleLabel}</h3>
-                ${headerHtml}
-                <div class="event-modal-section">
-                    <h4>Responsável</h4>
-                    <div class="event-details-grid">
-                        <div class="event-detail-row"><strong>Nome</strong><span>${responsavel || 'Não informado'}</span></div>
-                        <div class="event-detail-row"><strong>WhatsApp</strong><span>${whatsappDisplay}</span></div>
-                        ${cidade ? `<div class="event-detail-row"><strong>Destino</strong><span>${cidade}</span></div>` : ''}
+                <div class="event-modal-header">
+                    <h3 class="event-modal-title">${titleLabel}</h3>
+                    <div class="event-modal-subtitle">
+                        <span><i class="fas fa-calendar-day"></i> ${dataFormatada}</span>
+                        ${cidade ? `<span><i class="fas fa-map-marker-alt"></i> ${cidade}</span>` : ''}
+                        ${responsavel ? `<span><i class="fas fa-user"></i> ${responsavel}</span>` : ''}
                     </div>
                 </div>
-                <div class="event-modal-section">
-                    <h4>Informações adicionais</h4>
-                    <div class="event-details-grid">
-                        <div class="event-detail-row" style="grid-column:1/-1; white-space:pre-wrap;">
-                            <strong>Observações</strong>
-                            <span>${infoAdicional ? infoAdicional : 'Não informado'}</span>
-                        </div>
-                    </div>
+
+                <div class="event-modal-quick">
+                    ${chipsHtml}
                 </div>
-                ${linksHtml}
-                ${imagesSection}
-                <div class="event-modal-section">
-                    <h4>Detalhes do evento</h4>
-                    <div class="event-details-grid">
-                        ${detailRows.join('')}
+
+                <div class="event-details-grid">
+                    ${detailsHtml}
+                </div>
+
+                <div class="event-modal-actions">
+                    ${linksHtml}
+                </div>
+
+                <div class="event-modal-actions" style="border:none; padding-top:0; margin-top:10px; justify-content: flex-end;">
+                    ${despesasBtn}
+                    ${finalizarBtn}
+                    ${deletarBtn}
+                </div>
+
+                <!-- Seção de Imagens (mantida da original, apenas container limpo) -->
+                <div id="modal-images-container" style="margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px;">
+                     <div class="event-images-header">
+                        <h4 style="font-size: 0.9rem; color: #94a3b8; margin-bottom:10px;">Galeria</h4>
+                        <button class="event-images-btn" data-event-id="${eventId || ''}">
+                            <i class="fas fa-image"></i> Carregar Imagens
+                        </button>
                     </div>
+                    <div class="event-images-body" id="event-images-body" style="background:transparent; border:none; padding:0;"></div>
                 </div>
             `;
 
             eventModal.classList.add('show');
             eventModal.setAttribute('aria-hidden', 'false');
 
+            // Reattach listeners para imagens e ações
             const imagesBody = eventModalBody.querySelector('#event-images-body');
             const imagesBtn = eventModalBody.querySelector('.event-images-btn');
             if (imagesBtn && imagesBody && eventId) {
                 imagesBtn.addEventListener('click', () => {
-                    loadEventImagesIntoContainer(
-                        eventId,
-                        imagesBody,
-                        imagesBtn,
-                        {
-                            row_number: ev.row_number ?? ev.row_num ?? ev.row,
-                            school: escola || ev.nome_da_escola || ''
-                        }
-                    );
+                    loadEventImagesIntoContainer(eventId, imagesBody, imagesBtn, {
+                        row_number: ev.row_number,
+                        school: ev.nome_da_escola
+                    });
                 });
             }
 
-            // Ações internas do modal (lançar despesas/finalizar/deletar)
             eventModalBody.querySelectorAll('[data-ev-action]').forEach(btn => {
                 const action = btn.dataset.evAction;
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    e.stopPropagation();
-                    if (action === 'despesas') {
-                        lancarDespesas(ev, btn);
-                    } else if (action === 'finalizar') {
-                        finalizarEvento(ev, btn);
-                    } else if (action === 'deletar') {
-                        deletarEvento(ev, btn);
-                    }
+                    if (action === 'despesas') lancarDespesas(ev, btn);
+                    else if (action === 'finalizar') finalizarEvento(ev, btn);
+                    else if (action === 'deletar') deletarEvento(ev, btn);
                 });
             });
         }

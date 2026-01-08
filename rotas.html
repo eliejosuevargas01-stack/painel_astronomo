@@ -347,6 +347,19 @@
             return d;
         }
 
+        function startOfDay(date){
+            if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        }
+
+        function isConsecutiveEventDay(prev, current){
+            const prevDate = startOfDay(getEventoDate(prev));
+            const currDate = startOfDay(getEventoDate(current));
+            if (!prevDate || !currDate) return false;
+            const diffDays = Math.round((currDate.getTime() - prevDate.getTime()) / 86400000);
+            return diffDays === 1;
+        }
+
         function loadAgendaEvents(sess){
             try{
                 const keys = [];
@@ -548,7 +561,13 @@
                 const prev = eventos[i-1];
                 const id = ev?.id_evento || ev?.id_evento_unico || ev?.id || ev?.id_agendamento || ev?.uuid;
                 if (id == null) continue;
-                const isContinua = rotaContinua || idsContinua.has(String(id)) || ev?.rota_continua === true || prev?.rota_continua === true;
+                const hasContinuaFlag = rotaContinua
+                    || idsContinua.has(String(id))
+                    || ev?.rota_continua === true
+                    || ev?.continua === true
+                    || prev?.rota_continua === true
+                    || prev?.continua === true;
+                const isContinua = hasContinuaFlag && isConsecutiveEventDay(prev, ev);
                 if (!isContinua) continue;
                 const dist = distancias[i-1];
                 if (dist !== null && dist !== undefined && Number.isFinite(dist)) {
@@ -703,8 +722,12 @@
                         <span><strong>Sequência da rota</strong> <span class="rota-visual-note">(0 = base)</span></span>
                         ${timelineHint}
                     </div>
+                    <svg class="rota-svg-container">
+                        <path class="svg-road-border" fill="none" stroke="#7b5cff" stroke-width="18" stroke-linecap="round" />
+                        <path class="svg-road-bg" fill="none" stroke="#1e1b4b" stroke-width="14" stroke-linecap="round" />
+                        <path class="svg-dashed-line" fill="none" stroke="#34d1f3" stroke-width="2" stroke-linecap="round" stroke-dasharray="12 12" />
+                    </svg>
                     <div class="rota-timeline ${isCompactTimeline ? 'timeline-compact' : ''}">
-                        <div class="timeline-line"></div>
                         ${timelineHTML}
                     </div>
                 </div>
@@ -789,6 +812,14 @@
             `;
 
             container.appendChild(rotaDiv);
+            const timelineEl = rotaDiv.querySelector('.rota-timeline');
+            if (timelineEl) {
+                requestAnimationFrame(() => {
+                    aplicarTimelineSerpentina(timelineEl);
+                    const visualEl = rotaDiv.querySelector('.rota-visual');
+                    requestAnimationFrame(() => desenharLinhaSVG(visualEl));
+                });
+            }
         }
 
         function criarTimelineVisual(eventos) {
@@ -817,6 +848,97 @@
                 </div>
             `);
             return pontos.join('');
+        }
+
+        function aplicarTimelineSerpentina(timelineEl){
+            if (!timelineEl) return;
+            const points = Array.from(timelineEl.querySelectorAll('.timeline-point'));
+            if (!points.length) {
+                return;
+            }
+            const baseStart = points[0];
+            const baseEnd = points.length > 1 ? points[points.length - 1] : null;
+            const eventPoints = points.slice(1, -1);
+            const maxEventsPerRow = 6;
+            const rowsCount = Math.max(1, Math.ceil(eventPoints.length / maxEventsPerRow));
+            const rows = [];
+
+            for (let i = 0; i < rowsCount; i++) {
+                const start = i * maxEventsPerRow;
+                const slice = eventPoints.slice(start, start + maxEventsPerRow);
+                rows.push(slice);
+            }
+
+            if (!rows.length) rows.push([]);
+            rows[0].unshift(baseStart);
+            if (baseEnd) rows[rows.length - 1].push(baseEnd);
+
+            timelineEl.innerHTML = '';
+            timelineEl.classList.add('rota-timeline-serpentine');
+            rows.forEach((row, idx) => {
+                const rowEl = document.createElement('div');
+                rowEl.className = `timeline-row${idx % 2 === 1 ? ' reverse' : ''}`;
+                row.forEach(point => rowEl.appendChild(point));
+                timelineEl.appendChild(rowEl);
+            });
+        }
+
+        function desenharLinhaSVG(container) {
+            if (!container) return;
+            const svg = container.querySelector('.rota-svg-container');
+            const pathBorder = container.querySelector('.svg-road-border');
+            const pathBg = container.querySelector('.svg-road-bg');
+            const pathDash = container.querySelector('.svg-dashed-line');
+            const points = Array.from(container.querySelectorAll('.timeline-point'));
+
+            if (!svg || !pathBorder || !pathBg || !pathDash || points.length < 2) return;
+
+            const rectContainer = container.getBoundingClientRect();
+            if (rectContainer.width <= 0 || rectContainer.height <= 0) return;
+            svg.setAttribute('viewBox', `0 0 ${rectContainer.width} ${rectContainer.height}`);
+
+            let d = '';
+            const firstRect = points[0].getBoundingClientRect();
+            let startX = firstRect.left - rectContainer.left + (firstRect.width / 2);
+            let startY = firstRect.top - rectContainer.top + (firstRect.height / 2);
+            d += `M ${startX} ${startY}`;
+
+            for (let i = 0; i < points.length - 1; i++) {
+                const p1 = points[i];
+                const p2 = points[i + 1];
+                const r1 = p1.getBoundingClientRect();
+                const r2 = p2.getBoundingClientRect();
+                const x1 = r1.left - rectContainer.left + (r1.width / 2);
+                const y1 = r1.top - rectContainer.top + (r1.height / 2);
+                const x2 = r2.left - rectContainer.left + (r2.width / 2);
+                const y2 = r2.top - rectContainer.top + (r2.height / 2);
+
+                if (Math.abs(y1 - y2) < 20) {
+                    d += ` L ${x2} ${y2}`;
+                } else {
+                    const isRightTurn = x1 > (rectContainer.width / 2);
+                    const controlOffset = isRightTurn ? 80 : -80;
+                    const cp1x = x1 + controlOffset;
+                    const cp1y = y1;
+                    const cp2x = x2 + controlOffset;
+                    const cp2y = y2;
+                    d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${x2} ${y2}`;
+                }
+            }
+
+            pathBorder.setAttribute('d', d);
+            pathBg.setAttribute('d', d);
+            pathDash.setAttribute('d', d);
+        }
+
+        if (!window.__rotaSvgResizeBound) {
+            window.__rotaSvgResizeBound = true;
+            window.addEventListener('resize', () => {
+                document.querySelectorAll('.rota-card').forEach(card => {
+                    const visualEl = card.querySelector('.rota-visual');
+                    desenharLinhaSVG(visualEl);
+                });
+            });
         }
 
         async function calcularDistanciasRota(eventos) {
@@ -893,11 +1015,11 @@
                 return Number.isFinite(normal) && normal > 0 ? normal : null;
             };
 
-            const valorLitro = preferMedia('valor_litro_media', 'valor_litro');
-            const consumo = preferMedia('consumo_km_l_media', 'consumo_km_l');
-            const alimentacaoDia = preferMedia('alimentacao_diaria_media', 'alimentacao_diaria');
-            const hospedagemDia = preferMedia('diaria_hospedagem_media', 'diaria_hospedagem');
-            const pedagiosVal = preferMedia('pedagios_media', 'pedagios');
+            const valorLitro = preferMedia('valor_litro_media', 'valor_litro') ?? 6.2;
+            const consumo = preferMedia('consumo_km_l_media', 'consumo_km_l') ?? 10;
+            const alimentacaoDia = preferMedia('alimentacao_diaria_media', 'alimentacao_diaria') ?? 120;
+            const hospedagemDia = preferMedia('diaria_hospedagem_media', 'diaria_hospedagem') ?? 180;
+            const pedagiosVal = preferMedia('pedagios_media', 'pedagios') ?? 30;
             const combustivelMedio = preferMedia('gasto_combustivel_media', 'custo_combustivel_medio');
 
             let combustivel = null;

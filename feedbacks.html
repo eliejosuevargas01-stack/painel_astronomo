@@ -417,6 +417,14 @@
         }
 
         function extractFeedbackText(event){
+            const textoTarefa = event?.texto_tarefa;
+            const textoTarefaVal = (typeof textoTarefa === 'object' && textoTarefa !== null)
+                ? (textoTarefa.texto ?? textoTarefa.descricao ?? '')
+                : textoTarefa;
+            const tarefa = event?.tarefa;
+            const tarefaTextoVal = (typeof tarefa === 'object' && tarefa !== null)
+                ? (tarefa.feedback ?? tarefa.comentario ?? tarefa.texto ?? '')
+                : '';
             const candidates = [
                 event?.avaliacao,
                 event?.avaliacao_astronomo,
@@ -424,7 +432,13 @@
                 event?.feedback,
                 event?.comentario_feedback,
                 event?.feedback_texto,
-                event?.avaliacao_responsavel
+                event?.avaliacao_responsavel,
+                event?.observacoes,
+                event?.observacao,
+                event?.resultado,
+                event?.comentario,
+                textoTarefaVal,
+                tarefaTextoVal
             ];
             for (const c of candidates){
                 const t = (c ?? '').toString().trim();

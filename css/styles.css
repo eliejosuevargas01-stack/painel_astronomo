@@ -531,12 +531,11 @@ input:focus, select:focus {
 }
 
 .rota-visual {
-    background: rgba(10, 14, 30, 0.6);
-    margin: 24px;
-    padding: 30px 20px;
-    border-radius: 12px;
-    border: 1px dashed var(--border-color);
-    overflow-x: auto;
+    position: relative;
+    padding: 20px;
+    background: #0b1026;
+    border-radius: 16px;
+    overflow: hidden;
 }
 
 .rota-visual-title {
@@ -548,55 +547,123 @@ input:focus, select:focus {
 }
 
 .rota-timeline {
+    --rota-row-gap: 84px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: var(--rota-row-gap);
     position: relative;
-    min-width: 100%;
-    padding-bottom: 20px;
+    width: 100%;
+    padding: 8px 12px 18px;
 }
 
-.timeline-line {
-    position: absolute;
-    top: 18px;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--neon-purple), var(--neon-cyan));
-    z-index: 0;
-    box-shadow: 0 0 10px rgba(217, 70, 239, 0.4);
+.rota-timeline.timeline-measure {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 18px 28px;
+}
+
+/* --- CONTAINER E PONTOS (Limpo) --- */
+.rota-timeline-serpentine {
+    display: flex;
+    flex-direction: column;
+    gap: 90px;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+}
+
+.timeline-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0;
+    padding: 0 40px;
+    width: 100%;
+}
+
+.timeline-row.reverse {
+    flex-direction: row-reverse;
 }
 
 .timeline-point {
-    width: 36px;
-    height: 36px;
-    background: var(--bg-deep);
-    border: 2px solid var(--neon-cyan);
+    position: relative;
+    width: 44px;
+    height: 44px;
+    background-color: #0b1026;
+    border: 2px solid #7b5cff;
     border-radius: 50%;
-    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
+    font-weight: 800;
     color: #fff;
-    font-size: 0.85rem;
-    box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
-    position: relative;
-    flex-shrink: 0;
+    font-size: 0.9rem;
+    z-index: 10;
+    box-shadow: 0 0 0 5px #0b1026;
+    transition: transform 0.2s ease;
+}
+
+.timeline-point:hover {
+    transform: scale(1.1);
+    border-color: #34d1f3;
+    cursor: default;
 }
 
 .point-label {
     position: absolute;
-    top: 45px;
+    top: 50px;
     left: 50%;
     transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(123, 92, 255, 0.3);
+    padding: 4px 10px;
+    border-radius: 6px;
+    color: #e2e8f0;
     font-size: 0.75rem;
-    color: var(--text-body);
+    font-weight: 600;
     white-space: nowrap;
-    font-weight: 500;
-    background: rgba(0,0,0,0.5);
-    padding: 2px 6px;
-    border-radius: 4px;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 11;
+    pointer-events: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.timeline-point:hover .point-label {
+    max-width: none;
+    z-index: 20;
+    background: #7b5cff;
+    color: #fff;
+    border-color: #fff;
+}
+
+.timeline-line {
+    display: none;
+}
+
+/* --- SVG (A Linha Única) --- */
+.rota-svg-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.svg-dashed-line {
+    stroke-dasharray: 10;
+    animation: dashFlow 30s linear infinite;
+}
+
+@keyframes dashFlow {
+    to { stroke-dashoffset: -1000; }
+}
+
+@media (max-width: 768px) {
+    .timeline-row { padding: 0 20px; }
 }
 
 .eventos-list {
@@ -3605,84 +3672,135 @@ body.agenda-page {
 }
 .agenda-page .event-modal-content {
   position: relative;
-  background: #0d1226;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 16px;
-  max-width: 640px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(123, 92, 255, 0.2);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(20px);
+  padding: 32px;
+  max-width: 700px;
   max-height: 85vh;
   overflow-y: auto;
-  width: calc(100% - 32px);
+  width: 95%;
+  color: #e2e8f0;
+  font-family: 'Inter', sans-serif;
   z-index: 1;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
 }
-.agenda-page .event-modal-close {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  border: none;
-  background: transparent;
-  color: #fff;
-  font-size: 1.1rem;
-  cursor: pointer;
+.agenda-page .event-modal-header {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 .agenda-page .event-modal-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 8px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.agenda-page .event-modal-subtitle {
+  display: flex;
+  gap: 12px;
+  font-size: 0.95rem;
+  color: #94a3b8;
+  align-items: center;
 }
 .agenda-page .event-modal-quick {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: 10px;
+  margin-bottom: 24px;
 }
 .agenda-page .event-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border-radius: 999px;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: 0.78rem;
-  background: rgba(255, 255, 255, 0.04);
+  color: #cbd5e1;
+  transition: all 0.2s ease;
 }
-.agenda-page .event-modal-section {
-  margin-bottom: 12px;
+.agenda-page .event-chip i { color: var(--neon-cyan); }
+.agenda-page .event-chip strong { color: #fff; margin-right: 4px; }
+.agenda-page .event-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
 }
-.agenda-page .event-modal-section h4 {
-  margin: 0 0 6px;
-  font-size: 0.9rem;
+.agenda-page .event-detail-row {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
+.agenda-page .event-detail-row strong {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  font-weight: 600;
+}
+.agenda-page .event-detail-row span {
+  font-size: 1rem;
+  color: #f1f5f9;
+  font-weight: 500;
+  word-break: break-word;
+}
+.agenda-page .event-modal-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.agenda-page .modal-btn-link,
 .agenda-page .event-modal-links a {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  margin-right: 8px;
-  margin-bottom: 6px;
-  padding: 4px 8px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-  color: #fff;
+  gap: 8px;
+  color: var(--neon-cyan);
+  background: rgba(34, 211, 238, 0.1);
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  padding: 10px 16px;
+  border-radius: 10px;
   text-decoration: none;
-  font-size: 0.82rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: 0.2s;
 }
+.agenda-page .modal-btn-link:hover,
 .agenda-page .event-modal-links a:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(34, 211, 238, 0.2);
+  transform: translateY(-2px);
 }
-.agenda-page .event-details-grid {
+.agenda-page .event-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  color: #fff;
+  border: none;
+  cursor: pointer;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 6px;
+  place-items: center;
+  transition: 0.2s;
 }
-.agenda-page .event-detail-row {
-  font-size: 0.82rem;
-  padding: 6px 8px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(255, 255, 255, 0.02);
-}
+.agenda-page .event-modal-close:hover { background: rgba(255, 255, 255, 0.15); }
 .agenda-page .event-detail-row strong {
   display: block;
   margin-bottom: 2px;
