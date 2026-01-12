@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <!-- <link rel="stylesheet" href="css/style.css"> -->
-    <!-- <link rel="stylesheet" href="css/docs-urania.css"> -->
+    <!-- <link rel="stylesheet" href="css/docs-app.css"> -->
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
     <!-- <style>
         body{ margin:0; }
@@ -70,7 +70,7 @@
             <header class="page-header">
                 <div>
                     <h1>Rotas do Astrônomo</h1>
-                    <p class="subtitle">Agenda Inteligente Urânia</p>
+                    <p class="subtitle">Agenda Inteligente</p>
                 </div>
                 <a href="account.html" class="nav-button">
                     <i class="fas fa-user-astronaut"></i> Minha Conta
@@ -184,6 +184,7 @@
         })();
 
         const API_AGENDA = "https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo";
+        const COORD_CACHE_KEY = 'coord_cache_nominatim_v1';
         const DADOS_DEMO = [
             {
                 "astronomo": "Nathalia",
@@ -347,13 +348,24 @@
             return d;
         }
 
+        function getEventoEndDate(ev){
+            const start = getEventoDate(ev);
+            if (!start) return null;
+            const rawDiarias = ev?.numero_de_diarias ?? ev?.numero_diarias ?? ev?.diarias ?? 1;
+            const diarias = Number(rawDiarias);
+            const days = Number.isFinite(diarias) && diarias > 0 ? Math.floor(diarias) : 1;
+            const end = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+            end.setDate(end.getDate() + (days - 1));
+            return end;
+        }
+
         function startOfDay(date){
             if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
             return new Date(date.getFullYear(), date.getMonth(), date.getDate());
         }
 
         function isConsecutiveEventDay(prev, current){
-            const prevDate = startOfDay(getEventoDate(prev));
+            const prevDate = startOfDay(getEventoEndDate(prev));
             const currDate = startOfDay(getEventoDate(current));
             if (!prevDate || !currDate) return false;
             const diffDays = Math.round((currDate.getTime() - prevDate.getTime()) / 86400000);
@@ -381,6 +393,15 @@
             return [];
         }
 
+        function normalizeAgendaPayload(payload){
+            if (!payload) return [];
+            if (Array.isArray(payload)) return payload;
+            if (Array.isArray(payload.eventos)) return payload.eventos;
+            if (Array.isArray(payload.data)) return payload.data;
+            if (Array.isArray(payload.events)) return payload.events;
+            return [payload];
+        }
+
         function carregarEventosLocais(sess){
             try{
                 const raw = localStorage.getItem(ROTAS_CACHE_KEY);
@@ -395,6 +416,42 @@
             return loadAgendaEvents(sess);
         }
 
+        async function fetchAgendaEvents(){
+            let data = null;
+            let lastErr = null;
+
+            try {
+                const resp = await fetch(API_AGENDA, {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (resp && resp.ok) {
+                    try { data = await resp.json(); } catch (_) { data = null; }
+                } else {
+                    const txt = resp ? await resp.text().catch(() => '') : '';
+                    throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
+                }
+            } catch (err) {
+                lastErr = err;
+            }
+
+            if (!data) {
+                try {
+                    const resp = await fetch(API_AGENDA, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                    data = await resp.json();
+                } catch (err) {
+                    lastErr = err;
+                }
+            }
+
+            if (!data) throw lastErr || new Error('Sem dados retornados');
+            return normalizeAgendaPayload(data);
+        }
+
         function construirRotaDaAgenda(eventos, sess){
             const lista = Array.isArray(eventos) ? eventos.slice() : [];
             lista.sort((a,b) => {
@@ -405,18 +462,41 @@
                 if (!db) return -1;
                 return da - db;
             });
-            const inicio = lista[0] ? getEventoDate(lista[0]) : null;
-            const fim = lista[lista.length - 1] ? getEventoDate(lista[lista.length - 1]) : null;
-            const nome = sess?.nome_completo || sess?.astronomo || sess?.usuario || sess?.username || 'Agenda';
-            return {
-                astronomo: nome,
-                rota_id: 'Rota da agenda',
-                quantidade_eventos: lista.length,
-                eventos: lista,
-                data_inicio: inicio ? inicio.toISOString() : null,
-                data_fim: fim ? fim.toISOString() : null,
-                distancia_total: null
-            };
+            const nomeEvento = lista.find(ev => ev?.astronomo || ev?.astronomo_validacao)?.astronomo
+                || lista.find(ev => ev?.astronomo || ev?.astronomo_validacao)?.astronomo_validacao;
+            const nome = sess?.nome_completo || sess?.astronomo || sess?.usuario || sess?.username || nomeEvento || 'Astrônomo';
+            const rotas = [];
+            let grupoAtual = [];
+            for (let i = 0; i < lista.length; i++){
+                const ev = lista[i];
+                if (grupoAtual.length === 0) {
+                    grupoAtual.push(ev);
+                    continue;
+                }
+                const prev = grupoAtual[grupoAtual.length - 1];
+                if (isConsecutiveEventDay(prev, ev)) {
+                    grupoAtual.push(ev);
+                } else {
+                    rotas.push(grupoAtual);
+                    grupoAtual = [ev];
+                }
+            }
+            if (grupoAtual.length) rotas.push(grupoAtual);
+
+            return rotas.map((grupo, idx) => {
+                const inicio = grupo[0] ? getEventoDate(grupo[0]) : null;
+                const fim = grupo[grupo.length - 1] ? getEventoDate(grupo[grupo.length - 1]) : null;
+                const rotaIndex = idx + 1;
+                return {
+                    astronomo: nome,
+                    rota_id: `Rota ${rotaIndex}`,
+                    quantidade_eventos: grupo.length,
+                    eventos: grupo,
+                    data_inicio: inicio ? inicio.toISOString() : null,
+                    data_fim: fim ? fim.toISOString() : null,
+                    distancia_total: null
+                };
+            });
         }
 
         function pickAstronomoId(obj){
@@ -553,21 +633,13 @@
 
         function registrarOverridesRotaContinua(rota, distancias, sess){
             const overrides = {};
-            const idsContinua = loadRotaContinuaIds();
             const eventos = Array.isArray(rota?.eventos) ? rota.eventos : [];
-            const rotaContinua = rota?.rota_continua === true || rota?.continua === true || (rota?.tipo || '').toString().toLowerCase().includes('continua');
             for (let i = 1; i < eventos.length; i++){
                 const ev = eventos[i];
                 const prev = eventos[i-1];
                 const id = ev?.id_evento || ev?.id_evento_unico || ev?.id || ev?.id_agendamento || ev?.uuid;
                 if (id == null) continue;
-                const hasContinuaFlag = rotaContinua
-                    || idsContinua.has(String(id))
-                    || ev?.rota_continua === true
-                    || ev?.continua === true
-                    || prev?.rota_continua === true
-                    || prev?.continua === true;
-                const isContinua = hasContinuaFlag && isConsecutiveEventDay(prev, ev);
+                const isContinua = isConsecutiveEventDay(prev, ev);
                 if (!isContinua) continue;
                 const dist = distancias[i-1];
                 if (dist !== null && dist !== undefined && Number.isFinite(dist)) {
@@ -607,18 +679,18 @@
             }
 
             try {
-                const eventos = carregarEventosLocais(sessVal);
+                const eventos = await fetchAgendaEvents();
                 if (!eventos.length) {
                     rotasContainer.innerHTML = `
                         <div class="error">
-                            Nenhum evento encontrado no cache da agenda. Volte para a Agenda e atualize antes de abrir Rotas.
+                            Nenhum evento encontrado no n8n. Tente novamente em alguns instantes.
                         </div>
                     `;
                     return;
                 }
 
-                const rotaUnica = construirRotaDaAgenda(eventos, sessVal);
-                if (!rotaUnica.eventos.length) {
+                const rotas = construirRotaDaAgenda(eventos, sessVal);
+                if (!rotas.length) {
                     rotasContainer.innerHTML = `
                         <div class="error">
                             Nenhum evento válido para montar rotas.
@@ -627,12 +699,16 @@
                     return;
                 }
 
-                await exibirRota(rotaUnica, rotasContainer);
-                const eventosCount = Number.isFinite(rotaUnica.quantidade_eventos)
-                    ? rotaUnica.quantidade_eventos
-                    : rotaUnica.eventos.length;
-                const eventosLabel = eventosCount === 1 ? 'evento' : 'eventos';
-                statusText.textContent = `Rota criada a partir dos eventos salvos na agenda local (${eventosCount} ${eventosLabel}).`;
+                for (const rota of rotas) {
+                    await exibirRota(rota, rotasContainer);
+                }
+                const totalEventos = rotas.reduce((acc, rota) => {
+                    const count = Number.isFinite(rota.quantidade_eventos) ? rota.quantidade_eventos : rota.eventos.length;
+                    return acc + count;
+                }, 0);
+                const eventosLabel = totalEventos === 1 ? 'evento' : 'eventos';
+                const rotasLabel = rotas.length === 1 ? 'rota' : 'rotas';
+                statusText.textContent = `${rotas.length} ${rotasLabel} criada(s) (${totalEventos} ${eventosLabel}).`;
 
             } catch (error) {
                 console.error('Erro:', error);
@@ -681,12 +757,12 @@
         }
 
         async function exibirRota(rota, container) {
-            const rotaDiv = document.createElement('div');
-            rotaDiv.className = 'rota-card';
+            const rotaDiv = document.createElement('details');
+            rotaDiv.className = 'rota-card rota-tile';
 
             const distancias = await calcularDistanciasRota(rota.eventos);
             const overrides = registrarOverridesRotaContinua(rota, distancias, sessaoAtual);
-            const baseInfo = calcularDistanciasComBase(rota.eventos);
+            const baseInfo = await calcularDistanciasComBase(rota.eventos);
             const totalKm = Number(((baseInfo.baseIda || 0) + distancias.reduce((s,d)=> s + (d||0),0) + (baseInfo.baseVolta || 0)).toFixed(2));
             const gastos = calcularGastosEstimados(rota, totalKm);
             const timelineHTML = criarTimelineVisual(rota.eventos);
@@ -704,59 +780,90 @@
                 : rota.eventos.length;
             const eventosLabel = eventosCount === 1 ? 'evento' : 'eventos';
 
+            const cidadesEnvolvidas = [...new Set(rota.eventos.map(ev => (ev.cidade || 'Cidade não informada').split(' - ')[0].trim()).filter(Boolean))];
+            const cidadesLabel = cidadesEnvolvidas.length ? cidadesEnvolvidas.join(', ') : 'Cidade não informada';
+            const cidadePrincipal = cidadesEnvolvidas[0] || 'Cidade não informada';
+            const gastosLabel = Number.isFinite(gastos.total) ? `R$ ${gastos.total.toFixed(2)}` : '—';
+
             rotaDiv.innerHTML = `
-                <div class="rota-header">
-                    <div class="rota-info">
-                        <h3 class="rota-title">${rota.astronomo} - ${rota.rota_id}</h3>
-                        <div class="rota-subtitle">
-                            📅 ${periodoLabel} • 🎯 ${eventosCount} ${eventosLabel}
+                <summary class="rota-summary">
+                    <div class="rota-summary-top">
+                        <div class="rota-summary-title">${rota.rota_id}</div>
+                        <div class="rota-badge">
+                            ${Number.isFinite(totalKm) ? totalKm.toFixed(1) + ' km' : (rota.distancia_total ? rota.distancia_total + ' km' : 'Calculando...')}
                         </div>
                     </div>
-                    <div class="rota-badge">
-                        ${Number.isFinite(totalKm) ? totalKm.toFixed(1) + ' km' : (rota.distancia_total ? rota.distancia_total + ' km' : 'Calculando...')}
+                    <div class="rota-summary-hero">${cidadePrincipal}</div>
+                    <div class="rota-summary-grid">
+                        <div class="rota-summary-item">
+                            <span class="label">Período</span>
+                            <span class="value">📅 ${periodoLabel}</span>
+                        </div>
+                        <div class="rota-summary-item">
+                            <span class="label">Eventos</span>
+                            <span class="value">🎯 ${eventosCount} ${eventosLabel}</span>
+                        </div>
+                        <div class="rota-summary-item rota-summary-span">
+                            <span class="label">Cidades envolvidas</span>
+                            <span class="value">🧭 ${cidadesLabel}</span>
+                        </div>
+                        <div class="rota-summary-item">
+                            <span class="label">Gastos estimados</span>
+                            <span class="value">💸 ${gastosLabel}</span>
+                        </div>
+                        <div class="rota-summary-item">
+                            <span class="label">Astrônomo</span>
+                            <span class="value">🧑‍🚀 ${rota.astronomo}</span>
+                        </div>
                     </div>
-                </div>
+                    <div class="rota-summary-action">Ver detalhes completos</div>
+                </summary>
 
-                <div class="rota-visual">
-                    <div class="rota-visual-title">
-                        <span><strong>Sequência da rota</strong> <span class="rota-visual-note">(0 = base)</span></span>
-                        ${timelineHint}
-                    </div>
-                    <svg class="rota-svg-container">
-                        <path class="svg-road-border" fill="none" stroke="#7b5cff" stroke-width="18" stroke-linecap="round" />
-                        <path class="svg-road-bg" fill="none" stroke="#1e1b4b" stroke-width="14" stroke-linecap="round" />
-                        <path class="svg-dashed-line" fill="none" stroke="#34d1f3" stroke-width="2" stroke-linecap="round" stroke-dasharray="12 12" />
-                    </svg>
-                    <div class="rota-timeline ${isCompactTimeline ? 'timeline-compact' : ''}">
-                        ${timelineHTML}
-                    </div>
-                </div>
-
-                <div class="eventos-list">
-                    ${rota.eventos.map((evento, index) => `
-                        <div class="evento-item">
-                            <div class="evento-icon">${index + 1}</div>
-                            <div class="evento-info">
-                                <p class="evento-cidade">${evento.cidade || 'Cidade não informada'}</p>
-                                <div class="evento-detalhes">
-                                    <span>📅 ${new Date(evento.data_e_hora_do_agendamento).toLocaleDateString('pt-BR')}</span>
-                                    <span>
-                                        📍 ${
-                                            (() => {
-                                                const id = evento.id_evento || evento.id || evento.id_agendamento || evento.uuid;
-                                                const override = id != null ? overrides[String(id)] : null;
-                                                if (override !== undefined && override !== null) {
-                                                    return `${override.toFixed(1)} km (rota contínua)`;
-                                                }
-                                                return evento.distancia_km ? `${evento.distancia_km} km da base` : 'Distância não informada';
-                                            })()
-                                        }
-                                    </span>
-                                </div>
+                <div class="rota-details">
+                    <div class="rota-header">
+                        <div class="rota-info">
+                            <h3 class="rota-title">${rota.astronomo} - ${rota.rota_id}</h3>
+                            <div class="rota-subtitle">
+                                📅 ${periodoLabel} • 🎯 ${eventosCount} ${eventosLabel}
                             </div>
                         </div>
-                    `).join('')}
-                </div>
+                        <div class="rota-badge">
+                            ${Number.isFinite(totalKm) ? totalKm.toFixed(1) + ' km' : (rota.distancia_total ? rota.distancia_total + ' km' : 'Calculando...')}
+                        </div>
+                    </div>
+
+                    <div class="rota-visual">
+                        <div class="rota-visual-title">
+                            <span><strong>Sequência da rota</strong> <span class="rota-visual-note">(0 = base)</span></span>
+                            ${timelineHint}
+                        </div>
+                        <svg class="rota-svg-container">
+                            <path class="svg-road-border" fill="none" stroke="#7b5cff" stroke-width="18" stroke-linecap="round" />
+                            <path class="svg-road-bg" fill="none" stroke="#1e1b4b" stroke-width="14" stroke-linecap="round" />
+                            <path class="svg-dashed-line" fill="none" stroke="#34d1f3" stroke-width="2" stroke-linecap="round" stroke-dasharray="12 12" />
+                        </svg>
+                        <div class="rota-timeline ${isCompactTimeline ? 'timeline-compact' : ''}">
+                            ${timelineHTML}
+                        </div>
+                    </div>
+
+                    <div class="eventos-list">
+                        ${rota.eventos.map((evento, index) => {
+                            const id = evento.id_evento || evento.id || evento.id_agendamento || evento.uuid || `idx-${index}`;
+                            return `
+                                <div class="evento-item">
+                                    <div class="evento-icon">${index + 1}</div>
+                                    <div class="evento-info">
+                                        <p class="evento-cidade">${evento.cidade || 'Cidade não informada'}</p>
+                                        <div class="evento-detalhes">
+                                            <span>📅 ${new Date(evento.data_e_hora_do_agendamento).toLocaleDateString('pt-BR')}</span>
+                                            <span data-distance-id="${id}">📍 Distância: calculando...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
 
                 <div class="distancias-section">
                     <div class="distancias-title">Distâncias entre as cidades</div>
@@ -809,6 +916,7 @@
                         💸 Total estimado: ${gastos.total != null ? 'R$ ' + gastos.total.toFixed(2) : '—'}
                     </div>
                 </div>
+                </div>
             `;
 
             container.appendChild(rotaDiv);
@@ -820,6 +928,23 @@
                     requestAnimationFrame(() => desenharLinhaSVG(visualEl));
                 });
             }
+
+            const distanceTargets = rotaDiv.querySelectorAll('[data-distance-id]');
+            distanceTargets.forEach(async (el) => {
+                const evId = el.getAttribute('data-distance-id');
+                const evento = rota.eventos.find(ev => String(ev.id_evento || ev.id || ev.id_agendamento || ev.uuid || '') === String(evId));
+                if (!evento) return;
+                try {
+                    const km = await calcularDistanciaBaseEvento(evento);
+                    if (Number.isFinite(km)) {
+                        el.textContent = `📍 ${km.toFixed(1)} km da base`;
+                    } else {
+                        el.textContent = '📍 Distância indisponível';
+                    }
+                } catch (_) {
+                    el.textContent = '📍 Distância indisponível';
+                }
+            });
         }
 
         function criarTimelineVisual(eventos) {
@@ -974,24 +1099,60 @@
             return distancias;
         }
 
-        function calcularDistanciasComBase(eventos){
-            const baseLat = toNumber(sessaoAtual?.origem_lat);
-            const baseLon = toNumber(sessaoAtual?.origem_lon);
+        function getBaseCity(){
+            return sessaoAtual?.cidade_base || sessaoAtual?.cidade || sessaoAtual?.cidade_origem || '';
+        }
+
+        function getDestinoCity(evento){
+            return evento?.cidade || evento?.cidade_destino || '';
+        }
+
+        function getLatLon(evento, prefix){
+            const latKey = prefix === 'origem'
+                ? ['origem_lat','base_lat','latitude_origem','lat_origem']
+                : ['destino_lat','latitude','lat','lat_destino'];
+            const lonKey = prefix === 'origem'
+                ? ['origem_lon','base_lon','longitude_origem','lon_origem']
+                : ['destino_lon','longitude','lon','lon_destino'];
+            let lat = null;
+            let lon = null;
+            latKey.some(k => {
+                const val = toNumber(evento?.[k] ?? sessaoAtual?.[k]);
+                if (Number.isFinite(val)) { lat = val; return true; }
+                return false;
+            });
+            lonKey.some(k => {
+                const val = toNumber(evento?.[k] ?? sessaoAtual?.[k]);
+                if (Number.isFinite(val)) { lon = val; return true; }
+                return false;
+            });
+            return Number.isFinite(lat) && Number.isFinite(lon) ? [lat, lon] : null;
+        }
+
+        async function calcularDistanciaBaseEvento(evento){
+            const baseCoords = getLatLon(evento, 'origem');
+            const destCoords = getLatLon(evento, 'destino');
+            if (baseCoords && destCoords) {
+                return calcularDistanciaHaversine(baseCoords, destCoords);
+            }
+            const baseCity = getBaseCity();
+            const destCity = getDestinoCity(evento);
+            if (baseCity && destCity) {
+                return await calcularDistanciaPorCidades(baseCity, destCity);
+            }
+            return null;
+        }
+
+        async function calcularDistanciasComBase(eventos){
             let baseIda = null;
             let baseVolta = null;
             const first = eventos && eventos[0];
             const last = eventos && eventos[eventos.length-1];
-            if (first && Number.isFinite(baseLat) && Number.isFinite(baseLon) && first.destino_lat && first.destino_lon){
-                baseIda = calcularDistanciaHaversine(
-                    [baseLat, baseLon],
-                    [parseFloat(first.destino_lat), parseFloat(first.destino_lon)]
-                );
+            if (first) {
+                try { baseIda = await calcularDistanciaBaseEvento(first); } catch (_) { baseIda = null; }
             }
-            if (last && Number.isFinite(baseLat) && Number.isFinite(baseLon) && last.destino_lat && last.destino_lon){
-                baseVolta = calcularDistanciaHaversine(
-                    [parseFloat(last.destino_lat), parseFloat(last.destino_lon)],
-                    [baseLat, baseLon]
-                );
+            if (last) {
+                try { baseVolta = await calcularDistanciaBaseEvento(last); } catch (_) { baseVolta = null; }
             }
             return { baseIda, baseVolta };
         }
@@ -1055,19 +1216,51 @@
             }
         }
 
+        function loadCoordCache(){
+            try{
+                const raw = localStorage.getItem(COORD_CACHE_KEY);
+                const parsed = raw ? JSON.parse(raw) : null;
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            }catch(_){
+                return {};
+            }
+        }
+
+        function saveCoordCache(cache){
+            try{
+                localStorage.setItem(COORD_CACHE_KEY, JSON.stringify(cache));
+            }catch(_){}
+        }
+
+        let nominatimLastCall = 0;
+        async function throttledNominatimFetch(url){
+            const elapsed = Date.now() - nominatimLastCall;
+            const wait = elapsed < 1100 ? 1100 - elapsed : 0;
+            if (wait) await new Promise(r => setTimeout(r, wait));
+            nominatimLastCall = Date.now();
+            return fetch(url, { headers: { 'Accept': 'application/json' } });
+        }
+
         async function obterCoordenadas(cidade) {
             try {
-                const response = await fetch(
+                const cityKey = cidade ? cidade.toLowerCase().trim() : '';
+                if (!cityKey) return null;
+                const cache = loadCoordCache();
+                if (cache[cityKey]) return cache[cityKey];
+
+                const response = await throttledNominatimFetch(
                     `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cidade + ', Brasil')}&limit=1`
                 );
-                
                 const data = await response.json();
                 
                 if (data && data.length > 0) {
-                    return [
+                    const coords = [
                         parseFloat(data[0].lat),
                         parseFloat(data[0].lon)
                     ];
+                    cache[cityKey] = coords;
+                    saveCoordCache(cache);
+                    return coords;
                 }
                 
                 return null;

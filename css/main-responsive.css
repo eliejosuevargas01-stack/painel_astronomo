@@ -2444,10 +2444,10 @@ main {
     padding: clamp(12px, 2vw, 24px) !important;
 }
 
-/* ==== css/docs-urania.css ==== */
+/* ==== css/docs-app.css ==== */
 /* ------------------------------------------------------
    Extensões de estilo para páginas de documentos
-   Harmoniza com o tema "Agenda Inteligente Urânia"
+   Harmoniza com o tema "Agenda Inteligente"
    Requer: css/style.css (variáveis e base)
 ------------------------------------------------------- */
 

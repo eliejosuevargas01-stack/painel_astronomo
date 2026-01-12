@@ -7,10 +7,10 @@
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <link rel="stylesheet" href="css/styles.css">
 
-    <!-- Reaproveita o visual da Agenda Urânia/RH (ajuste caminhos se necessário) -->
+    <!-- Reaproveita o visual da Agenda/RH (ajuste caminhos se necessário) -->
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <!-- <link rel="stylesheet" href="css/style.css"> -->
-    <!-- <link rel="stylesheet" href="css/docs-urania.css"> -->
+    <!-- <link rel="stylesheet" href="css/docs-app.css"> -->
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
     <!-- <link rel="stylesheet" href="css/agenda.css"> -->
 </head>
@@ -199,7 +199,7 @@
             if (!isReload) return;
             try{
                 const keep = new Set(['astronomo_session','userSession']);
-                const prefixes = ['agenda_cache_v1','rotas_cache_v1','rotas_override_v1','route_cache_osrm_v1','coord_cache_nominatim_v1','route_block_cache_v1'];
+                const prefixes = ['agenda_cache_v1','agenda_payload_v1','rotas_cache_v1','rotas_override_v1','route_cache_osrm_v1','coord_cache_nominatim_v1','route_block_cache_v1'];
                 const contains = ['user_theme','savedUser','astronomersData','astronomersLastUpdate'];
                 const toDelete = [];
                 for (let i=0;i<localStorage.length;i++){
@@ -218,6 +218,7 @@
         const API_EVENT_IMAGES = "https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo";
         // Cache local para reutilizar os eventos nas demais páginas
         const AGENDA_CACHE_PREFIX = 'agenda_cache_v1';
+        const AGENDA_PAYLOAD_PREFIX = 'agenda_payload_v1';
         const ROTAS_CACHE_KEY = 'rotas_cache_v1';
         const ROTA_OVERRIDE_PREFIX = 'rotas_override_v1';
         const WEATHER_API_BASE = 'https://api.open-meteo.com/v1/forecast';
@@ -234,6 +235,21 @@
                 localStorage.setItem(key, JSON.stringify(payload));
             }catch(err){
                 console.warn('Falha ao salvar cache local da agenda:', err);
+            }
+        }
+
+        function agendaPayloadKey(sess){
+            const ns = (sess && (sess.id_astronomo ?? sess.usuario ?? sess.username)) || 'anon';
+            return `${AGENDA_PAYLOAD_PREFIX}::${String(ns).toLowerCase()}`;
+        }
+
+        function saveAgendaPayload(payload, sess){
+            try{
+                const key = agendaPayloadKey(sess);
+                const pack = { ts: Date.now(), payload: payload ?? null };
+                localStorage.setItem(key, JSON.stringify(pack));
+            }catch(err){
+                console.warn('Falha ao salvar payload bruto da agenda:', err);
             }
         }
 
@@ -1962,6 +1978,8 @@
                 if (!data) {
                     throw lastErr || new Error('Não foi possível obter dados da agenda');
                 }
+
+                saveAgendaPayload(data, sess);
 
                 let rawEventos = [];
                 if (!data) {

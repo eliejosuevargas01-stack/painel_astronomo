@@ -8,11 +8,11 @@
     <link rel="stylesheet" href="css/styles.css">
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <!-- <link rel="stylesheet" href="css/style.css"> -->
-    <!-- <link rel="stylesheet" href="css/docs-urania.css"> -->
+    <!-- <link rel="stylesheet" href="css/docs-app.css"> -->
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
 </head>
 <body class="presentation-page feedbacks-page">
-    <!-- Fundo galáctico (coeso com a Agenda Urânia) -->
+    <!-- Fundo galáctico (coeso com a Agenda Inteligente) -->
     <div class="space-layer stars"></div>
     <div class="space-layer twinkle"></div>
     <div class="space-layer nebula"></div>
@@ -23,7 +23,7 @@
             <header class="page-header">
                 <div>
                     <h1>Feedbacks</h1>
-                    <p class="subtitle">Agenda Inteligente Urânia</p>
+                    <p class="subtitle">Agenda Inteligente</p>
                 </div>
             </header>
             
@@ -136,7 +136,7 @@
                         <div class="empty-state">
                             <i class="fas fa-comment-slash"></i>
                             <h3>Nenhum feedback encontrado</h3>
-                            <p>Clique em "Buscar Dados" para carregar os feedbacks dos astrônomos</p>
+                            <p>Os feedbacks são carregados automaticamente ao abrir esta página</p>
                         </div>
                     </div>
                     
@@ -168,7 +168,7 @@
             if (!isReload) return;
             try{
                 const keep = new Set(['astronomo_session','userSession']);
-                const prefixes = ['agenda_cache_v1','rotas_cache_v1','rotas_override_v1','route_cache_osrm_v1','coord_cache_nominatim_v1','route_block_cache_v1'];
+                const prefixes = ['agenda_cache_v1','agenda_payload_v1','rotas_cache_v1','rotas_override_v1','route_cache_osrm_v1','coord_cache_nominatim_v1','route_block_cache_v1'];
                 const contains = ['user_theme','savedUser','astronomersData','astronomersLastUpdate'];
                 const toDelete = [];
                 for (let i=0;i<localStorage.length;i++){
@@ -209,6 +209,7 @@
         // Configuração do Webhook (novo endpoint)
         const AGENDA_WEBHOOK_URL = 'https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo';
         const AGENDA_CACHE_PREFIX = 'agenda_cache_v1';
+        const AGENDA_PAYLOAD_PREFIX = 'agenda_payload_v1';
 
         // Utilitários de sessão e webhook
         function getLoggedSession(){
@@ -223,6 +224,11 @@
         function agendaCacheKey(sess){
             const ns = (sess && (sess.id_astronomo ?? sess.usuario ?? sess.username)) || 'anon';
             return `${AGENDA_CACHE_PREFIX}::${String(ns).toLowerCase()}`;
+        }
+
+        function agendaPayloadKey(sess){
+            const ns = (sess && (sess.id_astronomo ?? sess.usuario ?? sess.username)) || 'anon';
+            return `${AGENDA_PAYLOAD_PREFIX}::${String(ns).toLowerCase()}`;
         }
 
         function buildUrl(base, params){
@@ -252,6 +258,30 @@
                 return { ts: parsed.ts || parsed.timestamp || null, events: revived };
             }catch(err){
                 console.warn('Não foi possível ler o cache da agenda:', err);
+                return null;
+            }
+        }
+
+        function normalizeAgendaPayload(payload){
+            if (!payload) return [];
+            if (Array.isArray(payload)) return payload;
+            if (Array.isArray(payload.eventos)) return payload.eventos;
+            if (Array.isArray(payload.data)) return payload.data;
+            if (Array.isArray(payload.events)) return payload.events;
+            return [payload];
+        }
+
+        function loadAgendaPayload(sess){
+            try{
+                const key = agendaPayloadKey(sess);
+                const raw = localStorage.getItem(key);
+                if (!raw) return null;
+                const parsed = JSON.parse(raw);
+                const payload = parsed ? parsed.payload : null;
+                const events = normalizeAgendaPayload(payload);
+                return { ts: parsed.ts || parsed.timestamp || null, events };
+            }catch(err){
+                console.warn('Não foi possível ler o payload da agenda:', err);
                 return null;
             }
         }
@@ -289,7 +319,7 @@
             searchInput.addEventListener('input', handleSearch);
             prevPageButton.addEventListener('click', goToPrevPage);
             nextPageButton.addEventListener('click', goToNextPage);
-            btnFetchData.addEventListener('click', fetchDataFromN8N);
+            if (btnFetchData) btnFetchData.addEventListener('click', fetchDataFromN8N);
             
             sentimentFilters.forEach(filter => {
                 filter.addEventListener('click', () => {
@@ -300,7 +330,7 @@
                 });
             });
 
-            // Carrega automaticamente do cache da Agenda ao abrir a página
+            // Carrega automaticamente ao abrir a página (após clicar em Feedbacks)
             fetchDataFromN8N();
         });
 
@@ -308,19 +338,48 @@
 
         async function fetchDataFromN8N() {
             try {
-                btnFetchData.disabled = true;
-                btnFetchData.innerHTML = '<span class="loading"></span> Buscando dados...';
-                connectionStatus.textContent = 'Lendo dados sincronizados na Agenda...';
-                webhookStatus.classList.remove('status-connected', 'status-error', 'status-warning');
+                if (btnFetchData) {
+                    btnFetchData.disabled = true;
+                    btnFetchData.innerHTML = '<span class="loading"></span> Buscando dados...';
+                }
+                if (connectionStatus) connectionStatus.textContent = 'Buscando dados do n8n...';
+                if (webhookStatus) webhookStatus.classList.remove('status-connected', 'status-error', 'status-warning');
 
-                const s = getLoggedSession();
-                const cached = loadCachedAgenda(s);
+                let data = null;
+                let lastErr = null;
 
-                if (!cached || !Array.isArray(cached.events) || cached.events.length === 0) {
-                    throw new Error('Nenhum dado em cache. Abra a Agenda (index) para sincronizar os eventos.');
+                try {
+                    const resp = await fetch(AGENDA_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (resp && resp.ok) {
+                        try { data = await resp.json(); } catch (_) { data = null; }
+                    } else {
+                        const txt = resp ? await resp.text().catch(() => '') : '';
+                        throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
+                    }
+                } catch (err) {
+                    lastErr = err;
                 }
 
-                eventsData = cached.events;
+                if (!data) {
+                    try {
+                        const resp = await fetch(AGENDA_WEBHOOK_URL, {
+                            method: 'GET',
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                        data = await resp.json();
+                    } catch (err) {
+                        lastErr = err;
+                    }
+                }
+
+                if (!data) throw lastErr || new Error('Não foi possível obter dados da agenda');
+
+                const events = normalizeAgendaPayload(data);
+                eventsData = Array.isArray(events) ? events : [];
 
                 // Extrair apenas eventos que têm feedback (avaliação/NPM)
                 feedbacksData = eventsData.filter(hasFeedbackFromEvent);
@@ -330,30 +389,23 @@
                     const feedbackTexto = extractFeedbackText(event);
                     const nota = extractNotaNpm(event);
                     const npmCampo = extractNpmField(event);
-                    const textoRaw = (typeof event?.texto_tarefa === 'object' && event?.texto_tarefa !== null) ? (event.texto_tarefa.texto ?? '') : (event?.texto_tarefa ?? '');
                     const escolaNome = (event?.nome_da_escola || event?.nome_escola || event?.escola || event?.nome_lead || '').toString().trim();
-                    const eventoNome = escolaNome || (event?.conteudo_da_apresentacao ?? textoRaw ?? '').toString() || 'Evento Astronômico';
-                    const dataBruta = event?._date || event?.data_agendamento || event?.data_e_hora_do_agendamento || event?.data || event?.date || new Date().toISOString();
+                    const dataBruta = event?.data_e_hora_do_agendamento || event?.data_agendamento || event?.data || event?.date || event?._date || new Date().toISOString();
                     const dataObj = dataBruta instanceof Date ? dataBruta : new Date(dataBruta);
                     const data = !Number.isNaN(dataObj.getTime()) ? dataObj.toISOString() : new Date().toISOString();
                     const cidade = (event?.cidade && event.cidade.toString().trim()) ? event.cidade : (event?.cidade_destino || 'Cidade não informada');
-                    const local = (event?.local_instalacao && event.local_instalacao.toString().toLowerCase()!=='null') ? event.local_instalacao : (event?.endereco || 'Local não informado');
-                    const alunos = event?.numero_alunos_empresa ?? event?.numero_de_alunos ?? '0';
+                    const responsavel = (event?.responsavel_pelo_evento || event?.responsavel || event?.responsavel_visita || event?.contato_responsavel || event?.nome_responsavel || '').toString().trim();
                     const id = event?.id ?? event?.id_evento ?? event?.id_evento_unico ?? 'N/A';
                     const sentiment = analyzeSentiment(feedbackTexto, nota);
                     return {
                         ...event,
                         id,
                         escola: escolaNome || 'Escola não informada',
-                        evento: eventoNome,
                         data,
                         cidade,
-                        local,
-                        astronomo: event?.astronomo ?? event?.astronomo_validacao ?? 'A definir',
+                        responsavel,
                         feedback: feedbackTexto,
                         sentiment,
-                        numero_alunos: alunos,
-                        valor_total: event?.valor_total ?? '0',
                         nota_npm: nota,
                         npm: npmCampo
                     };
@@ -361,15 +413,15 @@
 
                 populateFilters();
                 
-                connectionStatus.textContent = `Carregado do cache da Agenda - ${feedbacksData.length} feedback(s)`;
-                webhookStatus.classList.add('status-connected');
-                showNotification(`${feedbacksData.length} feedbacks carregados do cache da Agenda`, 'success');
+                if (connectionStatus) connectionStatus.textContent = `Dados do n8n carregados - ${feedbacksData.length} feedback(s)`;
+                if (webhookStatus) webhookStatus.classList.add('status-connected');
+                showNotification(`${feedbacksData.length} feedbacks carregados do n8n`, 'success');
                 
             } catch (error) {
                 console.error('Erro ao buscar dados do n8n:', error);
-                connectionStatus.textContent = `Erro: ${error.message}`;
-                webhookStatus.classList.add('status-error');
-                showNotification(`Abra a Agenda (index) para sincronizar: ${error.message}`, 'error');
+                if (connectionStatus) connectionStatus.textContent = `Erro: ${error.message}`;
+                if (webhookStatus) webhookStatus.classList.add('status-error');
+                showNotification(`Não foi possível carregar do n8n: ${error.message}`, 'error');
                 
                 // Em caso de erro, mostrar estado vazio
                 feedbacksData = [];
@@ -377,8 +429,10 @@
                 updatePagination();
                 updateStats();
             } finally {
-                btnFetchData.disabled = false;
-                btnFetchData.innerHTML = '<i class="fas fa-sync-alt"></i> Buscar Dados';
+                if (btnFetchData) {
+                    btnFetchData.disabled = false;
+                    btnFetchData.innerHTML = '<i class="fas fa-sync-alt"></i> Buscar Dados';
+                }
             }
         }
 
@@ -521,7 +575,10 @@
                     feedback.feedback?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     feedback.evento?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     feedback.cidade?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    feedback.astronomo?.toLowerCase().includes(searchTerm.toLowerCase());
+                    feedback.escola?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    feedback.responsavel?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    String(feedback.nota_npm ?? '').includes(searchTerm) ||
+                    feedback.npm?.toLowerCase().includes(searchTerm.toLowerCase());
                 
                 return matchesCity && matchesSentiment && matchesSearch;
             });
@@ -659,9 +716,9 @@
                 const cidadeBadge = cidadeNome
                     ? `<span class="sentiment-badge sentiment-neutral"><i class="fas fa-city"></i> ${cidadeNome}</span>`
                     : '';
-                
-                const sentimentClass = getSentimentClass(feedback.sentiment);
-                const sentimentIcon = getSentimentIcon(feedback.sentiment);
+                const responsavelBadge = feedback.responsavel
+                    ? `<span class="sentiment-badge sentiment-neutral"><i class="fas fa-user"></i> ${feedback.responsavel}</span>`
+                    : '';
                 
                 feedbackElement.innerHTML = `
                     <div class="feedback-header">
@@ -674,6 +731,7 @@
                         ${npmTextoBadge}
                         ${escolaBadge}
                         ${cidadeBadge}
+                        ${responsavelBadge}
                     </div>
                     
                     <div class="feedback-content">
@@ -696,35 +754,16 @@
                             <span class="detail-value">${cidadeNome}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">Local</span>
-                            <span class="detail-value">${feedback.local}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Número de Alunos</span>
-                            <span class="detail-value">${feedback.numero_alunos}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Valor</span>
-                            <span class="detail-value">R$ ${feedback.valor_total ? parseFloat(feedback.valor_total).toLocaleString('pt-BR') : 'N/A'}</span>
+                            <span class="detail-label">Responsável</span>
+                            <span class="detail-value">${feedback.responsavel || 'Não informado'}</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Nota NPM</span>
                             <span class="detail-value">${feedback.nota_npm !== null && feedback.nota_npm !== undefined ? `${feedback.nota_npm}/10` : 'Não informada'}</span>
                         </div>
-                    </div>
-                    
-                    <div class="astronomer-info">
-                        <div class="astronomer-avatar">
-                            ${feedback.astronomo.charAt(0)}
-                        </div>
-                        <div>
-                            <div class="astronomer-name">${feedback.astronomo}</div>
-                            <div>
-                                <span class="sentiment-badge ${sentimentClass}">
-                                    <i class="${sentimentIcon}"></i>
-                                    ${feedback.sentiment === 'positive' ? 'Positivo' : feedback.sentiment === 'negative' ? 'Negativo' : 'Neutro'}
-                                </span>
-                            </div>
+                        <div class="detail-item">
+                            <span class="detail-label">NPM</span>
+                            <span class="detail-value">${feedback.npm || 'Não informado'}</span>
                         </div>
                     </div>
                 `;

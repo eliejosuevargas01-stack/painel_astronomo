@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <!-- <link rel="stylesheet" href="css/style.css"> -->
-    <!-- <link rel="stylesheet" href="css/docs-urania.css"> -->
+    <!-- <link rel="stylesheet" href="css/docs-app.css"> -->
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
     <!-- <style>
         /* Ajustes locais para prévia e modal de eventos finalizados */
@@ -32,7 +32,7 @@
     </style> -->
 </head>
 <body class="presentation-page historico-page">
-    <!-- Fundo galáctico (coeso com a Agenda Urânia) -->
+    <!-- Fundo galáctico (coeso com a Agenda Inteligente) -->
     <div class="space-layer stars"></div>
     <div class="space-layer twinkle"></div>
     <div class="space-layer nebula"></div>
@@ -43,7 +43,7 @@
             <header class="page-header">
                 <div>
                     <h1>Histórico</h1>
-                    <p class="subtitle">Agenda Inteligente Urânia</p>
+                    <p class="subtitle">Agenda Inteligente</p>
                 </div>
             </header>
         
@@ -234,6 +234,7 @@
         const eventModalClose = document.getElementById('event-modal-close');
 
         // Configuração do Webhook (novo endpoint)
+        const AGENDA_WEBHOOK_URL = 'https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo';
         const AGENDA_CACHE_PREFIX = 'agenda_cache_v1';
 
         // Util: sessão + webhook
@@ -282,6 +283,15 @@
             }
         }
 
+        function normalizeAgendaPayload(payload){
+            if (!payload) return [];
+            if (Array.isArray(payload)) return payload;
+            if (Array.isArray(payload.eventos)) return payload.eventos;
+            if (Array.isArray(payload.data)) return payload.data;
+            if (Array.isArray(payload.events)) return payload.events;
+            return [payload];
+        }
+
         // Estado da aplicação
         let eventsData = [];
         let completedEvents = [];
@@ -295,8 +305,7 @@
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
-            // Primeiro: herdar eventos finalizados do cache do index
-            hydrateFromCache();
+            fetchDataFromN8N();
 
             // Event Listeners
             citySelect.addEventListener('change', handleCityFilter);
@@ -327,6 +336,51 @@
         });
 
         // ========== FUNÇÃO PRINCIPAL - BUSCAR DADOS REAIS DO n8n ==========
+
+        async function fetchDataFromN8N() {
+            try{
+                let data = null;
+                let lastErr = null;
+
+                try {
+                    const resp = await fetch(AGENDA_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (resp && resp.ok) {
+                        try { data = await resp.json(); } catch (_) { data = null; }
+                    } else {
+                        const txt = resp ? await resp.text().catch(() => '') : '';
+                        throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
+                    }
+                } catch (err) {
+                    lastErr = err;
+                }
+
+                if (!data) {
+                    try {
+                        const resp = await fetch(AGENDA_WEBHOOK_URL, {
+                            method: 'GET',
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                        data = await resp.json();
+                    } catch (err) {
+                        lastErr = err;
+                    }
+                }
+
+                if (!data) throw lastErr || new Error('Não foi possível obter dados da agenda');
+
+                const events = normalizeAgendaPayload(data);
+                applyEventsData(events, 'Dados do n8n');
+            }catch(err){
+                console.error('Erro ao buscar dados do n8n:', err);
+                showNotification(`Erro ao carregar histórico: ${err.message}`, 'error');
+                completedEvents = [];
+                renderEvents();
+            }
+        }
 
         // Sessão e filtro por usuário
         function getLoggedSession(){
@@ -363,10 +417,18 @@
                 throw new Error('Formato de dados inválido recebido');
             }
 
-            // Filtrar apenas eventos finalizados
-            completedEvents = eventsData.filter(event => 
-                event.finalizado === true || event.finalizado === 'true'
-            );
+            // Filtrar apenas eventos finalizados e com data anterior a hoje
+            const todayStart = new Date();
+            todayStart.setHours(0, 0, 0, 0);
+            completedEvents = eventsData.filter(event => {
+                const isFinalizado = event.finalizado === true || event.finalizado === 'true';
+                if (!isFinalizado) return false;
+                const rawDate = event?.data_e_hora_do_agendamento ?? event?.data_agendamento ?? event?.data ?? event?._date;
+                if (!rawDate) return false;
+                const evDate = rawDate instanceof Date ? rawDate : new Date(rawDate);
+                if (Number.isNaN(evDate.getTime())) return false;
+                return evDate < todayStart;
+            });
 
             completedEvents = completedEvents.map(event => {
                 const textoRaw = (typeof event?.texto_tarefa === 'object' && event?.texto_tarefa !== null) ? (event.texto_tarefa.texto ?? '') : (event?.texto_tarefa ?? '');

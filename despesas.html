@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão de Despesas - Urânia</title>
+    <title>Gestão de Despesas - Agenda Inteligente</title>
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <link rel="stylesheet" href="css/styles.css">
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <!-- <link rel="stylesheet" href="css/style.css"> -->
     <!-- <link rel="stylesheet" href="css/despesas-modern.css"> -->
-    <!-- <link rel="stylesheet" href="css/docs-urania.css"> -->
+  <!-- <link rel="stylesheet" href="css/docs-app.css"> -->
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
 </head>
 <body class="presentation-page despesas-page">
@@ -23,7 +23,7 @@
             <header class="page-header">
                 <div>
                     <h1>Despesas</h1>
-                    <p class="subtitle">Agenda Inteligente Urânia</p>
+                    <p class="subtitle">Agenda Inteligente</p>
                 </div>
             </header>
             
@@ -289,6 +289,7 @@
                 if (payload.id_astronomo == null) payload.id_astronomo = sess.id_astronomo;
                 if (payload.user_id == null) payload.user_id = sess.id_astronomo;
             }
+            if (action) payload.action = action;
             let lastErr = null;
             try{
                 const resp = await fetch(AGENDA_WEBHOOK_URL, {
@@ -366,6 +367,15 @@
                 console.warn('Erro ao buscar campos dinâmicos de lucro:', e);
             }
             return null;
+        }
+
+        function normalizeAgendaPayload(payload){
+            if (!payload) return [];
+            if (Array.isArray(payload)) return payload;
+            if (Array.isArray(payload.eventos)) return payload.eventos;
+            if (Array.isArray(payload.data)) return payload.data;
+            if (Array.isArray(payload.events)) return payload.events;
+            return [payload];
         }
         function readLegacyAstronomerFromSession() {
             try {
@@ -753,25 +763,42 @@
             async function fetchEvents() {
                 try {
                     eventSelect.innerHTML = '<option value="">Carregando eventos...</option>';
-                    const s = getUserSession();
-                    let data;
-                    if (s?.id_astronomo != null) {
-                        data = await callAgendaWebhook('atualizar_agenda', { id_astronomo: s.id_astronomo });
-                    } else {
-                        data = await callAgendaWebhook('atualizar_agenda', {});
+                    let data = null;
+                    let lastErr = null;
+
+                    try {
+                        const resp = await fetch(AGENDA_WEBHOOK_URL, {
+                            method: 'POST',
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        if (resp && resp.ok) {
+                            try { data = await resp.json(); } catch (_) { data = null; }
+                        } else {
+                            const txt = resp ? await resp.text().catch(() => '') : '';
+                            throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
+                        }
+                    } catch (err) {
+                        lastErr = err;
                     }
-                    if (data == null) throw new Error('Sem dados retornados');
-                    let eventsArray = [];
-                    if (Array.isArray(data)) {
-                        eventsArray = data.map(normalizeEvent);
-                    } else if (typeof data === 'object' && Array.isArray(data.eventos)) {
-                        eventsArray = data.eventos.map(normalizeEvent);
-                    } else {
-                        throw new Error('Formato de dados inválido recebido do webhook');
+
+                    if (!data) {
+                        try {
+                            const resp = await fetch(AGENDA_WEBHOOK_URL, {
+                                method: 'GET',
+                                headers: { 'Accept': 'application/json' }
+                            });
+                            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                            data = await resp.json();
+                        } catch (err) {
+                            lastErr = err;
+                        }
                     }
+
+                    if (!data) throw lastErr || new Error('Sem dados retornados');
+                    const eventsArray = normalizeAgendaPayload(data).map(normalizeEvent);
                     // Mantém apenas eventos VISITA
-                    eventsArray = eventsArray.filter(isVisitaEvent);
-                    allEvents = eventsArray;
+                    const visitaEvents = eventsArray.filter(isVisitaEvent);
+                    allEvents = visitaEvents;
                     populateEventSelect();
                     updateSummaryCards();
                     renderEventsForPeriod();

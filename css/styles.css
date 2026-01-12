@@ -482,12 +482,118 @@ input:focus, select:focus {
 
 .rotas-page .hidden { display: none; }
 
+.rotas-page .rotas-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+@media (max-width: 900px) {
+    .rotas-page .rotas-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .rota-card {
     border-top: 3px solid var(--neon-purple);
     background: var(--surface-base);
-    margin-bottom: 30px;
+    margin-bottom: 0;
     padding: 0;
-    overflow: visible;
+    overflow: hidden;
+    border-radius: 18px;
+    box-shadow: var(--shadow-lg);
+    grid-column: span 1;
+}
+
+.rota-card summary::-webkit-details-marker { display: none; }
+.rota-card summary { list-style: none; }
+
+.rota-summary {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+    min-height: 320px;
+    background: radial-gradient(circle at top, rgba(123,92,255,0.2), transparent 60%);
+}
+
+.rota-card[open] .rota-summary {
+    aspect-ratio: auto;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.rota-card[open] {
+    grid-column: 1 / -1;
+}
+
+.rota-summary-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.rota-summary-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.rota-summary-hero {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #e2e8f0;
+}
+
+.rota-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 14px;
+}
+
+.rota-summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.rota-summary-item .label {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.65rem;
+    color: rgba(226, 232, 240, 0.65);
+}
+
+.rota-summary-item .value {
+    font-size: 0.92rem;
+    color: #e2e8f0;
+}
+
+.rota-summary-span {
+    grid-column: 1 / -1;
+}
+
+.rota-summary-action {
+    margin-top: auto;
+    align-self: flex-start;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.15);
+    font-size: 0.8rem;
+    color: #fff;
+    background: rgba(34, 211, 238, 0.12);
+}
+
+.rota-details {
+    padding: 16px 18px 20px;
 }
 
 .rota-header {
