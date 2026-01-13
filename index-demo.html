@@ -945,18 +945,18 @@
                     <h1 style="margin:0; font-size:1.2rem;">🌌 Agenda do Astrônomo</h1>
                     <div class="astro-info" id="astro-info">Carregando dados do astrônomo...</div>
                 </div>
-                <a href="account.html" class="nav-button">
+                <a href="account-demo.html" class="nav-button">
                     <i class="fas fa-user-astronaut"></i> Minha Conta
                 </a>
             </header>
 
             <div class="navigation">
-                <a href="index.html" class="nav-button active"><i class="fas fa-calendar-alt"></i> Agenda</a>
-                <a href="feedbacks.html" class="nav-button"><i class="fas fa-comment-dots"></i> Feedbacks</a>
-                <a href="despesas.html" class="nav-button"><i class="fas fa-file-invoice-dollar"></i> Despesas</a>
-                <a href="historico.html" class="nav-button"><i class="fas fa-history"></i> Históricos</a>
-                <a href="account.html" class="nav-button account-header-btn"><i class="fas fa-user-astronaut"></i> Minha Conta</a>
-                <a href="rotas.html" class="nav-button"><i class="fas fa-route"></i> Rotas</a>
+                <a href="index-demo.html" class="nav-button active"><i class="fas fa-calendar-alt"></i> Agenda</a>
+                <a href="feedbacks-demo.html" class="nav-button"><i class="fas fa-comment-dots"></i> Feedbacks</a>
+                <a href="despesas-demo.html" class="nav-button"><i class="fas fa-file-invoice-dollar"></i> Despesas</a>
+                <a href="historico-demo.html" class="nav-button"><i class="fas fa-history"></i> Históricos</a>
+                <a href="account-demo.html" class="nav-button account-header-btn"><i class="fas fa-user-astronaut"></i> Minha Conta</a>
+                <a href="rotas-demo.html" class="nav-button"><i class="fas fa-route"></i> Rotas</a>
                 <a href="login.html" class="nav-button"><i class="fas fa-right-to-bracket"></i> Entrar</a>
             </div>
 
@@ -1074,6 +1074,7 @@
         </div>
     </div>
 
+    <script src="js/demo-data.js"></script>
     <script>
         // Limpa caches no reload (F5), preservando apenas sessões
         (function(){
@@ -1110,6 +1111,7 @@
         const ROTAS_CACHE_KEY = 'rotas_cache_v1';
         const ROTA_OVERRIDE_PREFIX = 'rotas_override_v1';
         const WEATHER_API_BASE = 'https://api.open-meteo.com/v1/forecast';
+        const DEMO_MODE = Boolean(window.URANIA_DEMO && window.URANIA_DEMO.enabled);
 
         function agendaCacheKey(sess){
             const ns = (sess && (sess.id_astronomo ?? sess.usuario ?? sess.username)) || 'anon';
@@ -1138,6 +1140,11 @@
             }catch(err){
                 console.warn('Falha ao espelhar cache para rotas:', err);
             }
+        }
+
+        function getDemoEvents(){
+            const demo = window.URANIA_DEMO;
+            return demo && Array.isArray(demo.events) ? demo.events : [];
         }
 
         function rotaOverrideKey(sess){
@@ -2012,6 +2019,14 @@
         async function finalizarEvento(ev, btn){
             const id = getEventId(ev);
             if (!id) return;
+            if (DEMO_MODE) {
+                removeEventById(id);
+                renderCalendar();
+                renderEventsList();
+                renderDayEventsDetails();
+                alert('Modo demo: evento marcado como finalizado.');
+                return;
+            }
             if (btn){
                 btn.disabled = true;
                 btn.dataset.prevLabel = btn.innerHTML;
@@ -2045,6 +2060,15 @@
         async function deletarEvento(ev, btn){
             const id = getEventId(ev);
             if (!id) return;
+            if (DEMO_MODE) {
+                removeEventById(id);
+                renderCalendar();
+                renderEventsList();
+                renderDayEventsDetails();
+                alert('Modo demo: evento removido.');
+                closeEventModal();
+                return;
+            }
             if (!window.confirm('Deseja realmente deletar este evento?')) return;
             if (btn){
                 btn.disabled = true;
@@ -2496,6 +2520,11 @@
             const conteudo = ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao || 'Não informado';
             const distancia = getDistanceLabel(ev);
             const duracao = getDurationLabel(ev);
+            const destLatVal = formatCoord(ev.destino_lat ?? ev.lat_destino ?? ev.latitude_destino);
+            const destLonVal = formatCoord(ev.destino_lon ?? ev.lon_destino ?? ev.longitude_destino);
+            const origLatVal = formatCoord(ev.origem_lat ?? ev.lat_origem ?? ev.latitude_origem);
+            const origLonVal = formatCoord(ev.origem_lon ?? ev.lon_origem ?? ev.longitude_origem);
+
             const headerHtml = `
                 <div class="event-modal-quick">
                     <span class="event-chip"><strong>Rota contínua?</strong> ${rotaLabel}</span>
@@ -2506,6 +2535,10 @@
                     <span class="event-chip"><strong>Distância</strong> ${distancia}</span>
                     ${duracao ? `<span class="event-chip"><strong>Duração</strong> ${duracao}</span>` : ''}
                     <span class="event-chip"><strong>Resultado</strong> ${getResultadoLabel(ev)}</span>
+                    <span class="event-chip"><strong>destino_lat</strong> ${destLatVal}</span>
+                    <span class="event-chip"><strong>destino_lon</strong> ${destLonVal}</span>
+                    <span class="event-chip"><strong>origem_lat</strong> ${origLatVal}</span>
+                    <span class="event-chip"><strong>origem_lon</strong> ${origLonVal}</span>
                 </div>
             `;
 
@@ -2566,11 +2599,6 @@
                 }
                 const sensitiveKeys = ['senha_usuario', 'senha', 'password', 'pass'];
                 if (sensitiveKeys.includes(String(key).toLowerCase())) return;
-                const hiddenKeys = [
-                    'destino_lat', 'destino_lon', 'lat_destino', 'lon_destino', 'latitude_destino', 'longitude_destino',
-                    'origem_lat', 'origem_lon', 'lat_origem', 'lon_origem', 'latitude_origem', 'longitude_origem',
-                ];
-                if (hiddenKeys.includes(String(key))) return;
 
                 if (typeof val === 'object') {
                     try {
@@ -2801,6 +2829,34 @@
 
         // ==== Carregar agenda do webhook (action=atualizar_agenda) ====
         async function carregarAgenda(){
+            if (DEMO_MODE) {
+                const sess = getLoggedSession() || (window.URANIA_DEMO && window.URANIA_DEMO.session) || null;
+                currentSession = sess;
+                const demoEvents = getDemoEvents();
+                eventsData = dedupeEventsById(demoEvents.map(ev => normalizeEvent(ev, sess)));
+                applyRotaContinuaBlocks(eventsData);
+                applyRouteOverrides(eventsData, sess);
+                saveAgendaCache(eventsData, sess);
+                syncRotasCache(eventsData, sess);
+                if (btnOpenRotas) btnOpenRotas.disabled = false;
+                if (!selectedDate) {
+                    const today = startOfDay(new Date());
+                    selectedDate = today;
+                    currentMonthDate = today;
+                } else if (selectedDate instanceof Date && !Number.isNaN(selectedDate.getTime())) {
+                    selectedDate = startOfDay(selectedDate);
+                }
+                renderCalendar();
+                renderEventsList();
+                renderDayEventsDetails();
+                statusTextEl.textContent = `Modo demo: ${eventsData.length} evento(s).`;
+                if (btnRefreshAgenda) {
+                    btnRefreshAgenda.disabled = false;
+                    btnRefreshAgenda.textContent = '🔄 Atualizar agenda';
+                }
+                return;
+            }
+
             const sess = getLoggedSession();
             currentSession = sess;
             if (!sess || sess.id_astronomo == null) {
@@ -2944,15 +3000,15 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const sess = getLoggedSession();
+            const sess = getLoggedSession() || (DEMO_MODE ? (window.URANIA_DEMO && window.URANIA_DEMO.session) : null);
             currentSession = sess;
-            if (!sess || sess.id_astronomo == null) {
+            if ((!sess || sess.id_astronomo == null) && !DEMO_MODE) {
                 astroInfoEl.textContent = 'Nenhum astrônomo logado. Redirecionando para login...';
                 setTimeout(() => { window.location.href = 'login.html'; }, 500);
                 return;
             }
 
-            astroInfoEl.textContent = describeSession(sess);
+            astroInfoEl.textContent = `${describeSession(sess)}${DEMO_MODE ? ' (demo)' : ''}`;
 
             taskTypeFilterEl.addEventListener('change', () => {
                 currentTaskFilter = getSelectedTaskFilter();
@@ -2978,13 +3034,15 @@
                             applyRouteOverrides(eventsData, sess);
                             syncRotasCache(eventsData, sess);
                             btnOpenRotas.disabled = false;
-                            computeContinuousRoutes(eventsData)
-                                .then(metrics => {
-                                    applyContinuousRouteMetrics(eventsData, metrics);
-                                    renderEventsList();
-                                    renderDayEventsDetails();
-                                })
-                                .catch(err => console.warn('Erro ao calcular rota contínua OSRM (cache):', err));
+                            if (!DEMO_MODE) {
+                                computeContinuousRoutes(eventsData)
+                                    .then(metrics => {
+                                        applyContinuousRouteMetrics(eventsData, metrics);
+                                        renderEventsList();
+                                        renderDayEventsDetails();
+                                    })
+                                    .catch(err => console.warn('Erro ao calcular rota contínua OSRM (cache):', err));
+                            }
                         }
                 }catch(_){}
             }

@@ -19,14 +19,14 @@
     <div class="container">
         <header style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
             <h1>💰 Gestão de Despesas</h1>
-            <a href="account.html" class="nav-button account-header-btn" title="Minha Conta"><i class="fas fa-user-astronaut"></i> Minha Conta</a>
+            <a href="account-demo.html" class="nav-button account-header-btn" title="Minha Conta"><i class="fas fa-user-astronaut"></i> Minha Conta</a>
         </header>
         
         <div class="navigation">
-            <a href="index.html" class="nav-button"><i class="fas fa-calendar-alt"></i> Agenda</a>
-            <a href="feedbacks.html" class="nav-button"><i class="fas fa-comment-dots"></i> Feedbacks</a>
-            <a href="despesas.html" class="nav-button active"><i class="fas fa-file-invoice-dollar"></i> Despesas</a>
-            <a href="historico.html" class="nav-button"><i class="fas fa-history"></i> Históricos</a>
+            <a href="index-demo.html" class="nav-button"><i class="fas fa-calendar-alt"></i> Agenda</a>
+            <a href="feedbacks-demo.html" class="nav-button"><i class="fas fa-comment-dots"></i> Feedbacks</a>
+            <a href="despesas-demo.html" class="nav-button active"><i class="fas fa-file-invoice-dollar"></i> Despesas</a>
+            <a href="historico-demo.html" class="nav-button"><i class="fas fa-history"></i> Históricos</a>
             <a href="login.html" class="nav-button"><i class="fas fa-right-to-bracket"></i> Entrar</a>
         </div>
 
@@ -130,6 +130,7 @@
     </footer>
     </div>
 
+    <script src="js/demo-data.js"></script>
     <script>
     // Limpa caches no reload (F5), preservando apenas sessões
     (function(){
@@ -164,6 +165,7 @@
         // ===================== Helpers básicos =====================
         const AGENDA_WEBHOOK_URL = 'https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/agenda-astronomos';
         const DEFAULT_PROFIT_RATE = 0.26;
+        const DEMO_MODE = Boolean(window.URANIA_DEMO && window.URANIA_DEMO.enabled);
 
         const formatCurrencyBr = (v) => {
             const n = Number(v);
@@ -706,6 +708,18 @@
             async function fetchEvents() {
                 try {
                     eventSelect.innerHTML = '<option value="">Carregando eventos...</option>';
+                    if (DEMO_MODE) {
+                        const demoEvents = window.URANIA_DEMO && Array.isArray(window.URANIA_DEMO.events)
+                            ? window.URANIA_DEMO.events
+                            : [];
+                        allEvents = demoEvents.map(normalizeEvent).filter(isVisitaEvent);
+                        populateEventSelect();
+                        updateSummaryCards();
+                        renderEventsForPeriod();
+                        applyPendingSelectedEvent();
+                        showNotification(`Modo demonstracao: ${allEvents.length} eventos carregados.`, 'info');
+                        return;
+                    }
                     const s = getUserSession();
                     let data;
                     if (s?.id_astronomo != null) {
@@ -971,6 +985,11 @@
                 const monitor = parseCurrencyBR(document.getElementById('exp-monitor').value || 0);
                 const outros = parseCurrencyBR(document.getElementById('exp-outros').value || 0);
                 if (!id_evento) { showNotification('Evento inválido.', 'error'); return; }
+                if (DEMO_MODE) {
+                    showNotification('Modo demonstracao: envio de despesas desativado.', 'info');
+                    closeExpensesModal();
+                    return;
+                }
                 try {
                     const result = await callAgendaWebhook('lancar_despesas', {
                         id_evento,
