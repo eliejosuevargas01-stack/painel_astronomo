@@ -3161,6 +3161,16 @@ body.agenda-page {
   font-size: 1rem;
   font-weight: 600;
 }
+.agenda-page .info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  font-size: 0.85em;
+  opacity: 0.85;
+  cursor: help;
+  user-select: none;
+}
 
 .agenda-page .main-grid {
   display: grid;

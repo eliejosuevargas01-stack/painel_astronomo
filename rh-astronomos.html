@@ -1083,12 +1083,9 @@
         // Constantes e variáveis globais
         // Endpoint principal (mesmo usado no login e em outras páginas públicas)
         // Endpoint principal informado
-        const API_ASTRO_BASE = "https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo";
-        const API_ASTRO_FALLBACKS = [
-            API_ASTRO_BASE,
-            "https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo" // fallback alternativo
-        ];
-        const API_AGENDA = "https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo";
+        const API_ASTRO_BASE = "https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/novo-astronomo-1";
+        const API_ASTRO_FALLBACKS = [API_ASTRO_BASE];
+        const API_AGENDA = "https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/agenda-astronomos";
         const API_IMPORT_ACTION = "add"; // envia cada item do CSV como action=add
         
         let ASTRONOMOS = [];
@@ -2042,8 +2039,121 @@
             if (t.includes('visita')) return 'visita';
             if (t.includes('pré') || t.includes('pre')) return 'pre';
             if (t.includes('reserva')) return 'reserva';
-            if (t.includes('não marcar') || t.includes('nao marcar') || t.includes('nao_marcar')) return 'nao_marcar';
+            if (t.includes('não marcar') || t.includes('nao marcar') || t.includes('nao_marcar') || t.includes('ñ')) return 'nao_marcar';
             return t;
+        }
+
+        function normalizeAgendaTipo(raw){
+            const txt = String(raw || '').trim();
+            const lower = txt.toLowerCase();
+            if (!lower || lower === 'all' || lower === 'todos') return 'TODOS';
+            if (lower.includes('reserva')) return 'RESERVA';
+            if (lower.includes('visita')) return 'VISITA';
+            if (lower.includes('pre') || lower.includes('pré')) return 'PRE';
+            if (lower.includes('nao') || lower.includes('não') || lower.includes('ñ')) return 'Ñ MARCAR';
+            return txt.toUpperCase();
+        }
+
+        async function readResponsePayload(resp){
+            let text = '';
+            try { text = await resp.text(); } catch (_) { text = ''; }
+            if (!text) return null;
+            try { return JSON.parse(text); } catch (_) { return text; }
+        }
+
+        function normalizeAgendaPayload(data){
+            if (!data) return [];
+            if (Array.isArray(data)) return data;
+            if (typeof data !== 'object') return [];
+            if (Array.isArray(data.eventos)) return data.eventos;
+            if (Array.isArray(data.data)) return data.data;
+            if (Array.isArray(data.events)) return data.events;
+            if (Array.isArray(data.agenda)) return data.agenda;
+            if (Array.isArray(data.evento)) return data.evento;
+            return [data];
+        }
+
+        function getEventIdCandidates(ev){
+            if (!ev || typeof ev !== 'object') return [];
+            const ids = [
+                ev.id_evento,
+                ev.id_evento_unico,
+                ev.id_agendamento,
+                ev.id,
+                ev.uuid,
+                ev.evento_id
+            ].filter(v => v !== undefined && v !== null && v !== '');
+            return ids.map(v => String(v));
+        }
+
+        function scoreEventForMerge(ev){
+            if (!ev || typeof ev !== 'object') return 0;
+            let score = 0;
+            if (ev.id_evento != null) score += 6;
+            if (ev.id_evento_unico != null) score += 5;
+            if (ev.id_agendamento != null) score += 4;
+            if (ev.id != null) score += 3;
+            if (ev.uuid) score += 2;
+            if (ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data) score += 2;
+            if (ev.nome_da_escola || ev.nome_escola || ev.escola || ev.nome_lead) score += 2;
+            if (ev.cidade || ev.cidade_destino) score += 1;
+            if (ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao) score += 1;
+            if (ev.finalizado === true || ev.finalizado === 'true') score += 1;
+            return score;
+        }
+
+        function mergeDuplicateEvents(base, incoming){
+            if (!base) return incoming;
+            if (!incoming) return base;
+            const incomingWins = scoreEventForMerge(incoming) > scoreEventForMerge(base);
+            const primary = incomingWins ? incoming : base;
+            const secondary = incomingWins ? base : incoming;
+            const merged = { ...primary };
+            Object.entries(secondary).forEach(([k,v]) => {
+                if (merged[k] === undefined || merged[k] === null || merged[k] === '' || merged[k] === 'null') {
+                    merged[k] = v;
+                }
+            });
+            const ids = new Set([...getEventIdCandidates(base), ...getEventIdCandidates(incoming)]);
+            if (ids.size > 1) merged._duplicate_ids = Array.from(ids);
+            return merged;
+        }
+
+        function canonicalEventSignature(ev){
+            if (!ev || typeof ev !== 'object') return '';
+            const rawDate = ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data;
+            const dateObj = rawDate ? new Date(rawDate) : null;
+            const dateStr = dateObj instanceof Date && !Number.isNaN(dateObj.getTime())
+                ? dateObj.toISOString()
+                : '';
+            const escola = cleanText(ev.nome_da_escola || ev.nome_escola || ev.escola || ev.nome_lead || '').toLowerCase();
+            const cidade = cleanText(ev.cidade || ev.cidade_destino || ev.cidade_origem || '').toLowerCase();
+            const conteudo = cleanText(ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao || '').toLowerCase();
+            const tipo = cleanText(ev.tipo_da_tarefa || ev.tipo_evento || ev.tipo || '').toLowerCase();
+            return JSON.stringify({ dateStr, escola, cidade, conteudo, tipo });
+        }
+
+        function dedupeEventsBySignature(arr){
+            if (!Array.isArray(arr)) return [];
+            const sigMap = new Map();
+            const result = [];
+            arr.forEach(ev => {
+                const sig = canonicalEventSignature(ev);
+                if (!sig) {
+                    result.push(ev);
+                    return;
+                }
+                if (sigMap.has(sig)) {
+                    const merged = mergeDuplicateEvents(sigMap.get(sig), ev);
+                    const idx = result.indexOf(sigMap.get(sig));
+                    if (idx >= 0) result[idx] = merged;
+                    sigMap.set(sig, merged);
+                } else {
+                    sigMap.set(sig, ev);
+                    result.push(ev);
+                }
+            });
+            return result;
         }
 
         function applyAstronomerFilters(){
@@ -2193,45 +2303,55 @@
             showSpinner('btn-atualizar-agenda');
             
             try {
-                const params = new URLSearchParams({
-                    action: "atualizar_agenda",
-                    id_astronomo: SELECTED.id_astronomo,
-                    from: SELECTED.from,
-                    to: SELECTED.to,
-                    search: SELECTED.search
-                });
-                if (SELECTED.taskType && SELECTED.taskType !== 'all') {
-                    params.set('tipo', SELECTED.taskType);
-                }
-                
-                const response = await fetch(`${API_AGENDA}?${params.toString()}`);
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Erro ${response.status}: ${errorText}`);
-                }
-                
-                const data = await response.json();
-                
-                // Normaliza diferentes formatos de resposta do webhook
-                let rawEventos = [];
-                if (!data) {
-                    rawEventos = [];
-                } else if (Array.isArray(data)) {
-                    rawEventos = data;
-                } else if (Array.isArray(data.eventos)) {
-                    rawEventos = data.eventos;
-                } else if (Array.isArray(data.agenda)) {
-                    rawEventos = data.agenda;
-                } else if (Array.isArray(data.data)) {
-                    rawEventos = data.data;
-                } else if (data.evento) {
-                    rawEventos = Array.isArray(data.evento) ? data.evento : [data.evento];
-                } else {
-                    rawEventos = [data];
+                const params = new URLSearchParams();
+                const tipoWebhook = 'TODOS';
+                params.set('action', 'atualizar_agenda');
+                params.set('tipo', tipoWebhook);
+                params.set('id_astronomo', SELECTED.id_astronomo);
+                if (SELECTED.from) params.set('from', SELECTED.from);
+                if (SELECTED.to) params.set('to', SELECTED.to);
+                if (SELECTED.search) params.set('search', SELECTED.search);
+                const selectedAstro = Array.isArray(ASTRONOMOS)
+                    ? ASTRONOMOS.find(a => String(a.id_astronomo) === String(SELECTED.id_astronomo))
+                    : null;
+                const usuario = selectedAstro && (selectedAstro.usuario || selectedAstro.username || selectedAstro.astronomo || selectedAstro.nome_completo);
+                if (usuario) params.set('usuario', usuario);
+
+                const url = `${API_AGENDA}?${params.toString()}`;
+                let data = null;
+                let lastErr = null;
+
+                try{
+                    const response = await fetch(url, { method:'POST', headers:{ 'Accept':'application/json' } });
+                    if (!response.ok) {
+                        const errorText = await response.text().catch(()=> '');
+                        throw new Error(`Erro ${response.status}: ${errorText}`);
+                    }
+                    data = await readResponsePayload(response);
+                }catch(err){
+                    lastErr = err;
                 }
 
-                EVENTOS = rawEventos.map(normalizeAgendaEvent);
+                if (!data) {
+                    try{
+                        const response = await fetch(url, { method:'GET', headers:{ 'Accept':'application/json' } });
+                        if (!response.ok) {
+                            const errorText = await response.text().catch(()=> '');
+                            throw new Error(`Erro ${response.status}: ${errorText}`);
+                        }
+                        data = await readResponsePayload(response);
+                    }catch(err){
+                        lastErr = err;
+                    }
+                }
+
+                if (!data) {
+                    throw lastErr || new Error('Sem dados retornados');
+                }
+
+                const rawEventos = normalizeAgendaPayload(data);
+
+                EVENTOS = dedupeEventsBySignature(rawEventos.map(normalizeAgendaEvent));
                 popularFiltroAgendaUnico(EVENTOS);
                 
                 renderAgenda();
@@ -2312,10 +2432,12 @@
             }
 
             // Filtro por tipo de tarefa (frontend)
-            if (SELECTED.taskType && SELECTED.taskType !== 'all') {
+            const selectedTipo = normalizeAgendaTipo(SELECTED.taskType);
+            if (selectedTipo && selectedTipo !== 'TODOS') {
+                const selectedKey = normalizeTaskType(selectedTipo);
                 eventos = eventos.filter(ev => {
                     const t = normalizeTaskType(ev.tipo_da_tarefa || ev.tipo || ev.tipo_evento || '');
-                    return t === SELECTED.taskType;
+                    return t === selectedKey;
                 });
             }
 

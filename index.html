@@ -49,26 +49,6 @@
                     <h1>Planeje, visualize e acompanhe as rotas do astrônomo.</h1>
                     <p>Centralize o calendário, visualize eventos por dia e mantenha a agenda sincronizada para decisões rápidas.</p>
                 </div>
-                <div class="panel-card">
-                    <div class="panel-title">
-                        <span>Painel rápido</span>
-                        <span class="panel-tag">Atualização automática</span>
-                    </div>
-                    <div class="panel-list">
-                        <div class="panel-item">
-                            <span class="panel-label">Agenda do mês</span>
-                            <span class="panel-value">Visão consolidada</span>
-                        </div>
-                        <div class="panel-item">
-                            <span class="panel-label">Eventos do dia</span>
-                            <span class="panel-value">Detalhes em tempo real</span>
-                        </div>
-                        <div class="panel-item">
-                            <span class="panel-label">Rotas contínuas</span>
-                            <span class="panel-value">Sugestões automáticas</span>
-                        </div>
-                    </div>
-                </div>
             </section>
 
             <div class="panel-card" style="margin-bottom: 12px;">
@@ -98,7 +78,7 @@
                 <div class="calendar-panel">
                     <div class="panel-card">
                         <div class="panel-title">
-                            <span>📅 Calendário</span>
+                            <span>📅 Calendário <span class="info-icon" title="Eventos sem data definida não aparecem no calendário.&#10;Se o calendário estiver vazio, considere que seu dia está livre.&#10;&#10;Eventos duplicados foram agrupados para facilitar a visualização da agenda.&#10;&#10;Cada dia marcado no calendário representa uma diária.&#10;Por isso, eventos com várias diárias aparecem ocupando vários dias consecutivos a partir da data de início." aria-label="Informações sobre o calendário">ℹ️</span></span>
                         </div>
                         <div class="calendar-header-row">
                             <button class="calendar-nav-btn btn btn-secondary" id="btn-prev-month">← Mês anterior</button>
@@ -214,8 +194,8 @@
             }catch(_){}
         })();
 
-        // ==== Configuração do webhook (mesmo endpoint da agenda) ====
-        const API_EVENT_IMAGES = "https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo";
+        // ==== Configuração dos webhooks ====
+        const API_EVENT_IMAGES = "https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/novo-astronomo-1";
         // Cache local para reutilizar os eventos nas demais páginas
         const AGENDA_CACHE_PREFIX = 'agenda_cache_v1';
         const AGENDA_PAYLOAD_PREFIX = 'agenda_payload_v1';
@@ -349,7 +329,30 @@
         // Lightbox state
         let lightboxImages = [];
         let lightboxIndex = 0;
-        const API_AGENDA = "https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo";
+        const API_AGENDA = "https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/agenda-astronomos";
+
+        async function readResponsePayload(resp){
+            let text = '';
+            try { text = await resp.text(); } catch (_) { text = ''; }
+            if (!text) return null;
+            try { return JSON.parse(text); } catch (_) { return text; }
+        }
+
+        function normalizeAgendaPayload(data){
+            if (!data) return [];
+            if (Array.isArray(data)) return data;
+            if (typeof data !== 'object') return [];
+            if (Array.isArray(data.eventos)) return data.eventos;
+            if (Array.isArray(data.data)) return data.data;
+            if (Array.isArray(data.events)) return data.events;
+            if (Array.isArray(data.agenda)) return data.agenda;
+            return [data];
+        }
+
+        function getWebhookTipoFromSelect(){
+            // Sempre solicita TODOS do webhook; o filtro por tipo é aplicado no frontend.
+            return 'TODOS';
+        }
 
         function saveIndexUIState(){
             try{
@@ -1064,7 +1067,7 @@
         }
 
         function getEventId(ev){
-            return ev.id_evento || ev.id_evento_unico || ev.id || ev.id_agendamento || ev.uuid || String(Math.random()).slice(2);
+            return ev._id || ev.id_evento || ev.id_evento_unico || ev.id || ev.id_agendamento || ev.uuid || String(Math.random()).slice(2);
         }
 
         function isDateInEventSpan(date, ev){
@@ -1111,8 +1114,82 @@
             });
         }
 
+        function getEventIdCandidates(ev){
+            if (!ev || typeof ev !== 'object') return [];
+            const ids = [
+                ev.id_evento,
+                ev.id_evento_unico,
+                ev.id_agendamento,
+                ev.id,
+                ev.uuid,
+                ev.evento_id
+            ].filter(v => v !== undefined && v !== null && v !== '');
+            if (!ids.length && ev._id) ids.push(ev._id);
+            return ids.map(v => String(v));
+        }
+
+        function scoreEventForMerge(ev){
+            if (!ev || typeof ev !== 'object') return 0;
+            let score = 0;
+            if (ev.id_evento != null) score += 6;
+            if (ev.id_evento_unico != null) score += 5;
+            if (ev.id_agendamento != null) score += 4;
+            if (ev.id != null) score += 3;
+            if (ev.uuid) score += 2;
+            if (ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data) score += 2;
+            if (ev.nome_da_escola || ev.nome_escola || ev.escola || ev.nome_lead) score += 2;
+            if (ev.cidade || ev.cidade_destino) score += 1;
+            if (ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao) score += 1;
+            const lat = toNumber(ev.destino_lat ?? ev.lat_destino ?? ev.latitude_destino);
+            const lon = toNumber(ev.destino_lon ?? ev.lon_destino ?? ev.longitude_destino);
+            if (lat !== null && lon !== null) score += 1;
+            if (ev.finalizado === true || ev.finalizado === 'true') score += 1;
+            return score;
+        }
+
+        function mergeDuplicateEvents(base, incoming){
+            if (!base) return incoming;
+            if (!incoming) return base;
+            const incomingWins = scoreEventForMerge(incoming) > scoreEventForMerge(base);
+            const primary = incomingWins ? incoming : base;
+            const secondary = incomingWins ? base : incoming;
+            const merged = { ...primary };
+            Object.entries(secondary).forEach(([k,v]) => {
+                if (merged[k] === undefined || merged[k] === null || merged[k] === '' || merged[k] === 'null') {
+                    merged[k] = v;
+                }
+            });
+            const ids = new Set([...getEventIdCandidates(base), ...getEventIdCandidates(incoming)]);
+            if (ids.size > 1) merged._duplicate_ids = Array.from(ids);
+            return merged;
+        }
+
+        function dedupeEventsBySignature(arr){
+            if (!Array.isArray(arr)) return [];
+            const sigMap = new Map();
+            const result = [];
+            arr.forEach(ev => {
+                const sig = canonicalEventSignature(ev);
+                if (!sig) {
+                    result.push(ev);
+                    return;
+                }
+                if (sigMap.has(sig)) {
+                    const merged = mergeDuplicateEvents(sigMap.get(sig), ev);
+                    const idx = result.indexOf(sigMap.get(sig));
+                    if (idx >= 0) result[idx] = merged;
+                    sigMap.set(sig, merged);
+                } else {
+                    sigMap.set(sig, ev);
+                    result.push(ev);
+                }
+            });
+            return result;
+        }
+
         function dedupeEventsById(list){
-            return uniqueEventsById(Array.isArray(list) ? list : []);
+            const base = uniqueEventsById(Array.isArray(list) ? list : []);
+            return dedupeEventsBySignature(base);
         }
 
         function isVisitaEvent(ev){
@@ -1215,12 +1292,7 @@
             const cidade = normalizeCityUF(ev.cidade || ev.cidade_destino || '').toLowerCase();
             const conteudo = (ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao || '').toString().trim().toLowerCase();
             const tipo = (ev._taskType || ev.tipo_da_tarefa || ev.tipo_evento || ev.tipo || '').toString().trim().toLowerCase();
-            const diarias = getDiariasCount(ev);
-            const valor = ev.valor_total ?? ev.total ?? ev.valor ?? ev.custo_total ?? null;
-            const dist = getDistanceKmValue(ev);
-            const lat = toNumber(ev.destino_lat ?? ev.lat_destino ?? ev.latitude_destino);
-            const lon = toNumber(ev.destino_lon ?? ev.lon_destino ?? ev.longitude_destino);
-            return JSON.stringify({ dateStr, horaStr, escola, cidade, conteudo, tipo, diarias, valor, dist, lat, lon });
+            return JSON.stringify({ dateStr, horaStr, escola, cidade, conteudo, tipo });
         }
 
         function getDiariasCount(ev){
@@ -1382,6 +1454,7 @@
                             <span class="day-detail__chip"><i class="fas fa-route"></i> ${distancia}</span>
                             <span class="day-detail__chip"><i class="fas fa-coins"></i> ${valor}</span>
                             ${duracao ? `<span class="day-detail__chip"><i class="fas fa-hourglass-half"></i> ${duracao}</span>` : ''}
+                            <span class="day-detail__chip"><i class="fas fa-flag"></i> ${formatTaskLabel(ev._taskType)}</span>
                             <span class="day-detail__chip"><i class="fas fa-clipboard-check"></i> Resultado: ${getResultadoLabel(ev)}</span>
                         </div>
                     </div>
@@ -1784,6 +1857,13 @@
             });
         }
 
+        function formatInfoTitle(text){
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/\n/g, '&#10;');
+        }
+
         // ==== Render da lista de eventos ====
         function renderEventsList(){
             const filtered = getFilteredEvents();
@@ -1823,15 +1903,18 @@
             const renderedEvents = [];
             const parts = [];
 
-            function renderCards(label, items, extraClass){
+            function renderCards(label, items, extraClass, infoText){
                 if (!items.length) return;
                 const icon = extraClass === 'upcoming' ? 'fa-rocket' : extraClass === 'pending' ? 'fa-clock' : 'fa-circle';
                 const stateLabel = extraClass === 'pending' ? 'Pendente' : 'Próximo';
                 const stateClass = extraClass === 'pending' ? 'state-pending' : 'state-upcoming';
+                const infoIcon = infoText
+                    ? `<span class="info-icon" title="${formatInfoTitle(infoText)}" aria-label="Informações sobre ${label}">ℹ️</span>`
+                    : '';
                 parts.push(`
                     <section class="events-block">
                         <header class="events-header">
-                            <div><i class="fas ${icon}"></i> ${label}</div>
+                            <div><i class="fas ${icon}"></i> ${label} ${infoIcon}</div>
                             <span class="meta">${items.length} evento(s)</span>
                         </header>
                         <div class="events-scroll">
@@ -1899,8 +1982,18 @@
             }
 
             parts.push('<div class="events-container">');
-            renderCards('Próximos', visitasFuturas, 'upcoming');
-            renderCards('Pendentes de finalizar', visitasPassadas, 'pending');
+            renderCards(
+                'Próximos Eventos',
+                visitasFuturas,
+                'upcoming',
+                'Aqui você vê todos os eventos que ainda vão acontecer no futuro.\nSe não houver eventos listados, significa que sua agenda está livre para novos compromissos.'
+            );
+            renderCards(
+                'Eventos Pendentes de Finalização',
+                visitasPassadas,
+                'pending',
+                'Aqui ficam os eventos que já aconteceram ou que ainda não possuem uma data definida.\nEsses eventos precisam ser finalizados ou organizados.'
+            );
             parts.push('</div>');
             if (outros.length) {
                 renderCards('Outros eventos', outros, 'other');
@@ -1945,28 +2038,27 @@
                 if (btnOpenRotas) btnOpenRotas.disabled = true;
 
             try {
-                // Monta URL com parâmetros (mantido para uso futuro)
-                // const buildUrl = () => {
-                //     const u = new URL(API_AGENDA);
-                //     u.searchParams.set('action', 'atualizar_agenda');
-                //     u.searchParams.set('tipo', 'atualizar_agenda');
-                //     if (sess && sess.id_astronomo != null) u.searchParams.set('id_astronomo', String(sess.id_astronomo));
-                //     if (sess && sess.usuario) u.searchParams.set('usuario', String(sess.usuario));
-                //     return u.toString();
-                // };
+                const buildUrl = () => {
+                    const u = new URL(API_AGENDA);
+                    u.searchParams.set('action', 'atualizar_agenda');
+                    u.searchParams.set('tipo', getWebhookTipoFromSelect());
+                    if (sess && sess.id_astronomo != null) u.searchParams.set('id_astronomo', String(sess.id_astronomo));
+                    if (sess && sess.usuario) u.searchParams.set('usuario', String(sess.usuario));
+                    return u.toString();
+                };
 
-                let resp = null;
                 let data = null;
                 let lastErr = null;
 
                 // 1ª tentativa: POST (padrão do webhook)
                 try {
-                    resp = await fetch(API_AGENDA, {
+                    const url = buildUrl();
+                    const resp = await fetch(url, {
                         method: 'POST',
                         headers: { 'Accept': 'application/json' }
                     });
                     if (resp && resp.ok) {
-                        try { data = await resp.json(); } catch (_) { data = null; }
+                        data = await readResponsePayload(resp);
                     } else {
                         const txt = resp ? await resp.text().catch(()=>'') : '';
                         throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
@@ -1975,25 +2067,32 @@
                     lastErr = err;
                 }
 
+                // 2ª tentativa: GET como fallback
+                if (!data) {
+                    try {
+                        const url = buildUrl();
+                        const resp = await fetch(url, {
+                            method: 'GET',
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        if (resp && resp.ok) {
+                            data = await readResponsePayload(resp);
+                        } else {
+                            const txt = resp ? await resp.text().catch(()=>'') : '';
+                            throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
+                        }
+                    } catch (err) {
+                        lastErr = err;
+                    }
+                }
+
                 if (!data) {
                     throw lastErr || new Error('Não foi possível obter dados da agenda');
                 }
 
                 saveAgendaPayload(data, sess);
 
-                let rawEventos = [];
-                if (!data) {
-                    rawEventos = [];
-                } else if (Array.isArray(data)) {
-                    rawEventos = data;
-                } else if (Array.isArray(data.eventos)) {
-                    rawEventos = data.eventos;
-                } else if (Array.isArray(data.data)) {
-                    rawEventos = data.data;
-                } else {
-                    // fallback: se vier um objeto único já de evento
-                    rawEventos = [data];
-                }
+                const rawEventos = normalizeAgendaPayload(data);
 
                 eventsData = dedupeEventsById(rawEventos.map(ev => normalizeEvent(ev, sess)));
                 applyRotaContinuaBlocks(eventsData);
@@ -2638,7 +2737,8 @@
         async function fetchRotasSessao(sess){
             if (!sess) return null;
             const buildUrl = () => {
-                const u = new URL("https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo");
+                const u = new URL(API_AGENDA);
+                u.searchParams.set('tipo', 'TODOS');
                 if (sess.id_astronomo != null) u.searchParams.set('id_astronomo', String(sess.id_astronomo));
                 if (sess.usuario) u.searchParams.set('usuario', String(sess.usuario));
                 return u.toString();
@@ -2651,7 +2751,7 @@
                 const url = buildUrl();
                 const resp = await fetch(url, { method:'POST', headers:{'Accept':'application/json'} });
                 if (resp && resp.ok) {
-                    try{ data = await resp.json(); }catch(_){ data = null; }
+                    data = await readResponsePayload(resp);
                 } else {
                     const txt = resp ? await resp.text().catch(()=>'') : '';
                     throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
@@ -2665,7 +2765,7 @@
                     const url = buildUrl();
                     const resp = await fetch(url, { method:'GET', headers:{'Accept':'application/json'} });
                     if (resp && resp.ok) {
-                        try{ data = await resp.json(); }catch(_){ data = null; }
+                        data = await readResponsePayload(resp);
                     } else {
                         const txt = resp ? await resp.text().catch(()=>'') : '';
                         throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);

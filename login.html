@@ -111,7 +111,7 @@
         </div>
     </div>
 
-    <script>
+   <script>
         // Limpa caches no reload (F5), preservando apenas sessões
         (function(){
             const isReload = (() => {
@@ -159,7 +159,7 @@
         const rememberMe = document.getElementById('remember-me');
 
         // Configuração do Webhook
-        const ASTRONOMER_WEBHOOK_URL = 'https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo';
+        const ASTRONOMER_WEBHOOK_URL = 'https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/novo-astronomo-1';
 
         // Estado da aplicação
         let astronomersData = [];
@@ -189,24 +189,26 @@
                 webhookStatus.classList.remove('status-connected', 'status-error');
 
                 let data = null;
-                // 1) POST sem action (mantém URLs com action comentadas para uso futuro)
+                // 1) Tenta POST action=list (novo endpoint principal)
                 try{
                     const response = await fetch(ASTRONOMER_WEBHOOK_URL, {
                         method: 'POST',
-                        headers: { 'Accept': 'application/json' },
-                        mode: 'cors'
+                        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                        mode: 'cors',
+                        body: JSON.stringify({ action: 'list' })
                     });
                     if (!response.ok) throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
                     data = await response.json();
                 }catch(err){
-                    // const response = await fetch(ASTRONOMER_WEBHOOK_URL, {
-                    //     method: 'POST',
-                    //     headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-                    //     mode: 'cors',
-                    //     body: JSON.stringify({ action: 'list' })
-                    // });
-                    // const url = `${ASTRONOMER_WEBHOOK_URL}?action=list`;
-                    throw err;
+                    // 2) Fallback: GET com action=list
+                    const url = `${ASTRONOMER_WEBHOOK_URL}?action=list`;
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                        mode: 'cors'
+                    });
+                    if (!response.ok) throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+                    data = await response.json();
                 }
 
                 if (Array.isArray(data)) astronomersData = data;
@@ -510,6 +512,20 @@
                 // O select será preenchido após carregar os dados
             }
         }
+
+        // ========== SESSÃO EXISTENTE ==========
+        // Força login manual: não redireciona automaticamente com sessões antigas
+        function checkExistingSession() {
+            try {
+                // Limpa sessões anteriores para impedir auto login
+                localStorage.removeItem('astronomo_session');
+                localStorage.removeItem('userSession');
+                showMessage('Faça login para continuar.', 'info');
+            } catch(_) {}
+        }
+
+        // Verificar sessão existente
+        checkExistingSession();
 
         // Adicionar alguns estilos específicos para elementos do formulário
         const style = document.createElement('style');

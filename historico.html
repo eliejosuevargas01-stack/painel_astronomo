@@ -64,26 +64,6 @@
                         <h1>Visibilidade completa dos eventos finalizados.</h1>
                         <p>Acompanhe resultados, métricas e performance por cidade, período e astrônomo para decisões mais precisas.</p>
                     </div>
-                    <div class="panel-card">
-                        <div class="panel-title">
-                            <span>Resumo executivo</span>
-                            <span class="panel-tag">Cache local</span>
-                        </div>
-                        <div class="panel-list">
-                            <div class="panel-item">
-                                <span class="panel-label">Eventos finalizados</span>
-                                <span class="panel-value">Histórico consolidado</span>
-                            </div>
-                            <div class="panel-item">
-                                <span class="panel-label">Taxa de conclusão</span>
-                                <span class="panel-value">Indicadores contínuos</span>
-                            </div>
-                            <div class="panel-item">
-                                <span class="panel-label">Cidades atendidas</span>
-                                <span class="panel-value">Cobertura operacional</span>
-                            </div>
-                        </div>
-                    </div>
                 </section>
                 
                 <section class="section" id="indicadores">
@@ -224,17 +204,22 @@
         const totalAstronomersElement = document.getElementById('total-astronomers');
         const totalCitiesElement = document.getElementById('total-cities');
         const completionRateElement = document.getElementById('completion-rate');
+        const connectionStatus = document.getElementById('connection-status');
+        const webhookStatus = document.getElementById('webhook-status');
         const pagination = document.getElementById('pagination');
         const paginationInfo = document.getElementById('pagination-info');
         const prevPageButton = document.getElementById('prev-page');
         const nextPageButton = document.getElementById('next-page');
+        const btnFetchData = document.getElementById('btn-fetch-data');
         const periodButtons = document.querySelectorAll('.period-button');
+        const btnExportCsv = document.getElementById('btn-export-csv');
+        const btnExportPdf = document.getElementById('btn-export-pdf');
         const eventModal = document.getElementById('event-modal');
         const eventModalBody = document.getElementById('event-modal-body');
         const eventModalClose = document.getElementById('event-modal-close');
 
         // Configuração do Webhook (novo endpoint)
-        const AGENDA_WEBHOOK_URL = 'https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo';
+        const AGENDA_WEBHOOK_URL = 'https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/agenda-astronomos';
         const AGENDA_CACHE_PREFIX = 'agenda_cache_v1';
 
         // Util: sessão + webhook
@@ -255,6 +240,149 @@
         function agendaCacheKey(sess){
             const ns = (sess && (sess.id_astronomo ?? sess.usuario ?? sess.username)) || 'anon';
             return `${AGENDA_CACHE_PREFIX}::${String(ns).toLowerCase()}`;
+        }
+        async function readResponsePayload(resp){
+            let text = '';
+            try { text = await resp.text(); } catch (_) { text = ''; }
+            if (!text) return null;
+            try { return JSON.parse(text); } catch (_) { return text; }
+        }
+        function normalizeAgendaPayload(data){
+            if (!data) return [];
+            if (Array.isArray(data)) return data;
+            if (typeof data !== 'object') return [];
+            if (Array.isArray(data.eventos)) return data.eventos;
+            if (Array.isArray(data.data)) return data.data;
+            if (Array.isArray(data.events)) return data.events;
+            if (Array.isArray(data.agenda)) return data.agenda;
+            return [data];
+        }
+
+        function getEventIdCandidates(ev){
+            if (!ev || typeof ev !== 'object') return [];
+            const ids = [
+                ev.id_evento,
+                ev.id_evento_unico,
+                ev.id_agendamento,
+                ev.id,
+                ev.uuid,
+                ev.evento_id
+            ].filter(v => v !== undefined && v !== null && v !== '');
+            return ids.map(v => String(v));
+        }
+
+        function scoreEventForMerge(ev){
+            if (!ev || typeof ev !== 'object') return 0;
+            let score = 0;
+            if (ev.id_evento != null) score += 6;
+            if (ev.id_evento_unico != null) score += 5;
+            if (ev.id_agendamento != null) score += 4;
+            if (ev.id != null) score += 3;
+            if (ev.uuid) score += 2;
+            if (ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data) score += 2;
+            if (ev.nome_da_escola || ev.nome_escola || ev.escola || ev.nome_lead) score += 2;
+            if (ev.cidade || ev.cidade_destino) score += 1;
+            if (ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao) score += 1;
+            if (ev.finalizado === true || ev.finalizado === 'true') score += 1;
+            return score;
+        }
+
+        function mergeDuplicateEvents(base, incoming){
+            if (!base) return incoming;
+            if (!incoming) return base;
+            const incomingWins = scoreEventForMerge(incoming) > scoreEventForMerge(base);
+            const primary = incomingWins ? incoming : base;
+            const secondary = incomingWins ? base : incoming;
+            const merged = { ...primary };
+            Object.entries(secondary).forEach(([k,v]) => {
+                if (merged[k] === undefined || merged[k] === null || merged[k] === '' || merged[k] === 'null') {
+                    merged[k] = v;
+                }
+            });
+            const ids = new Set([...getEventIdCandidates(base), ...getEventIdCandidates(incoming)]);
+            if (ids.size > 1) merged._duplicate_ids = Array.from(ids);
+            return merged;
+        }
+
+        function canonicalEventSignature(ev){
+            if (!ev || typeof ev !== 'object') return '';
+            const rawDate = ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data || ev.finalizado_em;
+            const dateObj = rawDate ? new Date(rawDate) : null;
+            const dateStr = dateObj instanceof Date && !Number.isNaN(dateObj.getTime())
+                ? dateObj.toISOString()
+                : '';
+            const escola = normalizeSearchText(ev.nome_da_escola || ev.nome_escola || ev.escola || ev.nome_lead || '');
+            const cidade = normalizeSearchText(ev.cidade || ev.cidade_destino || ev.cidade_origem || '');
+            const conteudo = normalizeSearchText(ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao || '');
+            const tipo = normalizeSearchText(ev.tipo_da_tarefa || ev.tipo_evento || ev.tipo || '');
+            return JSON.stringify({ dateStr, escola, cidade, conteudo, tipo });
+        }
+
+        function dedupeEventsBySignature(arr){
+            if (!Array.isArray(arr)) return [];
+            const sigMap = new Map();
+            const result = [];
+            arr.forEach(ev => {
+                const sig = canonicalEventSignature(ev);
+                if (!sig) {
+                    result.push(ev);
+                    return;
+                }
+                if (sigMap.has(sig)) {
+                    const merged = mergeDuplicateEvents(sigMap.get(sig), ev);
+                    const idx = result.indexOf(sigMap.get(sig));
+                    if (idx >= 0) result[idx] = merged;
+                    sigMap.set(sig, merged);
+                } else {
+                    sigMap.set(sig, ev);
+                    result.push(ev);
+                }
+            });
+            return result;
+        }
+        async function callAgendaWebhook(action, params){
+            const payload = { action, ...(params||{}) };
+            if (action === 'atualizar_agenda') payload.tipo = 'TODOS';
+            const sess = getLoggedSession();
+            if (sess){
+                if (payload.id_astronomo == null && sess.id_astronomo != null) payload.id_astronomo = sess.id_astronomo;
+                if (payload.usuario == null) {
+                    const u = sess.usuario || sess.username || sess.astronomo;
+                    if (u) payload.usuario = u;
+                }
+            }
+            const url = buildUrl(AGENDA_WEBHOOK_URL, payload);
+            let data = null;
+            let lastErr = null;
+
+            try {
+                const resp = await fetch(url, { method:'POST', headers:{ 'Accept':'application/json' } });
+                if (resp && resp.ok) {
+                    data = await readResponsePayload(resp);
+                } else {
+                    const txt = resp ? await resp.text().catch(()=> '') : '';
+                    throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
+                }
+            } catch (err) {
+                lastErr = err;
+            }
+
+            if (!data) {
+                try {
+                    const resp = await fetch(url, { method:'GET', headers:{ 'Accept':'application/json' } });
+                    if (resp && resp.ok) {
+                        data = await readResponsePayload(resp);
+                    } else {
+                        const txt = resp ? await resp.text().catch(()=> '') : '';
+                        throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
+                    }
+                } catch (err) {
+                    lastErr = err;
+                }
+            }
+
+            if (!data) throw lastErr || new Error('Falha ao chamar webhook');
+            return data;
         }
         function loadCachedAgenda(sess){
             try{
@@ -283,15 +411,6 @@
             }
         }
 
-        function normalizeAgendaPayload(payload){
-            if (!payload) return [];
-            if (Array.isArray(payload)) return payload;
-            if (Array.isArray(payload.eventos)) return payload.eventos;
-            if (Array.isArray(payload.data)) return payload.data;
-            if (Array.isArray(payload.events)) return payload.events;
-            return [payload];
-        }
-
         // Estado da aplicação
         let eventsData = [];
         let completedEvents = [];
@@ -305,14 +424,18 @@
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
-            fetchDataFromN8N();
+            // Primeiro: tentar herdar eventos finalizados do cache do index (e só buscar se não houver)
+            fetchDataFromN8N(true);
 
             // Event Listeners
             citySelect.addEventListener('change', handleCityFilter);
             searchInput.addEventListener('input', handleSearch);
             prevPageButton.addEventListener('click', goToPrevPage);
             nextPageButton.addEventListener('click', goToNextPage);
-            // Removidos botões de buscar/exportar
+            btnFetchData.addEventListener('click', () => fetchDataFromN8N(false));
+            btnExportCsv.addEventListener('click', exportToCSV);
+            btnExportPdf.addEventListener('click', exportToPDF);
+            
             periodButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     periodButtons.forEach(b => b.classList.remove('active'));
@@ -336,51 +459,6 @@
         });
 
         // ========== FUNÇÃO PRINCIPAL - BUSCAR DADOS REAIS DO n8n ==========
-
-        async function fetchDataFromN8N() {
-            try{
-                let data = null;
-                let lastErr = null;
-
-                try {
-                    const resp = await fetch(AGENDA_WEBHOOK_URL, {
-                        method: 'POST',
-                        headers: { 'Accept': 'application/json' }
-                    });
-                    if (resp && resp.ok) {
-                        try { data = await resp.json(); } catch (_) { data = null; }
-                    } else {
-                        const txt = resp ? await resp.text().catch(() => '') : '';
-                        throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
-                    }
-                } catch (err) {
-                    lastErr = err;
-                }
-
-                if (!data) {
-                    try {
-                        const resp = await fetch(AGENDA_WEBHOOK_URL, {
-                            method: 'GET',
-                            headers: { 'Accept': 'application/json' }
-                        });
-                        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                        data = await resp.json();
-                    } catch (err) {
-                        lastErr = err;
-                    }
-                }
-
-                if (!data) throw lastErr || new Error('Não foi possível obter dados da agenda');
-
-                const events = normalizeAgendaPayload(data);
-                applyEventsData(events, 'Dados do n8n');
-            }catch(err){
-                console.error('Erro ao buscar dados do n8n:', err);
-                showNotification(`Erro ao carregar histórico: ${err.message}`, 'error');
-                completedEvents = [];
-                renderEvents();
-            }
-        }
 
         // Sessão e filtro por usuário
         function getLoggedSession(){
@@ -409,26 +487,12 @@
 
         function applyEventsData(data, sourceLabel){
             // Normaliza fonte
-            if (Array.isArray(data)) {
-                eventsData = data;
-            } else if (typeof data === 'object' && data) {
-                eventsData = [data];
-            } else {
-                throw new Error('Formato de dados inválido recebido');
-            }
+            eventsData = dedupeEventsBySignature(normalizeAgendaPayload(data));
 
-            // Filtrar apenas eventos finalizados e com data anterior a hoje
-            const todayStart = new Date();
-            todayStart.setHours(0, 0, 0, 0);
-            completedEvents = eventsData.filter(event => {
-                const isFinalizado = event.finalizado === true || event.finalizado === 'true';
-                if (!isFinalizado) return false;
-                const rawDate = event?.data_e_hora_do_agendamento ?? event?.data_agendamento ?? event?.data ?? event?._date;
-                if (!rawDate) return false;
-                const evDate = rawDate instanceof Date ? rawDate : new Date(rawDate);
-                if (Number.isNaN(evDate.getTime())) return false;
-                return evDate < todayStart;
-            });
+            // Filtrar apenas eventos finalizados
+            completedEvents = eventsData.filter(event => 
+                event.finalizado === true || event.finalizado === 'true'
+            );
 
             completedEvents = completedEvents.map(event => {
                 const textoRaw = (typeof event?.texto_tarefa === 'object' && event?.texto_tarefa !== null) ? (event.texto_tarefa.texto ?? '') : (event?.texto_tarefa ?? '');
@@ -454,31 +518,58 @@
                 };
             });
 
+            // Filtrar por usuário logado
+            const session = getLoggedSession();
+            if (session) {
+                completedEvents = completedEvents.filter(item => belongsToSession(item, session));
+            }
+
             populateFilters();
-            showNotification(`${completedEvents.length} eventos finalizados carregados com sucesso!`, 'success');
-            showNotification(`${sourceLabel} - ${completedEvents.length} eventos finalizados carregados`, 'info');
+            webhookStatus.classList.remove('status-error', 'status-warning');
+            connectionStatus.textContent = `${sourceLabel} - ${completedEvents.length} eventos finalizados carregados`;
+            webhookStatus.classList.add('status-connected');
             showNotification(`${completedEvents.length} eventos finalizados carregados com sucesso!`, 'success');
         }
 
-        function hydrateFromCache(showEmptyMessage = false){
+        function hydrateFromCache(){
             const sess = getLoggedSession();
             const cache = loadCachedAgenda(sess);
-            if (!cache || !Array.isArray(cache.events) || !cache.events.length) {
-                if (showEmptyMessage) {
-                    showNotification('Sem dados em cache. Abra a Agenda (index) para sincronizar.', 'info');
-                }
-                completedEvents = [];
-                renderEvents();
-                return false;
-            }
+            if (!cache || !Array.isArray(cache.events) || !cache.events.length) return false;
             try{
                 applyEventsData(cache.events, 'Cache local');
                 return true;
             }catch(err){
                 console.warn('Falha ao aplicar cache local:', err);
+                return false;
+            }
+        }
+
+        async function fetchDataFromN8N(preferCache = false) {
+            if (preferCache && hydrateFromCache()) {
+                return;
+            }
+
+            try {
+                btnFetchData.disabled = true;
+                btnFetchData.innerHTML = '<span class="loading"></span> Buscando dados...';
+                connectionStatus.textContent = 'Conectando ao n8n...';
+                webhookStatus.classList.remove('status-connected', 'status-error', 'status-warning');
+
+                const s = getLoggedSession();
+                const data = await callAgendaWebhook('atualizar_agenda', s?.id_astronomo != null ? { id_astronomo: s.id_astronomo } : {});
+                applyEventsData(data, 'Conectado');
+            } catch (error) {
+                console.error('Erro ao buscar dados do n8n:', error);
+                connectionStatus.textContent = `Erro: ${error.message}`;
+                webhookStatus.classList.add('status-error');
+                showNotification(`Erro ao carregar dados: ${error.message}`, 'error');
+                
+                // Em caso de erro, mostrar estado vazio
                 completedEvents = [];
                 renderEvents();
-                return false;
+            } finally {
+                btnFetchData.disabled = false;
+                btnFetchData.innerHTML = '<i class="fas fa-sync-alt"></i> Buscar Dados';
             }
         }
 
@@ -823,6 +914,48 @@
             totalCitiesElement.textContent = totalCities.toLocaleString('pt-BR');
             totalValueElement.textContent = `R$ ${totalValue.toLocaleString('pt-BR')}`;
             completionRateElement.textContent = `${completionRate}%`;
+        }
+
+        // ========== FUNÇÕES DE EXPORTAÇÃO ==========
+
+        function exportToCSV() {
+            if (filteredEvents.length === 0) {
+                showNotification('Nenhum dado para exportar', 'error');
+                return;
+            }
+
+            const headers = ['Evento', 'Data', 'Astrônomo', 'Cidade', 'Local', 'Alunos', 'Valor', 'Finalizado em'];
+            const csvData = filteredEvents.map(event => [
+                `"${event.evento}"`,
+                new Date(event.data).toLocaleDateString('pt-BR'),
+                `"${event.astronomo}"`,
+                `"${event.cidade}"`,
+                `"${event.local}"`,
+                event.numero_alunos,
+                event.valor_total ? parseFloat(event.valor_total).toLocaleString('pt-BR') : '0',
+                new Date(event.finalizado_em || event.data).toLocaleDateString('pt-BR')
+            ]);
+
+            const csvContent = [headers, ...csvData]
+                .map(row => row.join(','))
+                .join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `historico_eventos_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showNotification('CSV exportado com sucesso!', 'success');
+        }
+
+        function exportToPDF() {
+            showNotification('Funcionalidade de PDF em desenvolvimento', 'info');
+            // Implementação do PDF pode ser adicionada posteriormente
         }
 
         function showNotification(message, type) {

@@ -44,26 +44,6 @@
                         <h1>Feedbacks dos astrônomos em tempo real.</h1>
                         <p>Carregue, filtre e acompanhe percepções por cidade, sentimento e resultado das sessões.</p>
                     </div>
-                    <div class="panel-card">
-                        <div class="panel-title">
-                            <span>Painel rápido</span>
-                            <span class="panel-tag">Atualização automática</span>
-                        </div>
-                        <div class="panel-list">
-                            <div class="panel-item">
-                                <span class="panel-label">Cobertura</span>
-                                <span class="panel-value">Visão consolidada</span>
-                            </div>
-                            <div class="panel-item">
-                                <span class="panel-label">Sentimento</span>
-                                <span class="panel-value">Leitura instantânea</span>
-                            </div>
-                            <div class="panel-item">
-                                <span class="panel-label">Qualidade</span>
-                                <span class="panel-value">Ajustes recomendados</span>
-                            </div>
-                        </div>
-                    </div>
                 </section>
                 
                 <section class="section" id="indicadores">
@@ -168,7 +148,7 @@
             if (!isReload) return;
             try{
                 const keep = new Set(['astronomo_session','userSession']);
-                const prefixes = ['agenda_cache_v1','agenda_payload_v1','rotas_cache_v1','rotas_override_v1','route_cache_osrm_v1','coord_cache_nominatim_v1','route_block_cache_v1'];
+                const prefixes = ['agenda_cache_v1','rotas_cache_v1','rotas_override_v1','route_cache_osrm_v1','coord_cache_nominatim_v1','route_block_cache_v1'];
                 const contains = ['user_theme','savedUser','astronomersData','astronomersLastUpdate'];
                 const toDelete = [];
                 for (let i=0;i<localStorage.length;i++){
@@ -207,9 +187,8 @@
         const countNegativeElement = document.getElementById('count-negative');
 
         // Configuração do Webhook (novo endpoint)
-        const AGENDA_WEBHOOK_URL = 'https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo';
+        const AGENDA_WEBHOOK_URL = 'https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/agenda-astronomos';
         const AGENDA_CACHE_PREFIX = 'agenda_cache_v1';
-        const AGENDA_PAYLOAD_PREFIX = 'agenda_payload_v1';
 
         // Utilitários de sessão e webhook
         function getLoggedSession(){
@@ -226,22 +205,71 @@
             return `${AGENDA_CACHE_PREFIX}::${String(ns).toLowerCase()}`;
         }
 
-        function agendaPayloadKey(sess){
-            const ns = (sess && (sess.id_astronomo ?? sess.usuario ?? sess.username)) || 'anon';
-            return `${AGENDA_PAYLOAD_PREFIX}::${String(ns).toLowerCase()}`;
-        }
-
         function buildUrl(base, params){
             const usp = new URLSearchParams();
             Object.entries(params||{}).forEach(([k,v])=>{ if (v!==undefined && v!==null) usp.append(k, String(v)); });
             const sep = base.includes('?') ? '&' : '?';
             return base + sep + usp.toString();
         }
+        async function readResponsePayload(resp){
+            let text = '';
+            try { text = await resp.text(); } catch (_) { text = ''; }
+            if (!text) return null;
+            try { return JSON.parse(text); } catch (_) { return text; }
+        }
+        function normalizeAgendaPayload(data){
+            if (!data) return [];
+            if (Array.isArray(data)) return data;
+            if (typeof data !== 'object') return [];
+            if (Array.isArray(data.eventos)) return data.eventos;
+            if (Array.isArray(data.data)) return data.data;
+            if (Array.isArray(data.events)) return data.events;
+            if (Array.isArray(data.agenda)) return data.agenda;
+            return [data];
+        }
         async function callAgendaWebhook(action, params){
-            const url = buildUrl(AGENDA_WEBHOOK_URL, { action, ...(params||{}) });
-            const resp = await fetch(url, { method:'GET', headers:{ 'Accept':'application/json' } });
-            if (!resp.ok) throw new Error(`Erro HTTP ${resp.status}`);
-            try{ return await resp.json(); }catch(_){ return null; }
+            const payload = { action, ...(params||{}) };
+            if (action === 'atualizar_agenda') payload.tipo = 'TODOS';
+            const sess = getLoggedSession();
+            if (sess){
+                if (payload.id_astronomo == null && sess.id_astronomo != null) payload.id_astronomo = sess.id_astronomo;
+                if (payload.usuario == null) {
+                    const u = sess.usuario || sess.username || sess.astronomo;
+                    if (u) payload.usuario = u;
+                }
+            }
+            const url = buildUrl(AGENDA_WEBHOOK_URL, payload);
+            let data = null;
+            let lastErr = null;
+
+            try {
+                const resp = await fetch(url, { method:'POST', headers:{ 'Accept':'application/json' } });
+                if (resp && resp.ok) {
+                    data = await readResponsePayload(resp);
+                } else {
+                    const txt = resp ? await resp.text().catch(()=> '') : '';
+                    throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
+                }
+            } catch (err) {
+                lastErr = err;
+            }
+
+            if (!data) {
+                try {
+                    const resp = await fetch(url, { method:'GET', headers:{ 'Accept':'application/json' } });
+                    if (resp && resp.ok) {
+                        data = await readResponsePayload(resp);
+                    } else {
+                        const txt = resp ? await resp.text().catch(()=> '') : '';
+                        throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
+                    }
+                } catch (err) {
+                    lastErr = err;
+                }
+            }
+
+            if (!data) throw lastErr || new Error('Falha ao chamar webhook');
+            return data;
         }
 
         function loadCachedAgenda(sess){
@@ -262,30 +290,6 @@
             }
         }
 
-        function normalizeAgendaPayload(payload){
-            if (!payload) return [];
-            if (Array.isArray(payload)) return payload;
-            if (Array.isArray(payload.eventos)) return payload.eventos;
-            if (Array.isArray(payload.data)) return payload.data;
-            if (Array.isArray(payload.events)) return payload.events;
-            return [payload];
-        }
-
-        function loadAgendaPayload(sess){
-            try{
-                const key = agendaPayloadKey(sess);
-                const raw = localStorage.getItem(key);
-                if (!raw) return null;
-                const parsed = JSON.parse(raw);
-                const payload = parsed ? parsed.payload : null;
-                const events = normalizeAgendaPayload(payload);
-                return { ts: parsed.ts || parsed.timestamp || null, events };
-            }catch(err){
-                console.warn('Não foi possível ler o payload da agenda:', err);
-                return null;
-            }
-        }
-
         // Estado da aplicação
         let eventsData = [];
         let feedbacksData = [];
@@ -297,6 +301,79 @@
         const feedbacksPerPage = 12;
 
         function norm(v){ return String(v||'').trim().toLowerCase(); }
+        function getEventIdCandidates(ev){
+            if (!ev || typeof ev !== 'object') return [];
+            const ids = [
+                ev.id_evento,
+                ev.id_evento_unico,
+                ev.id_agendamento,
+                ev.id,
+                ev.uuid,
+                ev.evento_id
+            ].filter(v => v !== undefined && v !== null && v !== '');
+            return ids.map(v => String(v));
+        }
+        function scoreEventForMerge(ev){
+            if (!ev || typeof ev !== 'object') return 0;
+            let score = 0;
+            if (ev.id_evento != null) score += 4;
+            if (ev.id_evento_unico != null) score += 3;
+            if (ev.id_agendamento != null) score += 2;
+            if (ev.id != null) score += 1;
+            if (extractFeedbackText(ev)) score += 3;
+            if (extractNotaNpm(ev) != null) score += 2;
+            if (ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data) score += 1;
+            return score;
+        }
+        function mergeDuplicateEvents(base, incoming){
+            if (!base) return incoming;
+            if (!incoming) return base;
+            const incomingWins = scoreEventForMerge(incoming) > scoreEventForMerge(base);
+            const primary = incomingWins ? incoming : base;
+            const secondary = incomingWins ? base : incoming;
+            const merged = { ...primary };
+            Object.entries(secondary).forEach(([k,v]) => {
+                if (merged[k] === undefined || merged[k] === null || merged[k] === '' || merged[k] === 'null') {
+                    merged[k] = v;
+                }
+            });
+            const ids = new Set([...getEventIdCandidates(base), ...getEventIdCandidates(incoming)]);
+            if (ids.size > 1) merged._duplicate_ids = Array.from(ids);
+            return merged;
+        }
+        function canonicalEventSignature(ev){
+            if (!ev || typeof ev !== 'object') return '';
+            const rawDate = ev._date || ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data || ev.date;
+            const dateObj = rawDate instanceof Date ? rawDate : (rawDate ? new Date(rawDate) : null);
+            const dateStr = dateObj instanceof Date && !Number.isNaN(dateObj.getTime()) ? dateObj.toISOString() : '';
+            const escola = norm(ev.nome_da_escola || ev.nome_escola || ev.escola || ev.nome_lead || '');
+            const cidade = norm(ev.cidade || ev.cidade_destino || ev.cidade_origem || '');
+            const conteudo = norm(ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao || '');
+            const tipo = norm(ev.tipo_da_tarefa || ev.tipo_evento || ev.tipo || '');
+            return JSON.stringify({ dateStr, escola, cidade, conteudo, tipo });
+        }
+        function dedupeEventsBySignature(arr){
+            if (!Array.isArray(arr)) return [];
+            const sigMap = new Map();
+            const result = [];
+            arr.forEach(ev => {
+                const sig = canonicalEventSignature(ev);
+                if (!sig) {
+                    result.push(ev);
+                    return;
+                }
+                if (sigMap.has(sig)) {
+                    const merged = mergeDuplicateEvents(sigMap.get(sig), ev);
+                    const idx = result.indexOf(sigMap.get(sig));
+                    if (idx >= 0) result[idx] = merged;
+                    sigMap.set(sig, merged);
+                } else {
+                    sigMap.set(sig, ev);
+                    result.push(ev);
+                }
+            });
+            return result;
+        }
         function belongsToSession(item, s){
             if (!s) return false;
             const sid = item.assistant_id ?? item.ASSISTANT_ID;
@@ -319,7 +396,7 @@
             searchInput.addEventListener('input', handleSearch);
             prevPageButton.addEventListener('click', goToPrevPage);
             nextPageButton.addEventListener('click', goToNextPage);
-            if (btnFetchData) btnFetchData.addEventListener('click', fetchDataFromN8N);
+            btnFetchData.addEventListener('click', fetchDataFromN8N);
             
             sentimentFilters.forEach(filter => {
                 filter.addEventListener('click', () => {
@@ -330,7 +407,7 @@
                 });
             });
 
-            // Carrega automaticamente ao abrir a página (após clicar em Feedbacks)
+            // Carrega automaticamente do cache da Agenda ao abrir a página
             fetchDataFromN8N();
         });
 
@@ -338,48 +415,26 @@
 
         async function fetchDataFromN8N() {
             try {
-                if (btnFetchData) {
-                    btnFetchData.disabled = true;
-                    btnFetchData.innerHTML = '<span class="loading"></span> Buscando dados...';
-                }
-                if (connectionStatus) connectionStatus.textContent = 'Buscando dados do n8n...';
-                if (webhookStatus) webhookStatus.classList.remove('status-connected', 'status-error', 'status-warning');
+                btnFetchData.disabled = true;
+                btnFetchData.innerHTML = '<span class="loading"></span> Buscando dados...';
+                connectionStatus.textContent = 'Conectando ao webhook da Agenda...';
+                webhookStatus.classList.remove('status-connected', 'status-error', 'status-warning');
 
-                let data = null;
-                let lastErr = null;
-
-                try {
-                    const resp = await fetch(AGENDA_WEBHOOK_URL, {
-                        method: 'POST',
-                        headers: { 'Accept': 'application/json' }
-                    });
-                    if (resp && resp.ok) {
-                        try { data = await resp.json(); } catch (_) { data = null; }
+                const s = getLoggedSession();
+                let rawData = null;
+                try{
+                    rawData = await callAgendaWebhook('atualizar_agenda', s?.id_astronomo != null ? { id_astronomo: s.id_astronomo } : {});
+                }catch(err){
+                    console.warn('Falha ao buscar feedbacks via webhook, tentando cache local:', err);
+                    const cached = loadCachedAgenda(s);
+                    if (cached && Array.isArray(cached.events) && cached.events.length) {
+                        rawData = cached.events;
                     } else {
-                        const txt = resp ? await resp.text().catch(() => '') : '';
-                        throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
-                    }
-                } catch (err) {
-                    lastErr = err;
-                }
-
-                if (!data) {
-                    try {
-                        const resp = await fetch(AGENDA_WEBHOOK_URL, {
-                            method: 'GET',
-                            headers: { 'Accept': 'application/json' }
-                        });
-                        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                        data = await resp.json();
-                    } catch (err) {
-                        lastErr = err;
+                        throw err;
                     }
                 }
 
-                if (!data) throw lastErr || new Error('Não foi possível obter dados da agenda');
-
-                const events = normalizeAgendaPayload(data);
-                eventsData = Array.isArray(events) ? events : [];
+                eventsData = dedupeEventsBySignature(normalizeAgendaPayload(rawData));
 
                 // Extrair apenas eventos que têm feedback (avaliação/NPM)
                 feedbacksData = eventsData.filter(hasFeedbackFromEvent);
@@ -389,39 +444,52 @@
                     const feedbackTexto = extractFeedbackText(event);
                     const nota = extractNotaNpm(event);
                     const npmCampo = extractNpmField(event);
+                    const textoRaw = (typeof event?.texto_tarefa === 'object' && event?.texto_tarefa !== null) ? (event.texto_tarefa.texto ?? '') : (event?.texto_tarefa ?? '');
                     const escolaNome = (event?.nome_da_escola || event?.nome_escola || event?.escola || event?.nome_lead || '').toString().trim();
-                    const dataBruta = event?.data_e_hora_do_agendamento || event?.data_agendamento || event?.data || event?.date || event?._date || new Date().toISOString();
+                    const eventoNome = escolaNome || (event?.conteudo_da_apresentacao ?? textoRaw ?? '').toString() || 'Evento Astronômico';
+                    const dataBruta = event?._date || event?.data_agendamento || event?.data_e_hora_do_agendamento || event?.data || event?.date || new Date().toISOString();
                     const dataObj = dataBruta instanceof Date ? dataBruta : new Date(dataBruta);
                     const data = !Number.isNaN(dataObj.getTime()) ? dataObj.toISOString() : new Date().toISOString();
                     const cidade = (event?.cidade && event.cidade.toString().trim()) ? event.cidade : (event?.cidade_destino || 'Cidade não informada');
-                    const responsavel = (event?.responsavel_pelo_evento || event?.responsavel || event?.responsavel_visita || event?.contato_responsavel || event?.nome_responsavel || '').toString().trim();
+                    const local = (event?.local_instalacao && event.local_instalacao.toString().toLowerCase()!=='null') ? event.local_instalacao : (event?.endereco || 'Local não informado');
+                    const alunos = event?.numero_alunos_empresa ?? event?.numero_de_alunos ?? '0';
                     const id = event?.id ?? event?.id_evento ?? event?.id_evento_unico ?? 'N/A';
                     const sentiment = analyzeSentiment(feedbackTexto, nota);
                     return {
                         ...event,
                         id,
                         escola: escolaNome || 'Escola não informada',
+                        evento: eventoNome,
                         data,
                         cidade,
-                        responsavel,
+                        local,
+                        astronomo: event?.astronomo ?? event?.astronomo_validacao ?? 'A definir',
                         feedback: feedbackTexto,
                         sentiment,
+                        numero_alunos: alunos,
+                        valor_total: event?.valor_total ?? '0',
                         nota_npm: nota,
                         npm: npmCampo
                     };
                 });
 
+                // Filtrar por usuário logado
+                const session = getLoggedSession();
+                if (session) {
+                    feedbacksData = feedbacksData.filter(item => belongsToSession(item, session));
+                }
+
                 populateFilters();
                 
-                if (connectionStatus) connectionStatus.textContent = `Dados do n8n carregados - ${feedbacksData.length} feedback(s)`;
-                if (webhookStatus) webhookStatus.classList.add('status-connected');
-                showNotification(`${feedbacksData.length} feedbacks carregados do n8n`, 'success');
+                connectionStatus.textContent = `Feedbacks carregados - ${feedbacksData.length} feedback(s)`;
+                webhookStatus.classList.add('status-connected');
+                showNotification(`${feedbacksData.length} feedbacks carregados`, 'success');
                 
             } catch (error) {
                 console.error('Erro ao buscar dados do n8n:', error);
-                if (connectionStatus) connectionStatus.textContent = `Erro: ${error.message}`;
-                if (webhookStatus) webhookStatus.classList.add('status-error');
-                showNotification(`Não foi possível carregar do n8n: ${error.message}`, 'error');
+                connectionStatus.textContent = `Erro: ${error.message}`;
+                webhookStatus.classList.add('status-error');
+                showNotification(`Erro ao carregar feedbacks: ${error.message}`, 'error');
                 
                 // Em caso de erro, mostrar estado vazio
                 feedbacksData = [];
@@ -429,10 +497,8 @@
                 updatePagination();
                 updateStats();
             } finally {
-                if (btnFetchData) {
-                    btnFetchData.disabled = false;
-                    btnFetchData.innerHTML = '<i class="fas fa-sync-alt"></i> Buscar Dados';
-                }
+                btnFetchData.disabled = false;
+                btnFetchData.innerHTML = '<i class="fas fa-sync-alt"></i> Buscar Dados';
             }
         }
 
@@ -471,14 +537,6 @@
         }
 
         function extractFeedbackText(event){
-            const textoTarefa = event?.texto_tarefa;
-            const textoTarefaVal = (typeof textoTarefa === 'object' && textoTarefa !== null)
-                ? (textoTarefa.texto ?? textoTarefa.descricao ?? '')
-                : textoTarefa;
-            const tarefa = event?.tarefa;
-            const tarefaTextoVal = (typeof tarefa === 'object' && tarefa !== null)
-                ? (tarefa.feedback ?? tarefa.comentario ?? tarefa.texto ?? '')
-                : '';
             const candidates = [
                 event?.avaliacao,
                 event?.avaliacao_astronomo,
@@ -486,13 +544,7 @@
                 event?.feedback,
                 event?.comentario_feedback,
                 event?.feedback_texto,
-                event?.avaliacao_responsavel,
-                event?.observacoes,
-                event?.observacao,
-                event?.resultado,
-                event?.comentario,
-                textoTarefaVal,
-                tarefaTextoVal
+                event?.avaliacao_responsavel
             ];
             for (const c of candidates){
                 const t = (c ?? '').toString().trim();
@@ -575,10 +627,7 @@
                     feedback.feedback?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     feedback.evento?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     feedback.cidade?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    feedback.escola?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    feedback.responsavel?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    String(feedback.nota_npm ?? '').includes(searchTerm) ||
-                    feedback.npm?.toLowerCase().includes(searchTerm.toLowerCase());
+                    feedback.astronomo?.toLowerCase().includes(searchTerm.toLowerCase());
                 
                 return matchesCity && matchesSentiment && matchesSearch;
             });
@@ -716,9 +765,9 @@
                 const cidadeBadge = cidadeNome
                     ? `<span class="sentiment-badge sentiment-neutral"><i class="fas fa-city"></i> ${cidadeNome}</span>`
                     : '';
-                const responsavelBadge = feedback.responsavel
-                    ? `<span class="sentiment-badge sentiment-neutral"><i class="fas fa-user"></i> ${feedback.responsavel}</span>`
-                    : '';
+                
+                const sentimentClass = getSentimentClass(feedback.sentiment);
+                const sentimentIcon = getSentimentIcon(feedback.sentiment);
                 
                 feedbackElement.innerHTML = `
                     <div class="feedback-header">
@@ -731,7 +780,6 @@
                         ${npmTextoBadge}
                         ${escolaBadge}
                         ${cidadeBadge}
-                        ${responsavelBadge}
                     </div>
                     
                     <div class="feedback-content">
@@ -754,16 +802,35 @@
                             <span class="detail-value">${cidadeNome}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">Responsável</span>
-                            <span class="detail-value">${feedback.responsavel || 'Não informado'}</span>
+                            <span class="detail-label">Local</span>
+                            <span class="detail-value">${feedback.local}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Número de Alunos</span>
+                            <span class="detail-value">${feedback.numero_alunos}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Valor</span>
+                            <span class="detail-value">R$ ${feedback.valor_total ? parseFloat(feedback.valor_total).toLocaleString('pt-BR') : 'N/A'}</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Nota NPM</span>
                             <span class="detail-value">${feedback.nota_npm !== null && feedback.nota_npm !== undefined ? `${feedback.nota_npm}/10` : 'Não informada'}</span>
                         </div>
-                        <div class="detail-item">
-                            <span class="detail-label">NPM</span>
-                            <span class="detail-value">${feedback.npm || 'Não informado'}</span>
+                    </div>
+                    
+                    <div class="astronomer-info">
+                        <div class="astronomer-avatar">
+                            ${feedback.astronomo.charAt(0)}
+                        </div>
+                        <div>
+                            <div class="astronomer-name">${feedback.astronomo}</div>
+                            <div>
+                                <span class="sentiment-badge ${sentimentClass}">
+                                    <i class="${sentimentIcon}"></i>
+                                    ${feedback.sentiment === 'positive' ? 'Positivo' : feedback.sentiment === 'negative' ? 'Negativo' : 'Neutro'}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 `;

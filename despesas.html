@@ -50,26 +50,6 @@
                             <button class="btn btn-secondary period-filter-button" data-period="month">Mês</button>
                         </div>
                     </div>
-                    <div class="panel-card">
-                        <div class="panel-title">
-                            <span>Resumo executivo</span>
-                            <span class="panel-tag">Atualização automática</span>
-                        </div>
-                        <div class="panel-list">
-                            <div class="panel-item">
-                                <span class="panel-label">Eventos ativos</span>
-                                <span class="panel-value">Controle em tempo real</span>
-                            </div>
-                            <div class="panel-item">
-                                <span class="panel-label">Despesas estimadas</span>
-                                <span class="panel-value">Comparativo por evento</span>
-                            </div>
-                            <div class="panel-item">
-                                <span class="panel-label">Margem prevista</span>
-                                <span class="panel-value">Acompanhamento contínuo</span>
-                            </div>
-                        </div>
-                    </div>
                 </section>
 
                 <section class="section" id="estimados">
@@ -173,7 +153,7 @@
         </div>
     </div>
 
-    <script>
+  <script>
     // Limpa caches no reload (F5), preservando apenas sessões
     (function(){
         const isReload = (() => {
@@ -205,7 +185,7 @@
         console.log('despesas (inline) carregado');
 
         // ===================== Helpers básicos =====================
-        const AGENDA_WEBHOOK_URL = 'https://myn8n.seommerce.shop/webhook/agenda_inteligente_demo';
+        const AGENDA_WEBHOOK_URL = 'https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/agenda-astronomos';
         const DEFAULT_PROFIT_RATE = 0.26;
 
         const formatCurrencyBr = (v) => {
@@ -241,16 +221,16 @@
             }catch(_){ return String(input||''); }
         };
 
-        // const appendQueryParams = (url, params) => {
-        //     try{
-        //         const u = new URL(url);
-        //         Object.entries(params||{}).forEach(([k,v])=>{
-        //             if (v === undefined || v === null) return;
-        //             u.searchParams.set(k, String(v));
-        //         });
-        //         return u.toString();
-        //     }catch(_){ return url; }
-        // };
+        const appendQueryParams = (url, params) => {
+            try{
+                const u = new URL(url);
+                Object.entries(params||{}).forEach(([k,v])=>{
+                    if (v === undefined || v === null) return;
+                    u.searchParams.set(k, String(v));
+                });
+                return u.toString();
+            }catch(_){ return url; }
+        };
 
         const getUserSession = () => {
             try{
@@ -282,28 +262,56 @@
             return null;
         };
 
+        async function readResponsePayload(resp){
+            let text = '';
+            try { text = await resp.text(); } catch (_) { text = ''; }
+            if (!text) return null;
+            try { return JSON.parse(text); } catch (_) { return text; }
+        }
+
+        function normalizeAgendaPayload(data){
+            if (!data) return [];
+            if (Array.isArray(data)) return data;
+            if (typeof data !== 'object') return [];
+            if (Array.isArray(data.eventos)) return data.eventos;
+            if (Array.isArray(data.data)) return data.data;
+            if (Array.isArray(data.events)) return data.events;
+            if (Array.isArray(data.agenda)) return data.agenda;
+            return [data];
+        }
+
         async function callAgendaWebhook(action, params){
-            const payload = { ...(params||{}) };
+            const payload = { action, ...(params||{}) };
+            if (action === 'atualizar_agenda') payload.tipo = 'TODOS';
+            else if (payload.tipo == null) payload.tipo = action;
             const sess = getUserSession();
             if (sess && sess.id_astronomo != null){
                 if (payload.id_astronomo == null) payload.id_astronomo = sess.id_astronomo;
                 if (payload.user_id == null) payload.user_id = sess.id_astronomo;
             }
-            if (action) payload.action = action;
+            if (sess && payload.usuario == null) {
+                const u = sess.usuario || sess.username || sess.astronomo;
+                if (u) payload.usuario = u;
+            }
             let lastErr = null;
-            try{
-                const resp = await fetch(AGENDA_WEBHOOK_URL, {
-                    method:'POST',
-                    headers:{ Accept:'application/json', 'Content-Type':'application/json' },
-                    cache:'no-store',
-                    mode:'cors',
-                    body: JSON.stringify(payload)
-                });
+            const target = appendQueryParams(AGENDA_WEBHOOK_URL, payload);
+            const isAgendaUpdate = action === 'atualizar_agenda';
+            const doFetch = async (method) => {
+                const resp = await fetch(target, { method, headers:{ Accept:'application/json' }, cache:'no-store', mode:'cors' });
                 if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                const ct = (resp.headers.get('content-type')||'').toLowerCase();
-                const data = ct.includes('application/json') ? await resp.json() : await resp.text();
-                return data;
+                return readResponsePayload(resp);
+            };
+
+            try{
+                const method = isAgendaUpdate ? 'POST' : 'GET';
+                return await doFetch(method);
             }catch(err){ lastErr = err; }
+
+            if (isAgendaUpdate) {
+                try{
+                    return await doFetch('GET');
+                }catch(err){ lastErr = err; }
+            }
             throw lastErr || new Error('Falha ao chamar webhook');
         }
 
@@ -367,15 +375,6 @@
                 console.warn('Erro ao buscar campos dinâmicos de lucro:', e);
             }
             return null;
-        }
-
-        function normalizeAgendaPayload(payload){
-            if (!payload) return [];
-            if (Array.isArray(payload)) return payload;
-            if (Array.isArray(payload.eventos)) return payload.eventos;
-            if (Array.isArray(payload.data)) return payload.data;
-            if (Array.isArray(payload.events)) return payload.events;
-            return [payload];
         }
         function readLegacyAstronomerFromSession() {
             try {
@@ -594,6 +593,94 @@
             };
         }
 
+        function getEventIdCandidates(ev){
+            if (!ev || typeof ev !== 'object') return [];
+            const ids = [
+                ev.id,
+                ev.id_evento,
+                ev.id_evento_unico,
+                ev.id_agendamento,
+                ev.uuid,
+                ev.evento_id
+            ].filter(v => v !== undefined && v !== null && v !== '');
+            return ids.map(v => String(v));
+        }
+
+        function scoreEventForMerge(ev){
+            if (!ev || typeof ev !== 'object') return 0;
+            let score = 0;
+            if (ev.id_evento != null) score += 6;
+            if (ev.id_evento_unico != null) score += 5;
+            if (ev.id_agendamento != null) score += 4;
+            if (ev.id != null) score += 3;
+            if (ev.uuid) score += 2;
+            if (ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data) score += 2;
+            if (ev.nome_da_escola || ev.nome_escola || ev.escola || ev.nome_lead) score += 2;
+            if (ev.cidade || ev.cidade_destino) score += 1;
+            if (ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao) score += 1;
+            const lat = parseRouteNumber(ev.destino_lat ?? ev.lat_destino ?? ev.latitude_destino);
+            const lon = parseRouteNumber(ev.destino_lon ?? ev.lon_destino ?? ev.longitude_destino);
+            if (lat !== null && lon !== null) score += 1;
+            if (ev.finalizado === true || ev.finalizado === 'true') score += 1;
+            return score;
+        }
+
+        function mergeDuplicateEvents(base, incoming){
+            if (!base) return incoming;
+            if (!incoming) return base;
+            const incomingWins = scoreEventForMerge(incoming) > scoreEventForMerge(base);
+            const primary = incomingWins ? incoming : base;
+            const secondary = incomingWins ? base : incoming;
+            const merged = { ...primary };
+            Object.entries(secondary).forEach(([k,v]) => {
+                if (merged[k] === undefined || merged[k] === null || merged[k] === '' || merged[k] === 'null') {
+                    merged[k] = v;
+                }
+            });
+            const ids = new Set([...getEventIdCandidates(base), ...getEventIdCandidates(incoming)]);
+            if (ids.size > 1) merged._duplicate_ids = Array.from(ids);
+            return merged;
+        }
+
+        function canonicalEventSignature(ev){
+            if (!ev || typeof ev !== 'object') return '';
+            const baseDate = ev._date || (ev.data_agendamento ? new Date(ev.data_agendamento) : null);
+            const dateStr = baseDate instanceof Date && !Number.isNaN(baseDate.getTime())
+                ? baseDate.toISOString().slice(0,10)
+                : '';
+            const horarioRaw = ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data;
+            const horario = horarioRaw ? new Date(horarioRaw) : null;
+            const horaStr = horario instanceof Date && !Number.isNaN(horario.getTime()) ? horario.toISOString() : '';
+            const escola = (ev.nome_da_escola || ev.nome_escola || ev.escola || ev.nome_lead || '').toString().trim().toLowerCase();
+            const cidade = (ev.cidade || ev.cidade_destino || ev.cidade_origem || '').toString().trim().toLowerCase();
+            const conteudo = (ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao || '').toString().trim().toLowerCase();
+            const tipo = (ev.tipo_da_tarefa || ev.tipo_evento || ev.tipo || '').toString().trim().toLowerCase();
+            return JSON.stringify({ dateStr, horaStr, escola, cidade, conteudo, tipo });
+        }
+
+        function dedupeEventsBySignature(arr){
+            if (!Array.isArray(arr)) return [];
+            const sigMap = new Map();
+            const result = [];
+            arr.forEach(ev => {
+                const sig = canonicalEventSignature(ev);
+                if (!sig) {
+                    result.push(ev);
+                    return;
+                }
+                if (sigMap.has(sig)) {
+                    const merged = mergeDuplicateEvents(sigMap.get(sig), ev);
+                    const idx = result.indexOf(sigMap.get(sig));
+                    if (idx >= 0) result[idx] = merged;
+                    sigMap.set(sig, merged);
+                } else {
+                    sigMap.set(sig, ev);
+                    result.push(ev);
+                }
+            });
+            return result;
+        }
+
         const buildRouteInfoHtml = (event) => {
             try{
                 if (!event || !event.routeInfo) return '';
@@ -763,42 +850,19 @@
             async function fetchEvents() {
                 try {
                     eventSelect.innerHTML = '<option value="">Carregando eventos...</option>';
-                    let data = null;
-                    let lastErr = null;
-
-                    try {
-                        const resp = await fetch(AGENDA_WEBHOOK_URL, {
-                            method: 'POST',
-                            headers: { 'Accept': 'application/json' }
-                        });
-                        if (resp && resp.ok) {
-                            try { data = await resp.json(); } catch (_) { data = null; }
-                        } else {
-                            const txt = resp ? await resp.text().catch(() => '') : '';
-                            throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
-                        }
-                    } catch (err) {
-                        lastErr = err;
+                    const s = getUserSession();
+                    let data;
+                    if (s?.id_astronomo != null) {
+                        data = await callAgendaWebhook('atualizar_agenda', { id_astronomo: s.id_astronomo });
+                    } else {
+                        data = await callAgendaWebhook('atualizar_agenda', {});
                     }
-
-                    if (!data) {
-                        try {
-                            const resp = await fetch(AGENDA_WEBHOOK_URL, {
-                                method: 'GET',
-                                headers: { 'Accept': 'application/json' }
-                            });
-                            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                            data = await resp.json();
-                        } catch (err) {
-                            lastErr = err;
-                        }
-                    }
-
-                    if (!data) throw lastErr || new Error('Sem dados retornados');
-                    const eventsArray = normalizeAgendaPayload(data).map(normalizeEvent);
+                    if (data == null) throw new Error('Sem dados retornados');
+                    const rawEventos = normalizeAgendaPayload(data);
+                    let eventsArray = dedupeEventsBySignature(rawEventos.map(normalizeEvent));
                     // Mantém apenas eventos VISITA
-                    const visitaEvents = eventsArray.filter(isVisitaEvent);
-                    allEvents = visitaEvents;
+                    eventsArray = eventsArray.filter(isVisitaEvent);
+                    allEvents = eventsArray;
                     populateEventSelect();
                     updateSummaryCards();
                     renderEventsForPeriod();
