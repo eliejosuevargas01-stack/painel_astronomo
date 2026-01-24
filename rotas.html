@@ -6,6 +6,7 @@
     <title>Rotas - Agenda do Astrônomo</title>
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <link rel="stylesheet" href="css/styles.css">
+    <script src="auth.js"></script>
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <!-- <link rel="stylesheet" href="css/style.css"> -->
     <!-- <link rel="stylesheet" href="css/docs-app.css"> -->
@@ -88,39 +89,6 @@
             </div>
 
             <main>
-                <section class="hero">
-                    <div>
-                        <span class="hero-eyebrow"><i class="fas fa-route"></i> Rotas</span>
-                        <h1>Planeje deslocamentos com visão clara dos eventos.</h1>
-                        <p>Monte a rota do astrônomo a partir do cache da agenda e visualize distâncias com precisão operacional.</p>
-                    </div>
-                </section>
-
-                <section class="section">
-                    <div class="section-header">
-                        <h2>Atualizar rotas</h2>
-                        <p>Carregue os eventos do cache da agenda ou use dados de demonstração.</p>
-                    </div>
-                    <div class="panel-card">
-                        <div class="filters-row">
-                            <button class="btn btn-primary" onclick="carregarRotas()" id="btnCarregar">
-                                <i class="fas fa-satellite-dish"></i> Carregar rotas da agenda
-                            </button>
-                            <button class="btn btn-secondary" onclick="usarDadosDemo()" id="btnDemo">
-                                <i class="fas fa-bullseye"></i> Usar dados de demonstração
-                            </button>
-                            <div class="status-text" id="status-text"></div>
-                        </div>
-                        <div class="demo-data hidden" id="demoAlert">
-                            📝 <strong>Modo Demonstração:</strong> Usando dados de exemplo para teste
-                        </div>
-                        <div class="loading hidden" id="loading">
-                            <div class="spinner"></div>
-                            <p>Buscando rotas e calculando distâncias...</p>
-                        </div>
-                    </div>
-                </section>
-
                 <section class="section">
                     <div class="section-header">
                         <h2>Rotas geradas</h2>
@@ -230,7 +198,50 @@
         const AGENDA_CACHE_PREFIX = 'agenda_cache_v1';
         const ROTAS_CACHE_KEY = 'rotas_cache_v1';
         const ROTA_OVERRIDE_PREFIX = 'rotas_override_v1';
+        const AGENDA_WEBHOOK_URL = 'https://urania-planetario-n8n.mmjkgs.easypanel.host/webhook/agenda-astronomos';
         let sessaoAtual = null;
+
+        function agendaCacheKey(sess){
+            const ns = (sess && (sess.id_astronomo ?? sess.usuario ?? sess.username ?? sess.astronomo)) || 'anon';
+            return `${AGENDA_CACHE_PREFIX}::${String(ns).toLowerCase()}`;
+        }
+
+        function saveAgendaCache(events, sess){
+            try{
+                const key = agendaCacheKey(sess);
+                const payload = { ts: Date.now(), events: Array.isArray(events) ? events : [] };
+                localStorage.setItem(key, JSON.stringify(payload));
+            }catch(err){
+                console.warn('Falha ao salvar cache local da agenda:', err);
+            }
+        }
+
+        function saveRotasCache(events, sess){
+            try{
+                const payload = { ts: Date.now(), session: sess || null, events: Array.isArray(events) ? events : [] };
+                localStorage.setItem(ROTAS_CACHE_KEY, JSON.stringify(payload));
+            }catch(err){
+                console.warn('Falha ao salvar cache de rotas:', err);
+            }
+        }
+
+        async function readResponsePayload(resp){
+            let text = '';
+            try { text = await resp.text(); } catch (_) { text = ''; }
+            if (!text) return null;
+            try { return JSON.parse(text); } catch (_) { return text; }
+        }
+
+        function normalizeAgendaPayload(data){
+            if (!data) return [];
+            if (Array.isArray(data)) return data;
+            if (typeof data !== 'object') return [];
+            if (Array.isArray(data.eventos)) return data.eventos;
+            if (Array.isArray(data.data)) return data.data;
+            if (Array.isArray(data.events)) return data.events;
+            if (Array.isArray(data.agenda)) return data.agenda;
+            return [data];
+        }
 
         function safeText(v){
             return v == null ? '' : String(v).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch] || ch));
@@ -583,6 +594,56 @@
             return null;
         }
 
+        function getSessionTaskIds(sess){
+            const parseId = (v) => {
+                if (v === undefined || v === null || v === '') return null;
+                const n = Number(v);
+                if (Number.isFinite(n)) return String(n);
+                const s = String(v).trim();
+                return s || null;
+            };
+            return {
+                visita: parseId(sess?.id_visita || sess?.visita_id),
+                pre: parseId(sess?.id_pre || sess?.pre_id),
+                reserva: parseId(sess?.id_reserva || sess?.reserva_id),
+                nao_marcar: parseId(sess?.id_n_marcar || sess?.id_nao_marcar || sess?.nao_marcar_id)
+            };
+        }
+
+        async function callAgendaWebhook(action, params){
+            const payload = { action, ...(params || {}) };
+            if (action === 'atualizar_agenda') payload.tipo = 'TODOS';
+            const sess = getLoggedSession();
+            if (sess) {
+                if (payload.id_astronomo == null && sess.id_astronomo != null) payload.id_astronomo = sess.id_astronomo;
+                if (payload.usuario == null) {
+                    const u = sess.usuario || sess.username || sess.astronomo;
+                    if (u) payload.usuario = u;
+                }
+                const ids = getSessionTaskIds(sess || null);
+                if (payload.id_visita == null && ids && ids.visita) payload.id_visita = ids.visita;
+                if (payload.id_pre == null && ids && ids.pre) payload.id_pre = ids.pre;
+                if (payload.id_reserva == null && ids && ids.reserva) payload.id_reserva = ids.reserva;
+                if (payload.id_n_marcar == null && ids && ids.nao_marcar) payload.id_n_marcar = ids.nao_marcar;
+            }
+            const bodyParams = new URLSearchParams();
+            Object.entries(payload || {}).forEach(([key, value]) => {
+                if (value === undefined || value === null || value === '') return;
+                bodyParams.set(key, String(value));
+            });
+            const resp = await fetch(AGENDA_WEBHOOK_URL, {
+                method:'POST',
+                headers:{ 'Accept':'application/json', 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: bodyParams.toString()
+            });
+            const data = await readResponsePayload(resp);
+            if (!resp.ok) {
+                const msg = typeof data === 'string' ? data : '';
+                throw new Error(msg || `HTTP ${resp.status}`);
+            }
+            return data;
+        }
+
         function describeSession(sess){
             if (!sess) return '<div class="astro-line">Nenhum astrônomo logado.</div>';
             const nome = safeText(sess.nome_completo || sess.astronomo || sess.usuario || sess.username || 'Astrônomo');
@@ -678,11 +739,11 @@
             sessaoAtual = sess;
             const sessVal = sessaoAtual || sess;
 
-            loading.classList.remove('hidden');
-            demoAlert.classList.add('hidden');
+            if (loading) loading.classList.remove('hidden');
+            if (demoAlert) demoAlert.classList.add('hidden');
             if (btnCarregar) btnCarregar.disabled = true;
             rotasContainer.innerHTML = '';
-            statusText.textContent = '';
+            if (statusText) statusText.textContent = '';
 
             if (!sessVal || sessVal.id_astronomo == null) {
                 if (!auto) {
@@ -695,7 +756,22 @@
             }
 
             try {
-                const eventos = dedupeEventosPorAssinatura(carregarEventosLocais(sessVal));
+                let eventos = [];
+                try{
+                    const raw = await callAgendaWebhook('atualizar_agenda', sessVal?.id_astronomo != null ? { id_astronomo: sessVal.id_astronomo } : {});
+                    const rawEventos = normalizeAgendaPayload(raw);
+                    eventos = dedupeEventosPorAssinatura(rawEventos);
+                    if (eventos.length) {
+                        saveAgendaCache(eventos, sessVal);
+                        saveRotasCache(eventos, sessVal);
+                    }
+                }catch(err){
+                    console.warn('Falha ao carregar agenda via webhook, tentando cache local:', err);
+                }
+
+                if (!eventos.length) {
+                    eventos = dedupeEventosPorAssinatura(carregarEventosLocais(sessVal));
+                }
                 if (!eventos.length) {
                     rotasContainer.innerHTML = `
                         <div class="error">
@@ -724,7 +800,9 @@
                 }, 0);
                 const eventosLabel = totalEventos === 1 ? 'evento' : 'eventos';
                 const rotasLabel = rotas.length === 1 ? 'rota' : 'rotas';
-                statusText.textContent = `${rotas.length} ${rotasLabel} criada(s) (${totalEventos} ${eventosLabel}).`;
+                if (statusText) {
+                    statusText.textContent = `${rotas.length} ${rotasLabel} criada(s) (${totalEventos} ${eventosLabel}).`;
+                }
 
             } catch (error) {
                 console.error('Erro:', error);
@@ -738,7 +816,7 @@
                     </div>
                 `;
             } finally {
-                loading.classList.add('hidden');
+                if (loading) loading.classList.add('hidden');
                 if (btnCarregar) btnCarregar.disabled = false;
             }
         }
@@ -749,10 +827,10 @@
             const demoAlert = document.getElementById('demoAlert');
             const statusText = document.getElementById('status-text');
 
-            loading.classList.remove('hidden');
-            demoAlert.classList.remove('hidden');
+            if (loading) loading.classList.remove('hidden');
+            if (demoAlert) demoAlert.classList.remove('hidden');
             rotasContainer.innerHTML = '';
-            statusText.textContent = 'Modo demonstração ativo.';
+            if (statusText) statusText.textContent = 'Modo demonstração ativo.';
 
             setTimeout(async () => {
                 try {
@@ -767,7 +845,7 @@
                         </div>
                     `;
                 } finally {
-                    loading.classList.add('hidden');
+                    if (loading) loading.classList.add('hidden');
                 }
             }, 500);
         }
@@ -1374,6 +1452,7 @@
             sessaoAtual = sess;
             const astroInfoEl = document.getElementById('astro-info');
             if (astroInfoEl) astroInfoEl.innerHTML = describeSession(sessaoAtual);
+            carregarRotas(true);
         });
     </script>
 </body>

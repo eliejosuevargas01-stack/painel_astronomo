@@ -6,6 +6,7 @@
     <title>Painel RH - Astrônomos & Agenda</title>
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <link rel="stylesheet" href="css/styles.css">
+    <script src="auth.js"></script>
     <!-- <link rel="stylesheet" href="css/docs-app.css"> -->
     <!-- <link rel="stylesheet" href="css/rh-astronomos.css"> -->
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
@@ -2318,11 +2319,16 @@
                 if (usuario) params.set('usuario', usuario);
 
                 const url = `${API_AGENDA}?${params.toString()}`;
+                const payload = Object.fromEntries(params.entries());
                 let data = null;
                 let lastErr = null;
 
                 try{
-                    const response = await fetch(url, { method:'POST', headers:{ 'Accept':'application/json' } });
+                    const response = await fetch(url, {
+                        method:'POST',
+                        headers:{ 'Accept':'application/json', 'Content-Type':'application/json' },
+                        body: JSON.stringify(payload)
+                    });
                     if (!response.ok) {
                         const errorText = await response.text().catch(()=> '');
                         throw new Error(`Erro ${response.status}: ${errorText}`);

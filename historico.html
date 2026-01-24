@@ -6,6 +6,7 @@
     <title>Histórico - Eventos Finalizados</title>
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <link rel="stylesheet" href="css/styles.css">
+    <script src="auth.js"></script>
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <!-- <link rel="stylesheet" href="css/style.css"> -->
     <!-- <link rel="stylesheet" href="css/docs-app.css"> -->
@@ -58,14 +59,6 @@
             </div>
             
             <main>
-                <section class="hero">
-                    <div>
-                        <span class="hero-eyebrow"><i class="fas fa-history"></i> Histórico</span>
-                        <h1>Visibilidade completa dos eventos finalizados.</h1>
-                        <p>Acompanhe resultados, métricas e performance por cidade, período e astrônomo para decisões mais precisas.</p>
-                    </div>
-                </section>
-                
                 <section class="section" id="indicadores">
                     <div class="section-header">
                         <h2>Indicadores do histórico</h2>
@@ -137,8 +130,8 @@
                     <div class="history-grid" id="history-grid">
                         <div class="empty-state">
                             <i class="fas fa-history"></i>
-                            <h3>Nenhum evento finalizado encontrado</h3>
-                            <p>Abra a Agenda (index) para sincronizar e preencher o histórico.</p>
+                            <h3>Nenhum evento finalizado para exibir</h3>
+                            <p>Não há eventos marcados como finalizados no histórico.</p>
                         </div>
                     </div>
                     
@@ -223,12 +216,6 @@
         const AGENDA_CACHE_PREFIX = 'agenda_cache_v1';
 
         // Util: sessão + webhook
-        function buildUrl(base, params){
-            const usp = new URLSearchParams();
-            Object.entries(params||{}).forEach(([k,v])=>{ if (v!==undefined && v!==null) usp.append(k, String(v)); });
-            const sep = base.includes('?') ? '&' : '?';
-            return base + sep + usp.toString();
-        }
         function getLoggedSession(){
             try{
                 const raw = localStorage.getItem('astronomo_session');
@@ -236,6 +223,21 @@
                 if (s && s.loggedIn) return s;
             }catch(_){ }
             return null;
+        }
+        function getSessionTaskIds(sess){
+            const parseId = (v) => {
+                if (v === undefined || v === null || v === '') return null;
+                const n = Number(v);
+                if (Number.isFinite(n)) return String(n);
+                const s = String(v).trim();
+                return s || null;
+            };
+            return {
+                visita: parseId(sess?.id_visita || sess?.visita_id),
+                pre: parseId(sess?.id_pre || sess?.pre_id),
+                reserva: parseId(sess?.id_reserva || sess?.reserva_id),
+                nao_marcar: parseId(sess?.id_n_marcar || sess?.id_nao_marcar || sess?.nao_marcar_id)
+            };
         }
         function agendaCacheKey(sess){
             const ns = (sess && (sess.id_astronomo ?? sess.usuario ?? sess.username)) || 'anon';
@@ -340,6 +342,14 @@
             });
             return result;
         }
+        function isFinalizadoEvent(ev){
+            const v = ev?.finalizado;
+            if (v === true || v === 'true' || v === 1 || v === '1') return true;
+            const status = String(ev?.status || ev?.status_evento || ev?.resultado || ev?.result || '').toLowerCase();
+            if (status.includes('finalizado') || status === 'done') return true;
+            if (ev?.data_finalizacao || ev?.finalizado_em || ev?.data_finalizado) return true;
+            return false;
+        }
         async function callAgendaWebhook(action, params){
             const payload = { action, ...(params||{}) };
             if (action === 'atualizar_agenda') payload.tipo = 'TODOS';
@@ -350,38 +360,27 @@
                     const u = sess.usuario || sess.username || sess.astronomo;
                     if (u) payload.usuario = u;
                 }
+                const ids = getSessionTaskIds(sess || null);
+                if (payload.id_visita == null && ids && ids.visita) payload.id_visita = ids.visita;
+                if (payload.id_pre == null && ids && ids.pre) payload.id_pre = ids.pre;
+                if (payload.id_reserva == null && ids && ids.reserva) payload.id_reserva = ids.reserva;
+                if (payload.id_n_marcar == null && ids && ids.nao_marcar) payload.id_n_marcar = ids.nao_marcar;
             }
-            const url = buildUrl(AGENDA_WEBHOOK_URL, payload);
-            let data = null;
-            let lastErr = null;
-
-            try {
-                const resp = await fetch(url, { method:'POST', headers:{ 'Accept':'application/json' } });
-                if (resp && resp.ok) {
-                    data = await readResponsePayload(resp);
-                } else {
-                    const txt = resp ? await resp.text().catch(()=> '') : '';
-                    throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
-                }
-            } catch (err) {
-                lastErr = err;
+            const bodyParams = new URLSearchParams();
+            Object.entries(payload || {}).forEach(([key, value]) => {
+                if (value === undefined || value === null || value === '') return;
+                bodyParams.set(key, String(value));
+            });
+            const resp = await fetch(AGENDA_WEBHOOK_URL, {
+                method:'POST',
+                headers:{ 'Accept':'application/json', 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: bodyParams.toString()
+            });
+            const data = await readResponsePayload(resp);
+            if (!resp.ok) {
+                const msg = typeof data === 'string' ? data : '';
+                throw new Error(msg || `HTTP ${resp.status}`);
             }
-
-            if (!data) {
-                try {
-                    const resp = await fetch(url, { method:'GET', headers:{ 'Accept':'application/json' } });
-                    if (resp && resp.ok) {
-                        data = await readResponsePayload(resp);
-                    } else {
-                        const txt = resp ? await resp.text().catch(()=> '') : '';
-                        throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
-                    }
-                } catch (err) {
-                    lastErr = err;
-                }
-            }
-
-            if (!data) throw lastErr || new Error('Falha ao chamar webhook');
             return data;
         }
         function loadCachedAgenda(sess){
@@ -428,13 +427,13 @@
             fetchDataFromN8N(true);
 
             // Event Listeners
-            citySelect.addEventListener('change', handleCityFilter);
-            searchInput.addEventListener('input', handleSearch);
-            prevPageButton.addEventListener('click', goToPrevPage);
-            nextPageButton.addEventListener('click', goToNextPage);
-            btnFetchData.addEventListener('click', () => fetchDataFromN8N(false));
-            btnExportCsv.addEventListener('click', exportToCSV);
-            btnExportPdf.addEventListener('click', exportToPDF);
+            if (citySelect) citySelect.addEventListener('change', handleCityFilter);
+            if (searchInput) searchInput.addEventListener('input', handleSearch);
+            if (prevPageButton) prevPageButton.addEventListener('click', goToPrevPage);
+            if (nextPageButton) nextPageButton.addEventListener('click', goToNextPage);
+            if (btnFetchData) btnFetchData.addEventListener('click', () => fetchDataFromN8N(false));
+            if (btnExportCsv) btnExportCsv.addEventListener('click', exportToCSV);
+            if (btnExportPdf) btnExportPdf.addEventListener('click', exportToPDF);
             
             periodButtons.forEach(button => {
                 button.addEventListener('click', () => {
@@ -490,9 +489,7 @@
             eventsData = dedupeEventsBySignature(normalizeAgendaPayload(data));
 
             // Filtrar apenas eventos finalizados
-            completedEvents = eventsData.filter(event => 
-                event.finalizado === true || event.finalizado === 'true'
-            );
+            completedEvents = eventsData.filter(isFinalizadoEvent);
 
             completedEvents = completedEvents.map(event => {
                 const textoRaw = (typeof event?.texto_tarefa === 'object' && event?.texto_tarefa !== null) ? (event.texto_tarefa.texto ?? '') : (event?.texto_tarefa ?? '');
@@ -518,16 +515,34 @@
                 };
             });
 
-            // Filtrar por usuário logado
+            // Filtrar por usuário logado (apenas se os dados tiverem campos de sessão)
             const session = getLoggedSession();
             if (session) {
-                completedEvents = completedEvents.filter(item => belongsToSession(item, session));
+                const hasSessionFields = completedEvents.some(item =>
+                    item && (
+                        item.assistant_id != null ||
+                        item.ASSISTANT_ID != null ||
+                        item.id_astronomo != null ||
+                        item.idAstronomo != null ||
+                        item.usuario != null ||
+                        item.USERNAME != null ||
+                        item.astronomo != null ||
+                        item.astronomo_validacao != null
+                    )
+                );
+                if (hasSessionFields) {
+                    completedEvents = completedEvents.filter(item => belongsToSession(item, session));
+                }
             }
 
             populateFilters();
-            webhookStatus.classList.remove('status-error', 'status-warning');
-            connectionStatus.textContent = `${sourceLabel} - ${completedEvents.length} eventos finalizados carregados`;
-            webhookStatus.classList.add('status-connected');
+            if (webhookStatus) {
+                webhookStatus.classList.remove('status-error', 'status-warning');
+                webhookStatus.classList.add('status-connected');
+            }
+            if (connectionStatus) {
+                connectionStatus.textContent = `${sourceLabel} - ${completedEvents.length} eventos finalizados carregados`;
+            }
             showNotification(`${completedEvents.length} eventos finalizados carregados com sucesso!`, 'success');
         }
 
@@ -550,26 +565,30 @@
             }
 
             try {
-                btnFetchData.disabled = true;
-                btnFetchData.innerHTML = '<span class="loading"></span> Buscando dados...';
-                connectionStatus.textContent = 'Conectando ao n8n...';
-                webhookStatus.classList.remove('status-connected', 'status-error', 'status-warning');
+                if (btnFetchData) {
+                    btnFetchData.disabled = true;
+                    btnFetchData.innerHTML = '<span class="loading"></span> Buscando dados...';
+                }
+                if (connectionStatus) connectionStatus.textContent = 'Conectando ao n8n...';
+                if (webhookStatus) webhookStatus.classList.remove('status-connected', 'status-error', 'status-warning');
 
                 const s = getLoggedSession();
                 const data = await callAgendaWebhook('atualizar_agenda', s?.id_astronomo != null ? { id_astronomo: s.id_astronomo } : {});
                 applyEventsData(data, 'Conectado');
             } catch (error) {
                 console.error('Erro ao buscar dados do n8n:', error);
-                connectionStatus.textContent = `Erro: ${error.message}`;
-                webhookStatus.classList.add('status-error');
+                if (connectionStatus) connectionStatus.textContent = `Erro: ${error.message}`;
+                if (webhookStatus) webhookStatus.classList.add('status-error');
                 showNotification(`Erro ao carregar dados: ${error.message}`, 'error');
                 
                 // Em caso de erro, mostrar estado vazio
                 completedEvents = [];
                 renderEvents();
             } finally {
-                btnFetchData.disabled = false;
-                btnFetchData.innerHTML = '<i class="fas fa-sync-alt"></i> Buscar Dados';
+                if (btnFetchData) {
+                    btnFetchData.disabled = false;
+                    btnFetchData.innerHTML = '<i class="fas fa-sync-alt"></i> Buscar Dados';
+                }
             }
         }
 
@@ -816,8 +835,8 @@
                 if (completedEvents.length === 0) {
                     emptyState.innerHTML = `
                         <i class="fas fa-history"></i>
-                        <h3>Nenhum evento finalizado encontrado</h3>
-                        <p>Nenhum evento com tag de finalizado foi encontrado nos dados.</p>
+                        <h3>Nenhum evento finalizado para exibir</h3>
+                        <p>Nenhum evento marcado como finalizado foi encontrado nos dados.</p>
                     `;
                 } else {
                     emptyState.innerHTML = `
