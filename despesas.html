@@ -6,6 +6,7 @@
     <title>Gestão de Despesas - Agenda Inteligente</title>
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <link rel="stylesheet" href="css/styles.css">
+    <script src="auth.js"></script>
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <!-- <link rel="stylesheet" href="css/style.css"> -->
     <!-- <link rel="stylesheet" href="css/despesas-modern.css"> -->
@@ -28,7 +29,6 @@
             </header>
             
             <div class="navigation">
-                <a href="apresentacao.html" class="nav-button"><i class="fas fa-clipboard-list"></i> Apresentação</a>
                 <a href="index.html" class="nav-button"><i class="fas fa-calendar-alt"></i> Agenda</a>
                 <a href="feedbacks.html" class="nav-button"><i class="fas fa-comment-dots"></i> Feedbacks</a>
                 <a href="despesas.html" class="nav-button active"><i class="fas fa-file-invoice-dollar"></i> Despesas</a>
@@ -38,24 +38,18 @@
             </div>
 
             <main>
-                <section class="hero">
-                    <div>
-                        <span class="hero-eyebrow"><i class="fas fa-file-invoice-dollar"></i> Despesas</span>
-                        <h1>Gestão de custos com precisão operacional.</h1>
-                        <p>Consolide estimativas, compare com despesas reais e acompanhe o desempenho financeiro por evento.</p>
-                        <div class="hero-actions period-filter-buttons">
-                            <button class="btn btn-secondary period-filter-button active" data-period="all">Todos</button>
-                            <button class="btn btn-secondary period-filter-button" data-period="day">Dia</button>
-                            <button class="btn btn-secondary period-filter-button" data-period="week">Semana</button>
-                            <button class="btn btn-secondary period-filter-button" data-period="month">Mês</button>
-                        </div>
-                    </div>
-                </section>
-
                 <section class="section" id="estimados">
                     <div class="section-header">
-                        <h2>Estimados</h2>
-                        <p>Visão consolidada dos custos previstos por evento e margem estimada.</p>
+                        <div>
+                            <h2>Estimados</h2>
+                            <p>Visão consolidada dos custos previstos por evento e margem estimada.</p>
+                        </div>
+                    </div>
+                    <div class="hero-actions period-filter-buttons">
+                        <button class="btn btn-secondary period-filter-button active" data-period="all">Todos</button>
+                        <button class="btn btn-secondary period-filter-button" data-period="day">Dia</button>
+                        <button class="btn btn-secondary period-filter-button" data-period="week">Semana</button>
+                        <button class="btn btn-secondary period-filter-button" data-period="month">Mês</button>
                     </div>
                     <div class="summary-grid grid-3">
                         <div class="summary-card feature-card">
@@ -221,17 +215,6 @@
             }catch(_){ return String(input||''); }
         };
 
-        const appendQueryParams = (url, params) => {
-            try{
-                const u = new URL(url);
-                Object.entries(params||{}).forEach(([k,v])=>{
-                    if (v === undefined || v === null) return;
-                    u.searchParams.set(k, String(v));
-                });
-                return u.toString();
-            }catch(_){ return url; }
-        };
-
         const getUserSession = () => {
             try{
                 const raw = localStorage.getItem('astronomo_session');
@@ -260,6 +243,22 @@
             }
             console.warn('Nenhuma sessão válida encontrada');
             return null;
+        };
+
+        const getSessionTaskIds = (sess) => {
+            const parseId = (v) => {
+                if (v === undefined || v === null || v === '') return null;
+                const n = Number(v);
+                if (Number.isFinite(n)) return String(n);
+                const s = String(v).trim();
+                return s || null;
+            };
+            return {
+                visita: parseId(sess?.id_visita || sess?.visita_id),
+                pre: parseId(sess?.id_pre || sess?.pre_id),
+                reserva: parseId(sess?.id_reserva || sess?.reserva_id),
+                nao_marcar: parseId(sess?.id_n_marcar || sess?.id_nao_marcar || sess?.nao_marcar_id)
+            };
         };
 
         async function readResponsePayload(resp){
@@ -293,26 +292,32 @@
                 const u = sess.usuario || sess.username || sess.astronomo;
                 if (u) payload.usuario = u;
             }
-            let lastErr = null;
-            const target = appendQueryParams(AGENDA_WEBHOOK_URL, payload);
-            const isAgendaUpdate = action === 'atualizar_agenda';
-            const doFetch = async (method) => {
-                const resp = await fetch(target, { method, headers:{ Accept:'application/json' }, cache:'no-store', mode:'cors' });
-                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                return readResponsePayload(resp);
-            };
-
-            try{
-                const method = isAgendaUpdate ? 'POST' : 'GET';
-                return await doFetch(method);
-            }catch(err){ lastErr = err; }
-
-            if (isAgendaUpdate) {
-                try{
-                    return await doFetch('GET');
-                }catch(err){ lastErr = err; }
+            if (sess) {
+                const ids = getSessionTaskIds(sess || null);
+                if (payload.id_visita == null && ids && ids.visita) payload.id_visita = ids.visita;
+                if (payload.id_pre == null && ids && ids.pre) payload.id_pre = ids.pre;
+                if (payload.id_reserva == null && ids && ids.reserva) payload.id_reserva = ids.reserva;
+                if (payload.id_n_marcar == null && ids && ids.nao_marcar) payload.id_n_marcar = ids.nao_marcar;
             }
-            throw lastErr || new Error('Falha ao chamar webhook');
+
+            const bodyParams = new URLSearchParams();
+            Object.entries(payload || {}).forEach(([key, value]) => {
+                if (value === undefined || value === null || value === '') return;
+                bodyParams.set(key, String(value));
+            });
+            const resp = await fetch(AGENDA_WEBHOOK_URL, {
+                method:'POST',
+                headers:{ Accept:'application/json', 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
+                cache:'no-store',
+                mode:'cors',
+                body: bodyParams.toString()
+            });
+            const data = await readResponsePayload(resp);
+            if (!resp.ok) {
+                const msg = typeof data === 'string' ? data : '';
+                throw new Error(msg || `HTTP ${resp.status}`);
+            }
+            return data;
         }
 
         // ===================== Profit helpers =====================

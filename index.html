@@ -6,6 +6,7 @@
     <title>Agenda do Astrônomo</title>
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <link rel="stylesheet" href="css/styles.css">
+    <script src="auth.js"></script>
 
     <!-- Reaproveita o visual da Agenda/RH (ajuste caminhos se necessário) -->
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
@@ -34,7 +35,6 @@
             </header>
 
             <div class="navigation">
-                <a href="apresentacao.html" class="nav-button"><i class="fas fa-clipboard-list"></i> Apresentação</a>
                 <a href="index.html" class="nav-button active"><i class="fas fa-calendar-alt"></i> Agenda</a>
                 <a href="feedbacks.html" class="nav-button"><i class="fas fa-comment-dots"></i> Feedbacks</a>
                 <a href="despesas.html" class="nav-button"><i class="fas fa-file-invoice-dollar"></i> Despesas</a>
@@ -42,14 +42,6 @@
                 <a href="account.html" class="nav-button account-header-btn"><i class="fas fa-user-astronaut"></i> Minha Conta</a>
                 <a href="rotas.html" class="nav-button"><i class="fas fa-route"></i> Rotas</a>
             </div>
-
-            <section class="hero">
-                <div>
-                    <span class="hero-eyebrow"><i class="fas fa-calendar-alt"></i> Agenda</span>
-                    <h1>Planeje, visualize e acompanhe as rotas do astrônomo.</h1>
-                    <p>Centralize o calendário, visualize eventos por dia e mantenha a agenda sincronizada para decisões rápidas.</p>
-                </div>
-            </section>
 
             <div class="panel-card" style="margin-bottom: 12px;">
                 <div class="filters-row">
@@ -412,6 +404,10 @@
                     username: base.usuario || base.username || base.astronomo || base.nome_completo || src.username || src.user || null,
                     usuario: base.usuario || base.username || base.astronomo || null,
                     id_astronomo: id,
+                    id_visita: base.id_visita ?? base.visita_id ?? null,
+                    id_pre: base.id_pre ?? base.pre_id ?? null,
+                    id_reserva: base.id_reserva ?? base.reserva_id ?? null,
+                    id_n_marcar: base.id_n_marcar ?? base.id_nao_marcar ?? base.nao_marcar_id ?? null,
                     assistant_id: base.assistant_id ?? null,
                     row_number: base.row_number ?? base.row_num ?? null,
                     sessionId: src.sessionId ?? src.session_id ?? src.token ?? null,
@@ -971,20 +967,36 @@
         }
 
         function buildWhatsappLink(ev){
-            const phone =
-                ev.telefone_responsavel ||
-                ev.telefone_responsavel_evento ||
-                ev.telefone ||
-                ev.whatsapp ||
-                ev.celular ||
-                ev.contato ||
-                ev.fone ||
-                ev.phone ||
-                ev.phone_number ||
-                null;
-            const digits = normalizePhone(phone);
-            if (!digits) return null;
-            return `https://wa.me/${digits}`;
+            const sess = getLoggedSession();
+            const astronomerPhone = normalizePhone(sess?.telefone || sess?.celular || sess?.whatsapp || sess?.contato);
+            const candidates = [
+                ev.telefone_responsavel_evento,
+                ev.telefone_responsavel,
+                ev.telefone_do_responsavel,
+                ev.responsavel_telefone,
+                ev.responsavel_celular,
+                ev.whatsapp_responsavel,
+                ev.celular_responsavel,
+                ev.contato_responsavel,
+                ev.fone_responsavel,
+                ev.responsavel_whatsapp,
+                ev.telefone_evento,
+                ev.telefone_escola,
+                ev.telefone,
+                ev.whatsapp,
+                ev.celular,
+                ev.contato,
+                ev.fone,
+                ev.phone,
+                ev.phone_number
+            ];
+            for (const phone of candidates){
+                const digits = normalizePhone(phone);
+                if (!digits) continue;
+                if (astronomerPhone && digits === astronomerPhone) continue;
+                return `https://wa.me/${digits}`;
+            }
+            return null;
         }
 
         function buildRouteLink(ev){
@@ -2038,24 +2050,32 @@
                 if (btnOpenRotas) btnOpenRotas.disabled = true;
 
             try {
-                const buildUrl = () => {
-                    const u = new URL(API_AGENDA);
-                    u.searchParams.set('action', 'atualizar_agenda');
-                    u.searchParams.set('tipo', getWebhookTipoFromSelect());
-                    if (sess && sess.id_astronomo != null) u.searchParams.set('id_astronomo', String(sess.id_astronomo));
-                    if (sess && sess.usuario) u.searchParams.set('usuario', String(sess.usuario));
-                    return u.toString();
+                const buildAgendaParams = () => {
+                    const params = {
+                        action: 'atualizar_agenda',
+                        tipo: getWebhookTipoFromSelect()
+                    };
+                    if (sess && sess.id_astronomo != null) params.id_astronomo = sess.id_astronomo;
+                    if (sess && sess.usuario) params.usuario = sess.usuario;
+                    const ids = getSessionTaskIds(sess || null);
+                    if (ids && ids.visita) params.id_visita = ids.visita;
+                    if (ids && ids.pre) params.id_pre = ids.pre;
+                    if (ids && ids.reserva) params.id_reserva = ids.reserva;
+                    if (ids && ids.nao_marcar) params.id_n_marcar = ids.nao_marcar;
+                    return params;
                 };
 
+                const payload = buildAgendaParams();
+                const url = API_AGENDA;
+
                 let data = null;
-                let lastErr = null;
 
                 // 1ª tentativa: POST (padrão do webhook)
                 try {
-                    const url = buildUrl();
                     const resp = await fetch(url, {
                         method: 'POST',
-                        headers: { 'Accept': 'application/json' }
+                        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
                     });
                     if (resp && resp.ok) {
                         data = await readResponsePayload(resp);
@@ -2064,30 +2084,11 @@
                         throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
                     }
                 } catch (err) {
-                    lastErr = err;
-                }
-
-                // 2ª tentativa: GET como fallback
-                if (!data) {
-                    try {
-                        const url = buildUrl();
-                        const resp = await fetch(url, {
-                            method: 'GET',
-                            headers: { 'Accept': 'application/json' }
-                        });
-                        if (resp && resp.ok) {
-                            data = await readResponsePayload(resp);
-                        } else {
-                            const txt = resp ? await resp.text().catch(()=>'') : '';
-                            throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
-                        }
-                    } catch (err) {
-                        lastErr = err;
-                    }
+                    throw err;
                 }
 
                 if (!data) {
-                    throw lastErr || new Error('Não foi possível obter dados da agenda');
+                    throw new Error('Não foi possível obter dados da agenda');
                 }
 
                 saveAgendaPayload(data, sess);
@@ -2121,15 +2122,6 @@
                 renderEventsList();
                 renderDayEventsDetails();
 
-                refreshRotasOverrides(sess, eventsData)
-                    .then(payload => {
-                        if (payload && payload.overrides) {
-                            applyRouteOverrides(eventsData, sess);
-                            renderEventsList();
-                            renderDayEventsDetails();
-                        }
-                    })
-                    .catch(err => console.warn('Erro ao aplicar overrides de rota contínua:', err));
                 computeContinuousRoutes(eventsData)
                     .then(metrics => {
                         applyContinuousRouteMetrics(eventsData, metrics);

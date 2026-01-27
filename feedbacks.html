@@ -6,6 +6,7 @@
     <title>Feedbacks - Astrônomos</title>
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <link rel="stylesheet" href="css/styles.css">
+    <script src="auth.js"></script>
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <!-- <link rel="stylesheet" href="css/style.css"> -->
     <!-- <link rel="stylesheet" href="css/docs-app.css"> -->
@@ -28,7 +29,6 @@
             </header>
             
             <div class="navigation">
-                <a href="apresentacao.html" class="nav-button"><i class="fas fa-clipboard-list"></i> Apresentação</a>
                 <a href="index.html" class="nav-button"><i class="fas fa-calendar-alt"></i> Agenda</a>
                 <a href="feedbacks.html" class="nav-button active"><i class="fas fa-comment-dots"></i> Feedbacks</a>
                 <a href="despesas.html" class="nav-button"><i class="fas fa-file-invoice-dollar"></i> Despesas</a>
@@ -38,14 +38,6 @@
             </div>
             
             <main>
-                <section class="hero">
-                    <div>
-                        <span class="hero-eyebrow"><i class="fas fa-comment-dots"></i> Feedbacks</span>
-                        <h1>Feedbacks dos astrônomos em tempo real.</h1>
-                        <p>Carregue, filtre e acompanhe percepções por cidade, sentimento e resultado das sessões.</p>
-                    </div>
-                </section>
-                
                 <section class="section" id="indicadores">
                     <div class="section-header">
                         <h2>Indicadores de feedback</h2>
@@ -205,12 +197,22 @@
             return `${AGENDA_CACHE_PREFIX}::${String(ns).toLowerCase()}`;
         }
 
-        function buildUrl(base, params){
-            const usp = new URLSearchParams();
-            Object.entries(params||{}).forEach(([k,v])=>{ if (v!==undefined && v!==null) usp.append(k, String(v)); });
-            const sep = base.includes('?') ? '&' : '?';
-            return base + sep + usp.toString();
+        function getSessionTaskIds(sess){
+            const parseId = (v) => {
+                if (v === undefined || v === null || v === '') return null;
+                const n = Number(v);
+                if (Number.isFinite(n)) return String(n);
+                const s = String(v).trim();
+                return s || null;
+            };
+            return {
+                visita: parseId(sess?.id_visita || sess?.visita_id),
+                pre: parseId(sess?.id_pre || sess?.pre_id),
+                reserva: parseId(sess?.id_reserva || sess?.reserva_id),
+                nao_marcar: parseId(sess?.id_n_marcar || sess?.id_nao_marcar || sess?.nao_marcar_id)
+            };
         }
+
         async function readResponsePayload(resp){
             let text = '';
             try { text = await resp.text(); } catch (_) { text = ''; }
@@ -237,38 +239,22 @@
                     const u = sess.usuario || sess.username || sess.astronomo;
                     if (u) payload.usuario = u;
                 }
+                const ids = getSessionTaskIds(sess || null);
+                if (payload.id_visita == null && ids && ids.visita) payload.id_visita = ids.visita;
+                if (payload.id_pre == null && ids && ids.pre) payload.id_pre = ids.pre;
+                if (payload.id_reserva == null && ids && ids.reserva) payload.id_reserva = ids.reserva;
+                if (payload.id_n_marcar == null && ids && ids.nao_marcar) payload.id_n_marcar = ids.nao_marcar;
             }
-            const url = buildUrl(AGENDA_WEBHOOK_URL, payload);
-            let data = null;
-            let lastErr = null;
-
-            try {
-                const resp = await fetch(url, { method:'POST', headers:{ 'Accept':'application/json' } });
-                if (resp && resp.ok) {
-                    data = await readResponsePayload(resp);
-                } else {
-                    const txt = resp ? await resp.text().catch(()=> '') : '';
-                    throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
-                }
-            } catch (err) {
-                lastErr = err;
+            const resp = await fetch(AGENDA_WEBHOOK_URL, {
+                method:'POST',
+                headers:{ 'Accept':'application/json', 'Content-Type':'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await readResponsePayload(resp);
+            if (!resp.ok) {
+                const txt = typeof data === 'string' ? data : '';
+                throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
             }
-
-            if (!data) {
-                try {
-                    const resp = await fetch(url, { method:'GET', headers:{ 'Accept':'application/json' } });
-                    if (resp && resp.ok) {
-                        data = await readResponsePayload(resp);
-                    } else {
-                        const txt = resp ? await resp.text().catch(()=> '') : '';
-                        throw new Error(`HTTP ${resp ? resp.status : '??'}: ${txt || 'erro'}`);
-                    }
-                } catch (err) {
-                    lastErr = err;
-                }
-            }
-
-            if (!data) throw lastErr || new Error('Falha ao chamar webhook');
             return data;
         }
 
@@ -392,11 +378,11 @@
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
             // Event Listeners
-            citySelect.addEventListener('change', handleCityFilter);
-            searchInput.addEventListener('input', handleSearch);
-            prevPageButton.addEventListener('click', goToPrevPage);
-            nextPageButton.addEventListener('click', goToNextPage);
-            btnFetchData.addEventListener('click', fetchDataFromN8N);
+            if (citySelect) citySelect.addEventListener('change', handleCityFilter);
+            if (searchInput) searchInput.addEventListener('input', handleSearch);
+            if (prevPageButton) prevPageButton.addEventListener('click', goToPrevPage);
+            if (nextPageButton) nextPageButton.addEventListener('click', goToNextPage);
+            if (btnFetchData) btnFetchData.addEventListener('click', fetchDataFromN8N);
             
             sentimentFilters.forEach(filter => {
                 filter.addEventListener('click', () => {
@@ -415,10 +401,12 @@
 
         async function fetchDataFromN8N() {
             try {
-                btnFetchData.disabled = true;
-                btnFetchData.innerHTML = '<span class="loading"></span> Buscando dados...';
-                connectionStatus.textContent = 'Conectando ao webhook da Agenda...';
-                webhookStatus.classList.remove('status-connected', 'status-error', 'status-warning');
+                if (btnFetchData) {
+                    btnFetchData.disabled = true;
+                    btnFetchData.innerHTML = '<span class="loading"></span> Buscando dados...';
+                }
+                if (connectionStatus) connectionStatus.textContent = 'Conectando ao webhook da Agenda...';
+                if (webhookStatus) webhookStatus.classList.remove('status-connected', 'status-error', 'status-warning');
 
                 const s = getLoggedSession();
                 let rawData = null;
@@ -481,14 +469,14 @@
 
                 populateFilters();
                 
-                connectionStatus.textContent = `Feedbacks carregados - ${feedbacksData.length} feedback(s)`;
-                webhookStatus.classList.add('status-connected');
+                if (connectionStatus) connectionStatus.textContent = `Feedbacks carregados - ${feedbacksData.length} feedback(s)`;
+                if (webhookStatus) webhookStatus.classList.add('status-connected');
                 showNotification(`${feedbacksData.length} feedbacks carregados`, 'success');
                 
             } catch (error) {
                 console.error('Erro ao buscar dados do n8n:', error);
-                connectionStatus.textContent = `Erro: ${error.message}`;
-                webhookStatus.classList.add('status-error');
+                if (connectionStatus) connectionStatus.textContent = `Erro: ${error.message}`;
+                if (webhookStatus) webhookStatus.classList.add('status-error');
                 showNotification(`Erro ao carregar feedbacks: ${error.message}`, 'error');
                 
                 // Em caso de erro, mostrar estado vazio
@@ -497,8 +485,10 @@
                 updatePagination();
                 updateStats();
             } finally {
-                btnFetchData.disabled = false;
-                btnFetchData.innerHTML = '<i class="fas fa-sync-alt"></i> Buscar Dados';
+                if (btnFetchData) {
+                    btnFetchData.disabled = false;
+                    btnFetchData.innerHTML = '<i class="fas fa-sync-alt"></i> Buscar Dados';
+                }
             }
         }
 

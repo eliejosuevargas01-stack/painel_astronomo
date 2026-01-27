@@ -6,6 +6,7 @@
   <title>Minha Conta • Astrônomo</title>
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <link rel="stylesheet" href="css/styles.css">
+    <script src="auth.js"></script>
   <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
   <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
   <!-- <link rel="stylesheet" href="css/style.css"> -->
@@ -83,10 +84,10 @@
           <h1>Minha Conta</h1>
           <p class="subtitle">Agenda Inteligente</p>
         </div>
+        <button id="acc-logout" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Sair</button>
       </header>
 
       <div class="navigation">
-        <a href="apresentacao.html" class="nav-button"><i class="fas fa-clipboard-list"></i> Apresentação</a>
         <a href="index.html" class="nav-button"><i class="fas fa-calendar-alt"></i> Agenda</a>
         <a href="feedbacks.html" class="nav-button"><i class="fas fa-comment-dots"></i> Feedbacks</a>
         <a href="despesas.html" class="nav-button"><i class="fas fa-file-invoice-dollar"></i> Despesas</a>
@@ -96,37 +97,6 @@
       </div>
 
       <main>
-        <section class="hero">
-          <div>
-            <span class="hero-eyebrow"><i class="fas fa-user-astronaut"></i> Perfil</span>
-            <h1>Dados do astrônomo em um painel único.</h1>
-            <p>Revise informações pessoais, preferências e parâmetros de operação usados na agenda inteligente.</p>
-            <div class="hero-actions">
-              <button id="acc-logout" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Sair</button>
-            </div>
-          </div>
-          <div class="panel-card">
-            <div class="panel-title">
-              <span>Resumo do perfil</span>
-              <span class="panel-tag">Sessão ativa</span>
-            </div>
-            <div class="panel-list">
-              <div class="panel-item">
-                <span class="panel-label">Status</span>
-                <span class="panel-value">Conectado</span>
-              </div>
-              <div class="panel-item">
-                <span class="panel-label">Preferências</span>
-                <span class="panel-value">Tema personalizado</span>
-              </div>
-              <div class="panel-item">
-                <span class="panel-label">Origem</span>
-                <span class="panel-value">Base operacional</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <section class="section" id="perfil">
           <div class="section-header">
             <h2>Detalhes do usuário</h2>
@@ -380,11 +350,19 @@
       const suggestBtn=document.getElementById('theme-suggest'); if(suggestBtn) suggestBtn.addEventListener('click', ()=>{ const t=deriveThemeFromUsername(themeSeed); if(!t) return; applyTheme(t); if(ip) ip.value=t['--accent-purple']; if(ic) ic.value=t['--accent-cyan']; if(im) im.value=t['--accent-magenta']; if(ig) ig.value=t['--accent-gold']; });
     }catch(_){ }
     const logoutBtn = document.getElementById('acc-logout');
-    if(logoutBtn){
-      logoutBtn.addEventListener('click', function(){
-        try{ localStorage.removeItem('astronomo_session'); }catch(e){}
-        try{ localStorage.removeItem('userSession'); }catch(e){}
-        window.location.reload();
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function() {
+        if (window.AstroAuth && typeof window.AstroAuth.logout === 'function') {
+          window.AstroAuth.logout();
+          return;
+        }
+        try {
+          localStorage.removeItem('astronomo_session');
+        } catch (e) {}
+        try {
+          localStorage.removeItem('userSession');
+        } catch (e) {}
+        window.location.replace('login.html');
       });
     }
 
