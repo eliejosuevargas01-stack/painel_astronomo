@@ -2772,10 +2772,47 @@ textarea:focus {
             
             emptyState.style.display = 'none';
             grid.innerHTML = '';
-            
-            astronomers.forEach(astronomer => {
+
+            const sorted = sortAstronomersById(astronomers);
+            sorted.forEach(astronomer => {
                 grid.appendChild(createAstronomerCard(astronomer));
             });
+        }
+
+        function parseAstronomerIdValue(value){
+            if (value === 0) return 0;
+            if (value === null || value === undefined) return null;
+            const raw = String(value).trim();
+            if (!raw) return null;
+            const match = raw.match(/\d+/);
+            if (match) {
+                const num = parseInt(match[0], 10);
+                return Number.isNaN(num) ? null : num;
+            }
+            const num = Number(raw);
+            return Number.isNaN(num) ? null : num;
+        }
+
+        function sortAstronomersById(list){
+            if (!Array.isArray(list)) return [];
+            return list
+                .map((astronomer, index) => ({
+                    astronomer,
+                    index,
+                    idValue: parseAstronomerIdValue(astronomer && astronomer.id_astronomo)
+                }))
+                .sort((a, b) => {
+                    const aHas = a.idValue !== null && a.idValue !== undefined;
+                    const bHas = b.idValue !== null && b.idValue !== undefined;
+                    if (aHas && bHas) {
+                        if (a.idValue !== b.idValue) return a.idValue - b.idValue;
+                        return a.index - b.index;
+                    }
+                    if (aHas) return -1;
+                    if (bHas) return 1;
+                    return a.index - b.index;
+                })
+                .map(item => item.astronomer);
         }
 
         function normalizeTaskType(raw){
@@ -2984,8 +3021,9 @@ textarea:focus {
         function preencherSelectAstronomo() {
             const select = document.getElementById('select-astronomo');
             select.innerHTML = '<option value="">Selecione um astrônomo</option>';
-            
-            ASTRONOMOS.forEach(astro => {
+
+            const sorted = sortAstronomersById(ASTRONOMOS);
+            sorted.forEach(astro => {
                 const option = document.createElement('option');
                 // Enviar sempre o ID do astrônomo na query da agenda
                 option.value = astro.id_astronomo != null ? astro.id_astronomo : '';
