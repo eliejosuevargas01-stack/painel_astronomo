@@ -50,6 +50,36 @@
         .distancia-rota{ font-weight:600; }
         .distancia-valor{ font-weight:700; color:#34d1f3; }
         .distancia-total{ margin-top:10px; text-align:center; padding:10px; border-radius:10px; background: linear-gradient(135deg, #7b5cff, #34d1f3); color:#050815; font-weight:800; }
+        .info-icon{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            width:20px;
+            height:20px;
+            border-radius:50%;
+            background: linear-gradient(135deg, #22d3ee, #a855f7);
+            color:#0b0f1d;
+            font-size:0.8rem;
+            font-weight:700;
+            cursor:pointer;
+            margin-left:6px;
+            box-shadow:0 0 0 2px rgba(56,189,248,0.25), 0 8px 18px rgba(168,85,247,0.25);
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+        }
+        .info-icon:hover{
+            transform: translateY(-1px) scale(1.05);
+            box-shadow:0 0 0 2px rgba(56,189,248,0.35), 0 10px 24px rgba(168,85,247,0.35);
+        }
+        .info-icon:active{
+            transform: translateY(0) scale(0.98);
+        }
+        .gasto-modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:100000; pointer-events:none; }
+        .gasto-modal.open{ display:flex; pointer-events:auto; }
+        .gasto-modal-backdrop{ position:absolute; inset:0; background:rgba(6,8,20,0.6); }
+        .gasto-modal-card{ position:relative; max-width:520px; width:92%; max-height:80vh; overflow:auto; background:#0f172a; color:#e2e8f0; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px 18px; box-shadow:0 20px 60px rgba(0,0,0,0.45); }
+        .gasto-modal-title{ font-size:1.05rem; font-weight:700; margin-bottom:6px; }
+        .gasto-modal-body{ font-size:0.9rem; line-height:1.5; color:#cbd5f5; }
+        .gasto-modal-close{ position:absolute; top:10px; right:10px; background:transparent; border:0; color:#e2e8f0; font-size:1.1rem; cursor:pointer; }
         .error, .demo-data{ border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:12px; margin:12px 0; background: rgba(255,255,255,0.03); }
         .loading{ text-align:center; color: var(--muted, #aeb4c5); }
         .spinner{ border:3px solid rgba(255,255,255,0.12); border-top:3px solid #7b5cff; border-radius:50%; width:32px; height:32px; animation: spin 1s linear infinite; margin:0 auto 8px; }
@@ -59,6 +89,38 @@
         .astro-line{ display:flex; gap:6px; align-items:center; font-size:0.95rem; flex-wrap:wrap; }
         .astro-line strong{ color:#fff; }
     </style> -->
+    <style>
+        .info-icon{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            width:20px;
+            height:20px;
+            border-radius:50%;
+            background: linear-gradient(135deg, #22d3ee, #a855f7);
+            color:#0b0f1d;
+            font-size:0.8rem;
+            font-weight:700;
+            cursor:pointer;
+            margin-left:6px;
+            box-shadow:0 0 0 2px rgba(56,189,248,0.25), 0 8px 18px rgba(168,85,247,0.25);
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+        }
+        .info-icon:hover{
+            transform: translateY(-1px) scale(1.05);
+            box-shadow:0 0 0 2px rgba(56,189,248,0.35), 0 10px 24px rgba(168,85,247,0.35);
+        }
+        .info-icon:active{
+            transform: translateY(0) scale(0.98);
+        }
+        .gasto-modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:100000; pointer-events:none; }
+        .gasto-modal.open{ display:flex; pointer-events:auto; }
+        .gasto-modal-backdrop{ position:absolute; inset:0; background:rgba(6,8,20,0.6); }
+        .gasto-modal-card{ position:relative; max-width:520px; width:92%; max-height:80vh; overflow:auto; background:#0f172a; color:#e2e8f0; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px 18px; box-shadow:0 20px 60px rgba(0,0,0,0.45); }
+        .gasto-modal-title{ font-size:1.05rem; font-weight:700; margin-bottom:6px; }
+        .gasto-modal-body{ font-size:0.9rem; line-height:1.5; color:#cbd5f5; }
+        .gasto-modal-close{ position:absolute; top:10px; right:10px; background:transparent; border:0; color:#e2e8f0; font-size:1.1rem; cursor:pointer; }
+    </style>
 </head>
 <body class="presentation-page rotas-page">
     <div class="space-layer stars"></div>
@@ -98,6 +160,15 @@
                     </div>
                 </section>
             </main>
+        </div>
+    </div>
+
+    <div class="gasto-modal" id="gasto-modal" hidden>
+        <div class="gasto-modal-backdrop" id="gasto-modal-backdrop"></div>
+        <div class="gasto-modal-card">
+            <button class="gasto-modal-close" id="gasto-modal-close" aria-label="Fechar">✕</button>
+            <div class="gasto-modal-title" id="gasto-modal-title">Estimativa de gastos</div>
+            <div class="gasto-modal-body" id="gasto-modal-body"></div>
         </div>
     </div>
 
@@ -329,6 +400,82 @@
             return null;
         }
 
+        function getEventoDistanciaKm(ev){
+            if (!ev || typeof ev !== 'object') return null;
+            const candidates = [
+                ev.distancia_km,
+                ev.distancia_prevista_km,
+                ev.distancia_real_km,
+                ev.distancia_km_prevista,
+                ev.distancia_km_real,
+                ev.distancia,
+                ev.km,
+                ev.dist_km,
+                ev.distanciaKm
+            ];
+            for (const c of candidates){
+                const num = toNumber(c);
+                if (Number.isFinite(num) && num > 0) return num;
+            }
+            return null;
+        }
+
+        function getTotalKmFromEventDistances(eventos){
+            if (!Array.isArray(eventos) || !eventos.length) return null;
+            let sum = 0;
+            let count = 0;
+            eventos.forEach(ev => {
+                const km = getEventoDistanciaKm(ev);
+                if (!Number.isFinite(km)) return;
+                const isContinua = ev && (ev.rota_continua === true || ev.rota_continua === 'true' || ev.rota === true || ev.continua === true);
+                sum += isContinua ? km : km * 2;
+                count += 1;
+            });
+            return count ? Number(sum.toFixed(2)) : null;
+        }
+
+        function getBaseDistancesFromEventPayload(eventos){
+            if (!Array.isArray(eventos) || !eventos.length) return { baseIda: null, baseVolta: null };
+            const first = eventos[0];
+            const last = eventos[eventos.length - 1];
+            const baseIda = getEventoDistanciaKm(first);
+            const baseVolta = getEventoDistanciaKm(last);
+            return {
+                baseIda: Number.isFinite(baseIda) ? baseIda : null,
+                baseVolta: Number.isFinite(baseVolta) ? baseVolta : null
+            };
+        }
+
+        function getValorCombustivel(sess){
+            if (!sess || typeof sess !== 'object') return null;
+            const prefer = (mediaKey, normalKey) => {
+                const media = toNumber(sess[mediaKey]);
+                if (Number.isFinite(media) && media > 0) return media;
+                const normal = toNumber(sess[normalKey]);
+                return Number.isFinite(normal) && normal > 0 ? normal : null;
+            };
+            return (
+                prefer('valor_litro_media', 'valor_litro') ??
+                prefer('valor_litro_real_media', 'valor_litro_real') ??
+                null
+            );
+        }
+
+        function getConsumoKmL(sess){
+            if (!sess || typeof sess !== 'object') return null;
+            const prefer = (mediaKey, normalKey) => {
+                const media = toNumber(sess[mediaKey]);
+                if (Number.isFinite(media) && media > 0) return media;
+                const normal = toNumber(sess[normalKey]);
+                return Number.isFinite(normal) && normal > 0 ? normal : null;
+            };
+            return (
+                prefer('consumo_km_l_media', 'consumo_km_l') ??
+                prefer('consumo_media', 'consumo') ??
+                null
+            );
+        }
+
         function getEventoDate(ev){
             const raw = ev?.data_e_hora_do_agendamento || ev?.data_agendamento || ev?.data || ev?.date;
             if (!raw) return null;
@@ -337,15 +484,35 @@
             return d;
         }
 
+        function isVisitaEvent(ev){
+            if (!ev || typeof ev !== 'object') return false;
+            const raw = [
+                ev.tipo_da_tarefa,
+                ev.tipo_evento,
+                ev.tipo,
+                ev.TIPO,
+                ev.task_type,
+                ev.tarefa_tipo
+            ].filter(Boolean).join(' ').toLowerCase();
+            if (raw.includes('visita')) return true;
+            const tipoKey = String(ev.tipo || '').toLowerCase();
+            if (tipoKey === 'visita') return true;
+            return false;
+        }
+
         function getEventoEndDate(ev){
             const start = getEventoDate(ev);
             if (!start) return null;
-            const rawDiarias = ev?.numero_de_diarias ?? ev?.numero_diarias ?? ev?.diarias ?? 1;
-            const diarias = Number(rawDiarias);
-            const days = Number.isFinite(diarias) && diarias > 0 ? Math.floor(diarias) : 1;
-            const end = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-            end.setDate(end.getDate() + (days - 1));
-            return end;
+            const rawEnd = ev?.data_fim || ev?.data_final || ev?.data_fim_agendamento || ev?.data_finalizacao;
+            if (rawEnd) {
+                const endDate = new Date(rawEnd);
+                if (!Number.isNaN(endDate.getTime())) return endDate;
+            }
+            return start;
+        }
+
+        function dayKey(date){
+            return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
         }
 
         function getEventoIdCandidates(ev){
@@ -433,6 +600,18 @@
         function startOfDay(date){
             if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
             return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        }
+
+        function filterEventosFromToday(eventos){
+            const todayStart = startOfDay(new Date());
+            if (!todayStart) return [];
+            return (Array.isArray(eventos) ? eventos : []).filter(ev => {
+                const endDate = getEventoEndDate(ev) || getEventoDate(ev);
+                if (!endDate) return false;
+                const endDay = startOfDay(endDate);
+                if (!endDay) return false;
+                return endDay.getTime() >= todayStart.getTime();
+            });
         }
 
         function isConsecutiveEventDay(prev, current){
@@ -756,10 +935,13 @@
 
             try {
                 let eventos = [];
+                let hadRawEventos = false;
                 try{
                     const raw = await callAgendaWebhook('atualizar_agenda', sessVal?.id_astronomo != null ? { id_astronomo: sessVal.id_astronomo } : {});
                     const rawEventos = normalizeAgendaPayload(raw);
-                    eventos = dedupeEventosPorAssinatura(rawEventos);
+                    const deduped = dedupeEventosPorAssinatura(rawEventos);
+                    if (deduped.length) hadRawEventos = true;
+                    eventos = filterEventosFromToday(deduped).filter(isVisitaEvent);
                     if (eventos.length) {
                         saveAgendaCache(eventos, sessVal);
                         saveRotasCache(eventos, sessVal);
@@ -769,12 +951,14 @@
                 }
 
                 if (!eventos.length) {
-                    eventos = dedupeEventosPorAssinatura(carregarEventosLocais(sessVal));
+                    const deduped = dedupeEventosPorAssinatura(carregarEventosLocais(sessVal));
+                    if (deduped.length) hadRawEventos = true;
+                    eventos = filterEventosFromToday(deduped).filter(isVisitaEvent);
                 }
                 if (!eventos.length) {
                     rotasContainer.innerHTML = `
                         <div class="error">
-                            Nenhum evento encontrado no cache da agenda. Abra a Agenda e atualize os eventos.
+                            ${hadRawEventos ? 'Nenhum evento a partir de hoje.' : 'Nenhum evento encontrado no cache da agenda. Abra a Agenda e atualize os eventos.'}
                         </div>
                     `;
                     return;
@@ -871,10 +1055,21 @@
             const cidadesEnvolvidas = [...new Set(rota.eventos.map(ev => (ev.cidade || 'Cidade não informada').split(' - ')[0].trim()).filter(Boolean))];
             const cidadesLabel = cidadesEnvolvidas.length ? cidadesEnvolvidas.join(', ') : 'Cidade não informada';
             const cidadePrincipal = cidadesEnvolvidas[0] || 'Cidade não informada';
+            const isSingleEvent = rota.eventos.length === 1;
+            const basePayload = getBaseDistancesFromEventPayload(rota.eventos);
+            const fallbackKm = isSingleEvent && Number.isFinite(basePayload.baseIda)
+                ? Number((basePayload.baseIda * 2).toFixed(2))
+                : null;
             const totalKmLabel = Number.isFinite(rota.distancia_total)
                 ? `${Number(rota.distancia_total).toFixed(1)} km`
-                : 'Clique para calcular';
-            const gastosLabel = '—';
+                : (Number.isFinite(fallbackKm) ? `${fallbackKm.toFixed(1)} km` : 'Clique para calcular');
+            let gastosLabel = '—';
+            if (Number.isFinite(fallbackKm)) {
+                const gastosPreview = calcularGastosEstimados(rota, fallbackKm);
+                if (gastosPreview && Number.isFinite(gastosPreview.total)) {
+                    gastosLabel = `R$ ${gastosPreview.total.toFixed(2)}`;
+                }
+            }
 
             rotaDiv.innerHTML = `
                 <summary class="rota-summary">
@@ -899,7 +1094,7 @@
                             <span class="value">🧭 ${cidadesLabel}</span>
                         </div>
                         <div class="rota-summary-item">
-                            <span class="label">Gastos estimados</span>
+                            <span class="label">Gastos estimados <span class="info-icon" data-action="gasto-info" role="button" tabindex="0" aria-label="Ver detalhes do cálculo" title="Ver detalhes do cálculo">ℹ️</span></span>
                             <span class="value">💸 <span data-gasto-resumo>${gastosLabel}</span></span>
                         </div>
                         <div class="rota-summary-item">
@@ -967,7 +1162,7 @@
                     <div class="distancia-total" data-distancia-total>
                         🚗 Distância total da rota: —
                     </div>
-                    <div class="distancias-title" style="margin-top:10px;">Gastos estimados</div>
+                    <div class="distancias-title" style="margin-top:10px;">Gastos estimados <span class="info-icon" data-action="gasto-info" role="button" tabindex="0" aria-label="Ver detalhes do cálculo" title="Ver detalhes do cálculo">ℹ️</span></div>
                     <div class="distancia-item">
                         <span class="distancia-rota">Combustível</span>
                         <span class="distancia-valor" data-gasto="combustivel">—</span>
@@ -993,6 +1188,23 @@
 
             container.appendChild(rotaDiv);
 
+            rotaDiv.addEventListener('click', (e) => {
+                const info = e.target && e.target.closest ? e.target.closest('[data-action="gasto-info"]') : null;
+                if (!info) return;
+                e.preventDefault();
+                e.stopPropagation();
+                showGastoBreakdown(rota, rotaDiv);
+            });
+            rotaDiv.addEventListener('keydown', (e) => {
+                const info = e.target && e.target.closest ? e.target.closest('[data-action="gasto-info"]') : null;
+                if (!info) return;
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showGastoBreakdown(rota, rotaDiv);
+                }
+            });
+
             rotaDiv.addEventListener('toggle', () => {
                 if (!rotaDiv.open || rotaDiv.dataset.loaded === 'true') return;
                 carregarDetalhesRota(rota, rotaDiv).catch(err => {
@@ -1009,16 +1221,124 @@
             const gastoResumoEl = rotaDiv.querySelector('[data-gasto-resumo]');
             if (gastoResumoEl) gastoResumoEl.textContent = 'Calculando...';
 
+            if (Array.isArray(rota?.eventos) && rota.eventos.length === 1) {
+                const evento = rota.eventos[0];
+                let kmBase = getEventoDistanciaKm(evento);
+                if (!Number.isFinite(kmBase)) {
+                    try { kmBase = await calcularDistanciaBaseEvento(evento); } catch (_) { kmBase = null; }
+                }
+                const totalKm = Number.isFinite(kmBase) ? Number((kmBase * 2).toFixed(2)) : null;
+                const gastos = calcularGastosEstimados(rota, totalKm);
+                const totalLabel = Number.isFinite(totalKm) ? `${totalKm.toFixed(1)} km` : '—';
+
+                badgeEls.forEach(el => { el.textContent = totalLabel; });
+                if (gastoResumoEl) {
+                    gastoResumoEl.textContent = Number.isFinite(gastos.total) ? `R$ ${gastos.total.toFixed(2)}` : '—';
+                }
+                if (rotaDiv) {
+                    rotaDiv.dataset.totalKm = Number.isFinite(totalKm) ? String(totalKm) : '';
+                    rotaDiv.dataset.gastoCombustivel = Number.isFinite(gastos.combustivel) ? String(gastos.combustivel) : '';
+                    rotaDiv.dataset.gastoAlimentacao = Number.isFinite(gastos.alimentacao) ? String(gastos.alimentacao) : '';
+                    rotaDiv.dataset.gastoHospedagem = Number.isFinite(gastos.hospedagem) ? String(gastos.hospedagem) : '';
+                    rotaDiv.dataset.gastoPedagios = Number.isFinite(gastos.pedagios) ? String(gastos.pedagios) : '';
+                    rotaDiv.dataset.gastoTotal = Number.isFinite(gastos.total) ? String(gastos.total) : '';
+                    rotaDiv.dataset.diariasTotal = Number.isFinite(gastos.diariasTotal) ? String(gastos.diariasTotal) : '';
+                    rotaDiv.dataset.noitesTotal = Number.isFinite(gastos.noitesTotal) ? String(gastos.noitesTotal) : '';
+                    rotaDiv.dataset.consumo = Number.isFinite(gastos.consumo) ? String(gastos.consumo) : '';
+                    rotaDiv.dataset.valorLitro = Number.isFinite(gastos.valorLitro) ? String(gastos.valorLitro) : '';
+                    rotaDiv.dataset.alimentacaoDia = Number.isFinite(gastos.alimentacaoDia) ? String(gastos.alimentacaoDia) : '';
+                    rotaDiv.dataset.hospedagemDia = Number.isFinite(gastos.hospedagemDia) ? String(gastos.hospedagemDia) : '';
+                    rotaDiv.dataset.pedagiosVal = Number.isFinite(gastos.pedagiosVal) ? String(gastos.pedagiosVal) : '';
+                }
+
+                const listEl = rotaDiv.querySelector('[data-distancias-list]');
+                if (listEl) {
+                    if (Number.isFinite(kmBase)) {
+                        listEl.innerHTML = `
+                            <div class="distancia-item">
+                                <span class="distancia-rota">Base → ${evento.cidade || 'Cidade não informada'}</span>
+                                <span class="distancia-valor">${kmBase.toFixed(1)} km</span>
+                            </div>
+                            <div class="distancia-item">
+                                <span class="distancia-rota">${evento.cidade || 'Cidade não informada'} → Base</span>
+                                <span class="distancia-valor">${kmBase.toFixed(1)} km</span>
+                            </div>
+                        `;
+                    } else {
+                        listEl.innerHTML = `
+                            <div class="distancia-item">
+                                <span class="distancia-rota">Distâncias indisponíveis</span>
+                                <span class="distancia-valor">—</span>
+                            </div>
+                        `;
+                    }
+                }
+
+                const totalEl = rotaDiv.querySelector('[data-distancia-total]');
+                if (totalEl) totalEl.textContent = `🚗 Distância total da rota: ${totalLabel}`;
+
+                const gastoMap = {
+                    combustivel: gastos.combustivel,
+                    hospedagem: gastos.hospedagem,
+                    alimentacao: gastos.alimentacao,
+                    pedagios: gastos.pedagios,
+                    total: gastos.total
+                };
+                Object.entries(gastoMap).forEach(([key, val]) => {
+                    const el = rotaDiv.querySelector(`[data-gasto="${key}"]`);
+                    if (!el) return;
+                    const prefix = key === 'total' ? '💸 Total estimado: ' : '';
+                    el.textContent = Number.isFinite(val) ? `${prefix}R$ ${val.toFixed(2)}` : `${prefix}—`;
+                });
+
+                const distanceTargets = rotaDiv.querySelectorAll('[data-distance-id]');
+                distanceTargets.forEach((el) => {
+                    if (Number.isFinite(kmBase)) {
+                        el.textContent = `📍 ${kmBase.toFixed(1)} km da base`;
+                    } else {
+                        el.textContent = '📍 Distância indisponível';
+                    }
+                });
+
+                const timelineEl = rotaDiv.querySelector('.rota-timeline');
+                if (timelineEl) {
+                    requestAnimationFrame(() => {
+                        aplicarTimelineSerpentina(timelineEl);
+                        const visualEl = rotaDiv.querySelector('[data-rota-visual]');
+                        requestAnimationFrame(() => desenharLinhaSVG(visualEl));
+                    });
+                }
+
+                rotaDiv.dataset.loaded = 'true';
+                return;
+            }
+
             const distancias = await calcularDistanciasRota(rota.eventos);
             registrarOverridesRotaContinua(rota, distancias, sessaoAtual);
             const baseInfo = await calcularDistanciasComBase(rota.eventos);
-            const totalKm = Number(((baseInfo.baseIda || 0) + distancias.reduce((s,d)=> s + (d||0),0) + (baseInfo.baseVolta || 0)).toFixed(2));
+            const computedKm = Number(((baseInfo.baseIda || 0) + distancias.reduce((s,d)=> s + (d||0),0) + (baseInfo.baseVolta || 0)).toFixed(2));
+            const totalKm = Number.isFinite(computedKm) && computedKm > 0 ? computedKm : null;
             const gastos = calcularGastosEstimados(rota, totalKm);
             const totalLabel = Number.isFinite(totalKm) ? `${totalKm.toFixed(1)} km` : '—';
 
             badgeEls.forEach(el => { el.textContent = totalLabel; });
             if (gastoResumoEl) {
                 gastoResumoEl.textContent = Number.isFinite(gastos.total) ? `R$ ${gastos.total.toFixed(2)}` : '—';
+            }
+            if (rotaDiv) {
+                rotaDiv.dataset.totalKm = Number.isFinite(totalKm) ? String(totalKm) : '';
+                rotaDiv.dataset.gastoCombustivel = Number.isFinite(gastos.combustivel) ? String(gastos.combustivel) : '';
+                rotaDiv.dataset.gastoAlimentacao = Number.isFinite(gastos.alimentacao) ? String(gastos.alimentacao) : '';
+                rotaDiv.dataset.gastoHospedagem = Number.isFinite(gastos.hospedagem) ? String(gastos.hospedagem) : '';
+                rotaDiv.dataset.gastoPedagios = Number.isFinite(gastos.pedagios) ? String(gastos.pedagios) : '';
+                rotaDiv.dataset.gastoTotal = Number.isFinite(gastos.total) ? String(gastos.total) : '';
+                rotaDiv.dataset.diariasTotal = Number.isFinite(gastos.diariasTotal) ? String(gastos.diariasTotal) : '';
+                rotaDiv.dataset.noitesTotal = Number.isFinite(gastos.noitesTotal) ? String(gastos.noitesTotal) : '';
+                rotaDiv.dataset.consumo = Number.isFinite(gastos.consumo) ? String(gastos.consumo) : '';
+                rotaDiv.dataset.valorLitro = Number.isFinite(gastos.valorLitro) ? String(gastos.valorLitro) : '';
+                rotaDiv.dataset.alimentacaoDia = Number.isFinite(gastos.alimentacaoDia) ? String(gastos.alimentacaoDia) : '';
+                rotaDiv.dataset.hospedagemDia = Number.isFinite(gastos.hospedagemDia) ? String(gastos.hospedagemDia) : '';
+                rotaDiv.dataset.pedagiosVal = Number.isFinite(gastos.pedagiosVal) ? String(gastos.pedagiosVal) : '';
             }
 
             const listEl = rotaDiv.querySelector('[data-distancias-list]');
@@ -1308,30 +1628,50 @@
             const first = eventos && eventos[0];
             const last = eventos && eventos[eventos.length-1];
             if (first) {
-                try { baseIda = await calcularDistanciaBaseEvento(first); } catch (_) { baseIda = null; }
+                const payloadIda = getEventoDistanciaKm(first);
+                if (Number.isFinite(payloadIda)) {
+                    baseIda = payloadIda;
+                } else {
+                    try { baseIda = await calcularDistanciaBaseEvento(first); } catch (_) { baseIda = null; }
+                }
             }
             if (last) {
-                try { baseVolta = await calcularDistanciaBaseEvento(last); } catch (_) { baseVolta = null; }
+                const payloadVolta = getEventoDistanciaKm(last);
+                if (Number.isFinite(payloadVolta)) {
+                    baseVolta = payloadVolta;
+                } else {
+                    try { baseVolta = await calcularDistanciaBaseEvento(last); } catch (_) { baseVolta = null; }
+                }
             }
             return { baseIda, baseVolta };
         }
 
         function calcularGastosEstimados(rota, totalKm){
             const evs = Array.isArray(rota?.eventos) ? rota.eventos : [];
-            let diariasTotal = 0;
-            let noitesTotal = 0;
+            const daysSet = new Set();
             evs.forEach(ev => {
-                const d = Number(ev.numero_diarias || ev.numero_de_diarias || ev.diarias || 1);
-                const diariasEv = Number.isFinite(d) && d > 0 ? d : 1;
-                diariasTotal += diariasEv;
-                noitesTotal += Math.max(diariasEv - 1, 0);
+                const start = getEventoDate(ev);
+                if (!start) return;
+                const end = getEventoEndDate(ev) || start;
+                let cur = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+                const endDay = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+                if (endDay < cur) {
+                    daysSet.add(dayKey(cur));
+                    return;
+                }
+                while (cur <= endDay) {
+                    daysSet.add(dayKey(cur));
+                    cur.setDate(cur.getDate() + 1);
+                }
             });
+            const diariasTotal = Math.max(daysSet.size, 1);
+            const noitesTotal = Math.max(diariasTotal - 1, 0);
 
             const sess = sessaoAtual || {};
             const preferMedia = (mediaKey, normalKey) => {
-                const media = Number(sess[mediaKey]);
+                const media = toNumber(sess[mediaKey]);
                 if (Number.isFinite(media) && media > 0) return media;
-                const normal = Number(sess[normalKey]);
+                const normal = toNumber(sess[normalKey]);
                 return Number.isFinite(normal) && normal > 0 ? normal : null;
             };
 
@@ -1353,7 +1693,21 @@
             const pedagios = Number.isFinite(pedagiosVal) ? pedagiosVal : null;
             const totalParts = [combustivel, alimentacao, hospedagem, pedagios].filter(v => Number.isFinite(v));
             const total = totalParts.length ? totalParts.reduce((a,b)=>a+b,0) : null;
-            return { combustivel, alimentacao, hospedagem, pedagios: Number.isFinite(pedagios) ? pedagios : null, total };
+            return {
+                combustivel,
+                alimentacao,
+                hospedagem,
+                pedagios: Number.isFinite(pedagios) ? pedagios : null,
+                total,
+                diariasTotal,
+                noitesTotal,
+                consumo,
+                valorLitro,
+                alimentacaoDia,
+                hospedagemDia,
+                pedagiosVal,
+                totalKm
+            };
         }
 
         async function calcularDistanciaPorCidades(cidadeOrigem, cidadeDestino) {
@@ -1446,12 +1800,82 @@
             return R * c;
         }
 
+        function openGastoModal(title, bodyHtml){
+            const modal = document.getElementById('gasto-modal');
+            const titleEl = document.getElementById('gasto-modal-title');
+            const bodyEl = document.getElementById('gasto-modal-body');
+            if (!modal || !titleEl || !bodyEl) return;
+            titleEl.textContent = title || 'Estimativa de gastos';
+            bodyEl.innerHTML = bodyHtml || '';
+            modal.hidden = false;
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeGastoModal(){
+            const modal = document.getElementById('gasto-modal');
+            if (modal) {
+                modal.classList.remove('open');
+                modal.hidden = true;
+            }
+            document.body.style.overflow = '';
+        }
+
+        function formatMoney(val){
+            return Number.isFinite(val) ? `R$ ${val.toFixed(2)}` : '—';
+        }
+
+        function getDatasetNumber(el, key){
+            if (!el) return null;
+            const raw = el.dataset[key];
+            const n = Number(raw);
+            return Number.isFinite(n) ? n : null;
+        }
+
+        function showGastoBreakdown(rota, rotaDiv){
+            const totalKm = getDatasetNumber(rotaDiv, 'totalKm');
+            const combustivel = getDatasetNumber(rotaDiv, 'gastoCombustivel');
+            const alimentacao = getDatasetNumber(rotaDiv, 'gastoAlimentacao');
+            const hospedagem = getDatasetNumber(rotaDiv, 'gastoHospedagem');
+            const pedagios = getDatasetNumber(rotaDiv, 'gastoPedagios');
+            const total = getDatasetNumber(rotaDiv, 'gastoTotal');
+            const diarias = getDatasetNumber(rotaDiv, 'diariasTotal');
+            const noites = getDatasetNumber(rotaDiv, 'noitesTotal');
+            const consumo = getDatasetNumber(rotaDiv, 'consumo');
+            const valorLitro = getDatasetNumber(rotaDiv, 'valorLitro');
+            const alimentacaoDia = getDatasetNumber(rotaDiv, 'alimentacaoDia');
+            const hospedagemDia = getDatasetNumber(rotaDiv, 'hospedagemDia');
+            const pedagiosVal = getDatasetNumber(rotaDiv, 'pedagiosVal');
+
+            if (!Number.isFinite(totalKm)) {
+                openGastoModal('Estimativa de gastos', 'Abra os detalhes da rota para calcular a distância e o custo estimado.');
+                return;
+            }
+
+            const lines = [];
+            lines.push(`<div><strong>Evento:</strong> ${rota.rota_id} — ${rota.astronomo}</div>`);
+            lines.push(`<div><strong>Distância (ida + volta):</strong> ${totalKm.toFixed(1)} km</div>`);
+            lines.push(`<div><strong>Consumo do veículo:</strong> ${Number.isFinite(consumo) ? consumo.toFixed(1) + ' km/L' : '—'}</div>`);
+            lines.push(`<div><strong>Valor do litro:</strong> ${Number.isFinite(valorLitro) ? `R$ ${valorLitro.toFixed(2)}` : '—'}</div>`);
+            lines.push(`<div style="margin-top:8px;"><strong>Cálculo prático:</strong> (${totalKm.toFixed(1)} ÷ ${Number.isFinite(consumo) ? consumo.toFixed(1) : '—'}) × ${Number.isFinite(valorLitro) ? `R$ ${valorLitro.toFixed(2)}` : '—'} = ${formatMoney(combustivel)}</div>`);
+            lines.push(`<div><strong>Alimentação:</strong> ${formatMoney(alimentacao)} ${Number.isFinite(alimentacaoDia) ? `(R$ ${alimentacaoDia.toFixed(2)} × ${Number.isFinite(diarias) ? diarias : 1} diária(s))` : ''}</div>`);
+            lines.push(`<div><strong>Pedágios:</strong> ${formatMoney(pedagios)} ${Number.isFinite(pedagiosVal) ? `(R$ ${pedagiosVal.toFixed(2)} fixo)` : ''}</div>`);
+            lines.push(`<div><strong>Hospedagem:</strong> ${formatMoney(hospedagem)} ${Number.isFinite(hospedagemDia) ? `(R$ ${hospedagemDia.toFixed(2)} × ${Number.isFinite(noites) ? noites : 0} noite(s))` : ''}</div>`);
+            lines.push(`<div style="margin-top:8px;"><strong>Total estimado:</strong> ${formatMoney(total)}</div>`);
+
+            openGastoModal('Como calculamos o gasto', lines.join(''));
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const sess = getLoggedSession();
             sessaoAtual = sess;
             const astroInfoEl = document.getElementById('astro-info');
             if (astroInfoEl) astroInfoEl.innerHTML = describeSession(sessaoAtual);
             carregarRotas(true);
+            const modalBackdrop = document.getElementById('gasto-modal-backdrop');
+            const modalClose = document.getElementById('gasto-modal-close');
+            if (modalBackdrop) modalBackdrop.addEventListener('click', closeGastoModal);
+            if (modalClose) modalClose.addEventListener('click', closeGastoModal);
         });
     </script>
 </body>

@@ -121,7 +121,7 @@
                 <div class="events-panel">
                     <div class="panel-card">
                         <div class="panel-title">
-                            <span>📋 Eventos</span>
+                            <span>📋 Eventos <span class="info-icon" title="Os eventos listados são carregados da agenda.&#10;Clique em um evento para ver detalhes e ações disponíveis." aria-label="Informações sobre os eventos">ℹ️</span></span>
                             <span id="events-count" style="font-size:0.8rem; opacity:0.85;">0 evento(s)</span>
                         </div>
                         <div class="events-list" id="events-list">
@@ -194,6 +194,7 @@
         const ROTAS_CACHE_KEY = 'rotas_cache_v1';
         const ROTA_OVERRIDE_PREFIX = 'rotas_override_v1';
         const WEATHER_API_BASE = 'https://api.open-meteo.com/v1/forecast';
+        const WEATHER_GEO_API_BASE = 'https://geocoding-api.open-meteo.com/v1/search';
 
         function agendaCacheKey(sess){
             const ns = (sess && (sess.id_astronomo ?? sess.usuario ?? sess.username)) || 'anon';
@@ -308,7 +309,9 @@
         let currentTaskFilter = { type: 'visita', id: null };
         let currentSession = null;
         const WEATHER_CACHE_TTL = 30 * 60 * 1000; // 30 min
+        const GEO_CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 dias
         const weatherCache = new Map();
+        const geoCache = new Map();
         let weatherRenderToken = 0;
         const INDEX_UI_STATE_KEY = 'index_ui_state_v1';
         const getSelectedTaskFilter = () => {
@@ -560,6 +563,47 @@
             const city = tokens[0];
             const uf = tokens.find(t => t.length === 2 && /^[A-Za-z]{2}$/.test(t)) || tokens[1];
             return uf ? `${city} - ${uf.toUpperCase()}` : city;
+        }
+
+        function getSessionCityLabel(sess){
+            const raw = sess?.cidade_base || sess?.cidade || sess?.cidade_origem || sess?.base || '';
+            return normalizeCityUF(raw);
+        }
+
+        function normalizeGeoQuery(label){
+            if (!label) return '';
+            let q = String(label).replace(/\s+/g, ' ').trim();
+            if (!q) return '';
+            q = q.replace(/\s*-\s*/g, ', ');
+            if (!/brasil|brazil/i.test(q)) q = `${q}, Brasil`;
+            return q;
+        }
+
+        async function geocodeCity(label){
+            const query = normalizeGeoQuery(label);
+            if (!query) return null;
+            const key = query.toLowerCase();
+            const cached = geoCache.get(key);
+            if (cached && (Date.now() - cached.ts) < GEO_CACHE_TTL) return cached.data;
+
+            const url = `${WEATHER_GEO_API_BASE}?name=${encodeURIComponent(query)}&count=1&language=pt&format=json&country_code=BR`;
+            const resp = await fetch(url, { headers:{'Accept':'application/json'}, method:'GET' });
+            const body = await resp.text().catch(()=> '');
+            if (!resp.ok) throw new Error(body || 'Falha ao localizar cidade');
+            let data = null;
+            try{ data = body ? JSON.parse(body) : null; }catch(_){ data = null; }
+            const first = data && Array.isArray(data.results) ? data.results[0] : null;
+            if (!first) return null;
+
+            const lat = Number(first.latitude);
+            const lon = Number(first.longitude);
+            if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+            const name = first.name ? String(first.name) : '';
+            const admin = first.admin1 ? String(first.admin1) : '';
+            const labelOut = name ? (admin ? `${name} - ${admin}` : name) : label;
+            const parsed = { lat, lon, label: labelOut };
+            geoCache.set(key, { ts: Date.now(), data: parsed });
+            return parsed;
         }
 
         function formatOrigemDestino(ev){
@@ -814,16 +858,19 @@
         }
 
         // ==== Previsão do tempo (Open-Meteo) ====
-        function extractEventLocations(ev){
+        function extractEventLocations(ev, sess){
+            const sessionLabel = getSessionCityLabel(sess || {});
+            const origemLabel = normalizeCityUF(ev?.cidade_base || ev?.origem_real || ev?.base || ev?.cidade_origem || '') || sessionLabel;
+            const destinoLabel = normalizeCityUF(ev?.cidade_destino || ev?.cidade || ev?.destino || ev?.cidade_evento || ev?.cidade_lead || '');
             const origem = {
                 lat: toNumber(ev?.origem_lat ?? ev?.lat_origem ?? ev?.latitude_origem),
                 lon: toNumber(ev?.origem_lon ?? ev?.lon_origem ?? ev?.longitude_origem),
-                label: normalizeCityUF(ev?.cidade_base || ev?.origem_real || ev?.base || ev?.cidade_origem || '')
+                label: origemLabel
             };
             const destino = {
                 lat: toNumber(ev?.destino_lat ?? ev?.lat_destino ?? ev?.latitude_destino ?? ev?.lat),
                 lon: toNumber(ev?.destino_lon ?? ev?.lon_destino ?? ev?.longitude_destino ?? ev?.lon),
-                label: normalizeCityUF(ev?.cidade_destino || ev?.cidade || ev?.destino || '')
+                label: destinoLabel
             };
             return { origem, destino };
         }
@@ -888,13 +935,13 @@
             return parsed;
         }
 
-        function pickEventForWeather(dayEvents){
+        function pickEventForWeather(dayEvents, sess){
             if (!Array.isArray(dayEvents) || !dayEvents.length) return null;
-            const withCoords = dayEvents.find(ev => {
-                const locs = extractEventLocations(ev);
-                return hasValidCoords(locs.origem) || hasValidCoords(locs.destino);
+            const withLocation = dayEvents.find(ev => {
+                const locs = extractEventLocations(ev, sess);
+                return hasValidCoords(locs.origem) || hasValidCoords(locs.destino) || !!locs.origem.label || !!locs.destino.label;
             });
-            return withCoords || dayEvents[0];
+            return withLocation || dayEvents[0];
         }
 
         async function renderWeatherForSelection(dayEvents){
@@ -907,15 +954,16 @@
                 return;
             }
 
-            const eventTarget = pickEventForWeather(dayEvents);
-            const { origem, destino } = extractEventLocations(eventTarget || {});
+            const sess = currentSession || getLoggedSession();
+            const eventTarget = pickEventForWeather(dayEvents, sess);
+            const { origem, destino } = extractEventLocations(eventTarget || {}, sess);
             const locations = [];
-            if (hasValidCoords(origem)) locations.push({ ...origem, role:'Origem' });
-            if (hasValidCoords(destino)) locations.push({ ...destino, role:'Destino' });
+            if (hasValidCoords(origem) || origem.label) locations.push({ ...origem, role:'Origem' });
+            if (hasValidCoords(destino) || destino.label) locations.push({ ...destino, role:'Destino' });
 
             if (!locations.length) {
-                dayWeatherMetaEl.textContent = 'Evento sem coordenadas';
-                dayWeatherBodyEl.innerHTML = `<div class="day-weather__empty">Não encontramos coordenadas de origem/destino para consultar o clima.</div>`;
+                dayWeatherMetaEl.textContent = 'Sem cidade definida';
+                dayWeatherBodyEl.innerHTML = `<div class="day-weather__empty">Não encontramos cidade de origem/destino para consultar o clima.</div>`;
                 return;
             }
 
@@ -925,8 +973,16 @@
 
             const results = await Promise.all(locations.map(async (loc) => {
                 try{
-                    const data = await fetchWeather(loc.lat, loc.lon);
-                    return { loc, data };
+                    let resolved = { ...loc };
+                    if (!hasValidCoords(resolved)) {
+                        const geo = await geocodeCity(resolved.label);
+                        if (geo) {
+                            resolved = { ...resolved, lat: geo.lat, lon: geo.lon, label: resolved.label || geo.label };
+                        }
+                    }
+                    if (!hasValidCoords(resolved)) throw new Error('Cidade não encontrada');
+                    const data = await fetchWeather(resolved.lat, resolved.lon);
+                    return { loc: resolved, data };
                 }catch(err){
                     return { loc, error: err };
                 }
@@ -1481,6 +1537,8 @@
                 if (!ev) return;
                 card.addEventListener('click', () => openEventModal(ev));
             });
+
+            renderWeatherForSelection(dayEvents);
         }
 
         // ==== Imagens do evento (carrossel) ====

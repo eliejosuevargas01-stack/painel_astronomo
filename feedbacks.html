@@ -461,10 +461,24 @@
                     };
                 });
 
-                // Filtrar por usuário logado
+                // Filtrar por usuário logado apenas se os dados tiverem campos de sessão
                 const session = getLoggedSession();
                 if (session) {
-                    feedbacksData = feedbacksData.filter(item => belongsToSession(item, session));
+                    const hasSessionFields = feedbacksData.some(item =>
+                        item && (
+                            item.assistant_id != null ||
+                            item.ASSISTANT_ID != null ||
+                            item.id_astronomo != null ||
+                            item.idAstronomo != null ||
+                            item.usuario != null ||
+                            item.USERNAME != null ||
+                            item.astronomo != null ||
+                            item.astronomo_validacao != null
+                        )
+                    );
+                    if (hasSessionFields) {
+                        feedbacksData = feedbacksData.filter(item => belongsToSession(item, session));
+                    }
                 }
 
                 populateFilters();
@@ -526,6 +540,41 @@
             return 'neutral';
         }
 
+        function cleanFeedbackText(value){
+            if (value === null || value === undefined) return '';
+            if (typeof value === 'number') return '';
+            let text = '';
+            if (typeof value === 'object') {
+                const obj = value;
+                const nested = obj.texto || obj.text || obj.feedback || obj.comentario || obj.avaliacao || obj.resposta;
+                if (nested !== undefined && nested !== null) {
+                    text = String(nested).trim();
+                } else {
+                    return '';
+                }
+            } else {
+                text = String(value).trim();
+            }
+            if (!text) return '';
+            const lower = text.toLowerCase();
+            if (lower === 'null' || lower === 'undefined' || lower === 'nan' || lower === 'n/a') return '';
+            if (lower.includes('nao possu') || lower.includes('não possu') || lower.includes('sem feedback') || lower.includes('sem avaliacao') || lower.includes('sem avaliação')) {
+                return '';
+            }
+            return text;
+        }
+
+        function getValuesByKeyHints(obj, hints){
+            if (!obj || typeof obj !== 'object') return [];
+            const out = [];
+            Object.entries(obj).forEach(([k,v]) => {
+                const key = String(k).toLowerCase();
+                if (!hints.some(h => key.includes(h))) return;
+                out.push(v);
+            });
+            return out;
+        }
+
         function extractFeedbackText(event){
             const candidates = [
                 event?.avaliacao,
@@ -534,13 +583,33 @@
                 event?.feedback,
                 event?.comentario_feedback,
                 event?.feedback_texto,
-                event?.avaliacao_responsavel
+                event?.avaliacao_responsavel,
+                event?.resultado,
+                event?.resultado_evento,
+                event?.resultado_apresentacao,
+                event?.comentario,
+                event?.comentarios,
+                event?.observacao,
+                event?.observacoes,
+                event?.obs
             ];
+            const hinted = getValuesByKeyHints(event, [
+                'feedback',
+                'avaliacao',
+                'coment',
+                'resultado',
+                'observa',
+                'obs',
+                'satisf'
+            ]);
             for (const c of candidates){
-                const t = (c ?? '').toString().trim();
+                const t = cleanFeedbackText(c);
                 if (!t) continue;
-                const lower = t.toLowerCase();
-                if (lower === 'null' || lower === 'undefined') continue;
+                return t;
+            }
+            for (const c of hinted){
+                const t = cleanFeedbackText(c);
+                if (!t) continue;
                 return t;
             }
             return '';
@@ -556,6 +625,14 @@
             ];
             for (const c of candidates){
                 const t = (c ?? '').toString().trim();
+                if (!t) continue;
+                if (t.toLowerCase() === 'null' || t.toLowerCase() === 'undefined') continue;
+                return t;
+            }
+            const hinted = getValuesByKeyHints(event, ['nps', 'npm', 'promoter']);
+            for (const c of hinted){
+                if (c === null || c === undefined) continue;
+                const t = String(c).trim();
                 if (!t) continue;
                 if (t.toLowerCase() === 'null' || t.toLowerCase() === 'undefined') continue;
                 return t;
@@ -579,6 +656,14 @@
                 if (!Number.isFinite(num)) continue;
                 if (num >= 0 && num <= 10) return num;
                 // aceita números fora do range, mas arredonda para 0-10
+                return Math.max(0, Math.min(10, num));
+            }
+            const hinted = getValuesByKeyHints(event, ['nota_npm', 'nota_nps', 'nps', 'npm', 'promoter']);
+            for (const c of hinted){
+                if (c === null || c === undefined) continue;
+                const num = Number(String(c).replace(',', '.'));
+                if (!Number.isFinite(num)) continue;
+                if (num >= 0 && num <= 10) return num;
                 return Math.max(0, Math.min(10, num));
             }
             return null;

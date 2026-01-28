@@ -1848,6 +1848,7 @@ textarea:focus {
         let CAROUSEL_IMAGES = [];
         let CAROUSEL_INDEX = 0;
         let CAROUSEL_EVENT_ID = null;
+        const GEO_COORD_CACHE = {};
 
         // Funções principais
         async function carregarAstronomos() {
@@ -2341,6 +2342,53 @@ textarea:focus {
             return row;
         }
 
+        async function applyOriginGeocodeIfMissing(updates, base, geoCache = {}){
+            const merged = { ...(base || {}), ...(updates || {}) };
+            const latExisting = pickNumber(
+                merged.origem_lat,
+                merged.lat_origem,
+                merged.latitude_origem,
+                merged['lat origem'],
+                merged['latitude origem']
+            );
+            const lonExisting = pickNumber(
+                merged.origem_lon,
+                merged.lon_origem,
+                merged.longitude_origem,
+                merged['lon origem'],
+                merged['longitude origem']
+            );
+            if (Number.isFinite(latExisting) && Number.isFinite(lonExisting)) {
+                if (updates && updates.origem_lat == null) updates.origem_lat = latExisting;
+                if (updates && updates.origem_lon == null) updates.origem_lon = lonExisting;
+                return false;
+            }
+
+            const { city, uf } = extractCityUF(merged);
+            if (!city) return false;
+
+            const cacheKey = `${city}|${uf || ''}`.toLowerCase();
+            let coords = geoCache && Object.prototype.hasOwnProperty.call(geoCache, cacheKey) ? geoCache[cacheKey] : undefined;
+            if (coords === undefined) {
+                coords = null;
+                try {
+                    coords = await geocodeCityUF(city, uf);
+                } catch (err) {
+                    console.warn('Falha ao geocodificar cidade base', city, uf, err);
+                }
+                if (geoCache) geoCache[cacheKey] = coords || null;
+                if (coords) await sleep(800);
+            }
+            if (coords) {
+                if (updates) {
+                    updates.origem_lat = coords.lat;
+                    updates.origem_lon = coords.lon;
+                }
+                return true;
+            }
+            return false;
+        }
+
         async function importCsvBinary(file){
             const btn = document.getElementById('btn-importar-csv');
             const prevDisabled = btn ? btn.disabled : false;
@@ -2597,6 +2645,16 @@ textarea:focus {
                 
                 // Adicionar ID do astrônomo
                 updates.id_astronomo = CURRENT_ASTRONOMER.id_astronomo;
+
+                // Geocodificar cidade base se coordenadas estiverem ausentes
+                try{
+                    const didGeo = await applyOriginGeocodeIfMissing(updates, CURRENT_ASTRONOMER, GEO_COORD_CACHE);
+                    if (didGeo) {
+                        toast('Coordenadas de origem preenchidas automaticamente', 'info');
+                    }
+                }catch(err){
+                    console.warn('Falha ao geocodificar na edição:', err);
+                }
                 
                 // Converter campos numéricos
                 const numericFields = ['consumo_km_l', 'valor_litro', 'diaria_hospedagem', 'alimentacao_diaria', 'monitor', 'pedagios', 'origem_lat', 'origem_lon', 'porcentagem_lucro'];
@@ -2699,6 +2757,11 @@ textarea:focus {
                             if (el) updates[f] = el.value;
                         });
                         mirrorIdFields(updates);
+                        try{
+                            await applyOriginGeocodeIfMissing(updates, a, GEO_COORD_CACHE);
+                        }catch(err){
+                            console.warn('Falha ao geocodificar na edição em massa:', err);
+                        }
                         numericFields.forEach(f=>{ if (updates[f]!=='' && updates[f]!=null) updates[f] = parseFloat(updates[f]); });
                         try{ await callAstroApi('edit', updates); okCount++; }catch(err){ console.warn('Falha ao editar id', a.id_astronomo, err); }
                         await new Promise(r=> setTimeout(r, 150));
