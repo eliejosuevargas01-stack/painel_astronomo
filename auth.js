@@ -4,6 +4,8 @@
   const LOGIN_FILE = 'login.html';
   const PRIMARY_KEY = 'astronomo_session';
   const LEGACY_KEY = 'userSession';
+  const POPUP_STYLE_ID = 'astro-popup-style';
+  const POPUP_CONTAINER_ID = 'astro-popup-container';
 
   function safeParse(raw) {
     if (!raw) return null;
@@ -83,10 +85,25 @@
     return null;
   }
 
+  const PUBLIC_PAGES = new Set([
+    'index.html',
+    'rotas.html',
+    'despesas.html',
+    'historico.html',
+    'feedbacks.html',
+    'account.html',
+    'apresentacao.html',
+  ]);
+
   function currentPage() {
     const path = window.location.pathname || '';
     const parts = path.split('/');
-    return parts[parts.length - 1].toLowerCase();
+    const page = (parts[parts.length - 1] || '').toLowerCase();
+    return page || 'index.html';
+  }
+
+  function isPublicPage() {
+    return PUBLIC_PAGES.has(currentPage());
   }
 
   function onLoginPage() {
@@ -134,9 +151,85 @@
     requireAuth();
   }
 
+  function ensurePopupStyles() {
+    if (typeof document === 'undefined') return;
+    if (document.getElementById(POPUP_STYLE_ID)) return;
+    const style = document.createElement('style');
+    style.id = POPUP_STYLE_ID;
+    style.textContent = `
+      .astro-popup-container{position:fixed;top:16px;right:16px;display:flex;flex-direction:column;gap:10px;z-index:100000;pointer-events:none}
+      .astro-popup{min-width:220px;max-width:360px;background:rgba(15,23,42,0.95);color:#e2e8f0;border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:12px 14px;box-shadow:0 14px 36px rgba(0,0,0,0.35);display:flex;gap:10px;align-items:flex-start;opacity:0;transform:translateY(-6px);transition:opacity .2s ease,transform .2s ease;pointer-events:auto}
+      .astro-popup.show{opacity:1;transform:translateY(0)}
+      .astro-popup--warning{border-color:rgba(245,158,11,0.55)}
+      .astro-popup--error{border-color:rgba(239,68,68,0.55)}
+      .astro-popup--success{border-color:rgba(16,185,129,0.55)}
+      .astro-popup__text{flex:1;font-size:0.9rem;line-height:1.4}
+      .astro-popup__close{background:transparent;border:0;color:inherit;cursor:pointer;font-size:1rem;line-height:1;padding:0}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function ensurePopupContainer() {
+    if (typeof document === 'undefined') return null;
+    let container = document.getElementById(POPUP_CONTAINER_ID);
+    if (container) return container;
+    if (!document.body) return null;
+    container = document.createElement('div');
+    container.id = POPUP_CONTAINER_ID;
+    container.className = 'astro-popup-container';
+    container.setAttribute('aria-live', 'polite');
+    document.body.appendChild(container);
+    return container;
+  }
+
+  function removePopup(node) {
+    if (!node) return;
+    node.classList.remove('show');
+    setTimeout(() => {
+      try { node.remove(); } catch (_) {}
+    }, 220);
+  }
+
+  function showPopup(message, type = 'info', timeout = 3500) {
+    if (!message) return;
+    try { ensurePopupStyles(); } catch (_) {}
+    const container = ensurePopupContainer();
+    if (!container) {
+      try { window.alert(message); } catch (_) {}
+      return;
+    }
+    const item = document.createElement('div');
+    item.className = `astro-popup astro-popup--${type}`;
+    const text = document.createElement('div');
+    text.className = 'astro-popup__text';
+    text.textContent = String(message);
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'astro-popup__close';
+    closeBtn.setAttribute('aria-label', 'Fechar');
+    closeBtn.textContent = 'x';
+    let timer = null;
+    const cleanup = () => {
+      if (timer) clearTimeout(timer);
+      removePopup(item);
+    };
+    closeBtn.addEventListener('click', cleanup);
+    item.appendChild(text);
+    item.appendChild(closeBtn);
+    container.appendChild(item);
+    requestAnimationFrame(() => item.classList.add('show'));
+    timer = setTimeout(cleanup, timeout);
+  }
+
+  function showNoDataPopup(message) {
+    showPopup(message || 'Sem dados', 'warning');
+  }
+
+  window.AstroPopup = { show: showPopup, showNoData: showNoDataPopup };
+  window.showNoDataPopup = showNoDataPopup;
   window.AstroAuth = { getSession, requireAuth, logout, hasActiveSession };
 
-  if (!onLoginPage()) {
+  if (!onLoginPage() && !isPublicPage()) {
     requireAuth();
     window.addEventListener('storage', onStorage);
   }

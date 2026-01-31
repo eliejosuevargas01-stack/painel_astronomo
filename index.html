@@ -41,6 +41,7 @@
                 <a href="historico.html" class="nav-button"><i class="fas fa-history"></i> Históricos</a>
                 <a href="account.html" class="nav-button account-header-btn"><i class="fas fa-user-astronaut"></i> Minha Conta</a>
                 <a href="rotas.html" class="nav-button"><i class="fas fa-route"></i> Rotas</a>
+                <a href="debug.html" class="nav-button"><i class="fas fa-bug"></i> Debug</a>
             </div>
 
             <div class="panel-card" style="margin-bottom: 12px;">
@@ -453,6 +454,30 @@
             return `${nome}${id ? ' · ' + id : ''}`;
         }
 
+        function findAstronomerFromCache(sess){
+            try{
+                const raw = localStorage.getItem('astronomersData');
+                const list = raw ? JSON.parse(raw) : null;
+                if (!Array.isArray(list) || !list.length) return null;
+                const id = sess?.id_astronomo ?? sess?.assistant_id ?? sess?.id ?? null;
+                const user = (sess?.usuario || sess?.username || sess?.astronomo || '').toString().trim().toLowerCase();
+                return list.find(a => {
+                    if (!a || typeof a !== 'object') return false;
+                    const aId = a.id_astronomo ?? a.id ?? a.assistant_id ?? null;
+                    if (id != null && String(aId) === String(id)) return true;
+                    const aUser = (a.usuario || a.username || a.astronomo || '').toString().trim().toLowerCase();
+                    return user && aUser && aUser === user;
+                }) || null;
+            }catch(_){
+                return null;
+            }
+        }
+
+        function buildSessionPayload(sess){
+            const cached = findAstronomerFromCache(sess);
+            return { ...(cached || {}), ...(sess || {}) };
+        }
+
         // ==== Util: normalizar tipo de tarefa em categoria (visita, pre, reserva, nao_marcar, outros) ====
         function classifyTaskType(rawTipo){
             if (!rawTipo) return 'outros';
@@ -469,6 +494,7 @@
         }
 
         function getSessionTaskIds(sess){
+            const base = buildSessionPayload(sess);
             const parseId = (v) => {
                 if (v === undefined || v === null || v === '') return null;
                 const n = toNumber(v);
@@ -477,10 +503,10 @@
                 return s || null;
             };
             return {
-                visita: parseId(sess?.id_visita || sess?.visita_id),
-                pre: parseId(sess?.id_pre || sess?.pre_id),
-                reserva: parseId(sess?.id_reserva || sess?.reserva_id),
-                nao_marcar: parseId(sess?.id_n_marcar || sess?.id_nao_marcar || sess?.nao_marcar_id)
+                visita: parseId(base?.id_visita || base?.visita_id),
+                pre: parseId(base?.id_pre || base?.pre_id),
+                reserva: parseId(base?.id_reserva || base?.reserva_id),
+                nao_marcar: parseId(base?.id_n_marcar || base?.id_nao_marcar || base?.nao_marcar_id)
             };
         }
 
@@ -566,7 +592,17 @@
         }
 
         function getSessionCityLabel(sess){
-            const raw = sess?.cidade_base || sess?.cidade || sess?.cidade_origem || sess?.base || '';
+            const raw = sess?.cidade_base
+                || sess?.cidade
+                || sess?.cidade_origem
+                || sess?.base
+                || sess?.origem_real
+                || sess?.origem
+                || sess?.origem_cidade
+                || sess?.cidade_base_astronomo
+                || sess?.cidade_astronomo
+                || sess?.astronomo_cidade
+                || '';
             return normalizeCityUF(raw);
         }
 
@@ -860,8 +896,28 @@
         // ==== Previsão do tempo (Open-Meteo) ====
         function extractEventLocations(ev, sess){
             const sessionLabel = getSessionCityLabel(sess || {});
-            const origemLabel = normalizeCityUF(ev?.cidade_base || ev?.origem_real || ev?.base || ev?.cidade_origem || '') || sessionLabel;
-            const destinoLabel = normalizeCityUF(ev?.cidade_destino || ev?.cidade || ev?.destino || ev?.cidade_evento || ev?.cidade_lead || '');
+            const origemLabel = normalizeCityUF(
+                ev?.cidade_base ||
+                ev?.origem_real ||
+                ev?.base ||
+                ev?.cidade_origem ||
+                ev?.origem ||
+                ev?.origem_cidade ||
+                ev?.cidade_base_astronomo ||
+                ev?.cidade_astronomo ||
+                ev?.astronomo_cidade ||
+                ev?.local_origem ||
+                ''
+            ) || sessionLabel;
+            const destinoLabel = normalizeCityUF(
+                ev?.cidade_destino ||
+                ev?.cidade ||
+                ev?.destino ||
+                ev?.cidade_evento ||
+                ev?.cidade_lead ||
+                ev?.cidade_da_escola ||
+                ''
+            );
             const origem = {
                 lat: toNumber(ev?.origem_lat ?? ev?.lat_origem ?? ev?.latitude_origem),
                 lon: toNumber(ev?.origem_lon ?? ev?.lon_origem ?? ev?.longitude_origem),
@@ -954,8 +1010,15 @@
                 return;
             }
 
+            const visitaEvents = dayEvents.filter(isVisitaEvent);
+            if (!visitaEvents.length) {
+                dayWeatherMetaEl.textContent = 'Clima apenas para VISITA';
+                dayWeatherBodyEl.innerHTML = `<div class="day-weather__empty">Nenhum evento VISITA nesta data para consultar o clima.</div>`;
+                return;
+            }
+
             const sess = currentSession || getLoggedSession();
-            const eventTarget = pickEventForWeather(dayEvents, sess);
+            const eventTarget = pickEventForWeather(visitaEvents, sess);
             const { origem, destino } = extractEventLocations(eventTarget || {}, sess);
             const locations = [];
             if (hasValidCoords(origem) || origem.label) locations.push({ ...origem, role:'Origem' });
@@ -2109,13 +2172,14 @@
 
             try {
                 const buildAgendaParams = () => {
+                    const baseSess = buildSessionPayload(sess);
                     const params = {
                         action: 'atualizar_agenda',
                         tipo: getWebhookTipoFromSelect()
                     };
-                    if (sess && sess.id_astronomo != null) params.id_astronomo = sess.id_astronomo;
-                    if (sess && sess.usuario) params.usuario = sess.usuario;
-                    const ids = getSessionTaskIds(sess || null);
+                    if (baseSess && baseSess.id_astronomo != null) params.id_astronomo = baseSess.id_astronomo;
+                    if (baseSess && baseSess.usuario) params.usuario = baseSess.usuario;
+                    const ids = getSessionTaskIds(baseSess || null);
                     if (ids && ids.visita) params.id_visita = ids.visita;
                     if (ids && ids.pre) params.id_pre = ids.pre;
                     if (ids && ids.reserva) params.id_reserva = ids.reserva;
@@ -2146,12 +2210,15 @@
                 }
 
                 if (!data) {
-                    throw new Error('Não foi possível obter dados da agenda');
+                    data = [];
                 }
 
                 saveAgendaPayload(data, sess);
 
                 const rawEventos = normalizeAgendaPayload(data);
+                if ((!rawEventos || !rawEventos.length) && typeof showNoDataPopup === 'function') {
+                    showNoDataPopup('Sem dados retornados do n8n.');
+                }
 
                 eventsData = dedupeEventsById(rawEventos.map(ev => normalizeEvent(ev, sess)));
                 applyRotaContinuaBlocks(eventsData);

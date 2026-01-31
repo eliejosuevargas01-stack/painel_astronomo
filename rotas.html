@@ -147,6 +147,7 @@
                 <a href="historico.html" class="nav-button"><i class="fas fa-history"></i> Históricos</a>
                 <a href="account.html" class="nav-button account-header-btn"><i class="fas fa-user-astronaut"></i> Minha Conta</a>
                 <a href="rotas.html" class="nav-button active"><i class="fas fa-route"></i> Rotas</a>
+                <a href="debug.html" class="nav-button"><i class="fas fa-bug"></i> Debug</a>
             </div>
 
             <main>
@@ -773,6 +774,7 @@
         }
 
         function getSessionTaskIds(sess){
+            const base = buildSessionPayload(sess);
             const parseId = (v) => {
                 if (v === undefined || v === null || v === '') return null;
                 const n = Number(v);
@@ -781,24 +783,49 @@
                 return s || null;
             };
             return {
-                visita: parseId(sess?.id_visita || sess?.visita_id),
-                pre: parseId(sess?.id_pre || sess?.pre_id),
-                reserva: parseId(sess?.id_reserva || sess?.reserva_id),
-                nao_marcar: parseId(sess?.id_n_marcar || sess?.id_nao_marcar || sess?.nao_marcar_id)
+                visita: parseId(base?.id_visita || base?.visita_id),
+                pre: parseId(base?.id_pre || base?.pre_id),
+                reserva: parseId(base?.id_reserva || base?.reserva_id),
+                nao_marcar: parseId(base?.id_n_marcar || base?.id_nao_marcar || base?.nao_marcar_id)
             };
+        }
+
+        function findAstronomerFromCache(sess){
+            try{
+                const raw = localStorage.getItem('astronomersData');
+                const list = raw ? JSON.parse(raw) : null;
+                if (!Array.isArray(list) || !list.length) return null;
+                const id = sess?.id_astronomo ?? sess?.assistant_id ?? sess?.id ?? null;
+                const user = (sess?.usuario || sess?.username || sess?.astronomo || '').toString().trim().toLowerCase();
+                return list.find(a => {
+                    if (!a || typeof a !== 'object') return false;
+                    const aId = a.id_astronomo ?? a.id ?? a.assistant_id ?? null;
+                    if (id != null && String(aId) === String(id)) return true;
+                    const aUser = (a.usuario || a.username || a.astronomo || '').toString().trim().toLowerCase();
+                    return user && aUser && aUser === user;
+                }) || null;
+            }catch(_){
+                return null;
+            }
+        }
+
+        function buildSessionPayload(sess){
+            const cached = findAstronomerFromCache(sess);
+            return { ...(cached || {}), ...(sess || {}) };
         }
 
         async function callAgendaWebhook(action, params){
             const payload = { action, ...(params || {}) };
             if (action === 'atualizar_agenda') payload.tipo = 'TODOS';
             const sess = getLoggedSession();
-            if (sess) {
-                if (payload.id_astronomo == null && sess.id_astronomo != null) payload.id_astronomo = sess.id_astronomo;
+            const base = buildSessionPayload(sess);
+            if (base) {
+                if (payload.id_astronomo == null && base.id_astronomo != null) payload.id_astronomo = base.id_astronomo;
                 if (payload.usuario == null) {
-                    const u = sess.usuario || sess.username || sess.astronomo;
+                    const u = base.usuario || base.username || base.astronomo;
                     if (u) payload.usuario = u;
                 }
-                const ids = getSessionTaskIds(sess || null);
+                const ids = getSessionTaskIds(base || null);
                 if (payload.id_visita == null && ids && ids.visita) payload.id_visita = ids.visita;
                 if (payload.id_pre == null && ids && ids.pre) payload.id_pre = ids.pre;
                 if (payload.id_reserva == null && ids && ids.reserva) payload.id_reserva = ids.reserva;
@@ -939,6 +966,9 @@
                 try{
                     const raw = await callAgendaWebhook('atualizar_agenda', sessVal?.id_astronomo != null ? { id_astronomo: sessVal.id_astronomo } : {});
                     const rawEventos = normalizeAgendaPayload(raw);
+                    if ((!rawEventos || !rawEventos.length) && typeof showNoDataPopup === 'function') {
+                        showNoDataPopup('Sem dados retornados do n8n.');
+                    }
                     const deduped = dedupeEventosPorAssinatura(rawEventos);
                     if (deduped.length) hadRawEventos = true;
                     eventos = filterEventosFromToday(deduped).filter(isVisitaEvent);

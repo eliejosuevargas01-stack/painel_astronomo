@@ -3851,6 +3851,28 @@ body.agenda-page {
   gap: 16px;
   margin-bottom: 24px;
 }
+.agenda-page .event-detail-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.agenda-page .event-detail-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  font-weight: 600;
+}
+.agenda-page .event-detail-value {
+  font-size: 0.98rem;
+  color: #f1f5f9;
+  font-weight: 500;
+  word-break: break-word;
+}
 .agenda-page .event-detail-row {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);

@@ -3220,6 +3220,9 @@ textarea:focus {
                 if (!data) throw new Error('Sem dados retornados');
 
                 const rawEventos = normalizeAgendaPayload(data);
+                if ((!rawEventos || !rawEventos.length) && typeof showNoDataPopup === 'function') {
+                    showNoDataPopup('Sem dados retornados do n8n.');
+                }
 
                 EVENTOS = dedupeEventsBySignature(rawEventos.map(normalizeAgendaEvent));
                 agendaPage = 1;
