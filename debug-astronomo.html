@@ -255,18 +255,7 @@
 
         function getComparableEntries(ev){
             if (!ev || typeof ev !== 'object') return [];
-            const exclude = new Set([
-                '_date','_color','_spanStart','_spanEnd','_taskType','_taskTypeId',
-                'spanstart','spanend','color','rotacontinua','rota_continua','rota',
-                'createdat','created_at','updatedat','updated_at'
-            ]);
-            return Object.entries(ev).filter(([key, val]) => {
-                const nk = key.toLowerCase().replace(/[^a-z0-9]/g, '');
-                if (exclude.has(key) || exclude.has(nk)) return false;
-                if (val === null || val === undefined || val === '') return false;
-                if (typeof val === 'string' && val.trim() === '') return false;
-                return true;
-            });
+            return Object.entries(ev);
         }
 
         function stringifyVal(val){
@@ -339,8 +328,7 @@
                 const matchIds = match ? (pickIdCandidates(match).join(', ') || '—') : '—';
                 const origEntries = getComparableEntries(orig);
                 const matchEntries = getComparableEntries(match);
-                const mapB = new Map(matchEntries.map(([k,v]) => [k, v]));
-            const keys = Array.from(new Set([...origEntries.map(([k])=>k), ...matchEntries.map(([k])=>k)]));
+                const keys = Array.from(new Set([...origEntries.map(([k])=>k), ...matchEntries.map(([k])=>k)]));
             const detailRows = keys.map((key) => {
                 const aVal = stringifyVal(orig[key]);
                 const bVal = stringifyVal(match ? match[key] : '');
