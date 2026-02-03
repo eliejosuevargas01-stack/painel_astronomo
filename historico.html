@@ -304,7 +304,7 @@
             if (ev.id_agendamento != null) score += 4;
             if (ev.id != null) score += 3;
             if (ev.uuid) score += 2;
-            if (ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data) score += 2;
+            if (ev.data_e_hora_agendamento || ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data) score += 2;
             if (ev.nome_da_escola || ev.nome_escola || ev.escola || ev.nome_lead) score += 2;
             if (ev.cidade || ev.cidade_destino) score += 1;
             if (ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao) score += 1;
@@ -331,7 +331,7 @@
 
         function canonicalEventSignature(ev){
             if (!ev || typeof ev !== 'object') return '';
-            const rawDate = ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data || ev.finalizado_em;
+            const rawDate = ev.data_e_hora_agendamento || ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data || ev.finalizado_em;
             const dateObj = rawDate ? new Date(rawDate) : null;
             const dateStr = dateObj instanceof Date && !Number.isNaN(dateObj.getTime())
                 ? dateObj.toISOString()
@@ -518,7 +518,7 @@
             completedEvents = completedEvents.map(event => {
                 const textoRaw = (typeof event?.texto_tarefa === 'object' && event?.texto_tarefa !== null) ? (event.texto_tarefa.texto ?? '') : (event?.texto_tarefa ?? '');
                 const eventoNome = (event?.conteudo_da_apresentacao ?? textoRaw ?? '').toString() || 'Evento Astronômico';
-                const dataEv = event?.data_agendamento ?? event?.data_e_hora_do_agendamento ?? new Date().toISOString();
+                const dataEv = event?.data_e_hora_agendamento ?? event?.data_e_hora_do_agendamento ?? event?.data_agendamento ?? new Date().toISOString();
                 const cidade = (event?.cidade && event.cidade.toString().trim()) ? event.cidade : (event?.cidade_destino || 'Cidade não informada');
                 const local = (event?.local_instalacao && event.local_instalacao.toString().toLowerCase()!=='null') ? event.local_instalacao : (event?.endereco || 'Local não informado');
                 const alunos = event?.numero_alunos_empresa ?? event?.numero_de_alunos ?? '0';

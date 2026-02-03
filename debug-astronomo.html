@@ -210,7 +210,7 @@
         }
 
         function signature(ev){
-            const date = safeText(ev?.data_agendamento || ev?.data_e_hora_do_agendamento || ev?.data || ev?._date);
+            const date = safeText(ev?.data_e_hora_agendamento || ev?.data_e_hora_do_agendamento || ev?.data_agendamento || ev?.data || ev?._date);
             const school = safeText(ev?.nome_da_escola || ev?.nome_escola || ev?.escola || ev?.nome_lead);
             const city = safeText(ev?.cidade || ev?.cidade_destino || ev?.cidade_origem);
             const content = safeText(ev?.conteudo_da_apresentacao || ev?.conteudo_apresentacao || ev?.apresentacao);
@@ -218,7 +218,7 @@
         }
 
         function eventText(ev){
-            const date = safeText(ev?.data_agendamento || ev?.data_e_hora_do_agendamento || ev?.data || ev?._date);
+            const date = safeText(ev?.data_e_hora_agendamento || ev?.data_e_hora_do_agendamento || ev?.data_agendamento || ev?.data || ev?._date);
             const school = safeText(ev?.nome_da_escola || ev?.nome_escola || ev?.escola || ev?.nome_lead);
             const city = safeText(ev?.cidade || ev?.cidade_destino || ev?.cidade_origem);
             const content = safeText(ev?.conteudo_da_apresentacao || ev?.conteudo_apresentacao || ev?.apresentacao);
@@ -254,9 +254,28 @@
             return label.charAt(0).toUpperCase() + label.slice(1);
         }
 
+        function buildComparableMap(ev){
+            if (!ev || typeof ev !== 'object') return {};
+            const map = { ...ev };
+            if (map.id_tarefa == null) {
+                const ids = pickIdCandidates(ev);
+                map.id_tarefa = ids.length ? ids[0] : null;
+            }
+            if (map.id == null && map.id_tarefa != null) {
+                map.id = map.id_tarefa;
+            }
+            if (map.id_tipo_tarefa == null) {
+                map.id_tipo_tarefa = taskTypeId(ev);
+            }
+            if (map.data_agendamento == null) {
+                map.data_agendamento = ev?.data_e_hora_agendamento || ev?.data_e_hora_do_agendamento || ev?.data_agendamento || ev?.data || ev?._date || null;
+            }
+            return map;
+        }
+
         function getComparableEntries(ev){
             if (!ev || typeof ev !== 'object') return [];
-            return Object.entries(ev);
+            return Object.entries(buildComparableMap(ev));
         }
 
         function stringifyVal(val){

@@ -304,7 +304,9 @@
         const lightboxBackdrop   = document.getElementById('image-lightbox-backdrop');
 
         // ==== Estado simples ====
-        let eventsData = [];          // eventos normalizados
+        let eventsData = [];          // eventos normalizados (dedupe)
+        let eventsDataRaw = [];       // eventos normalizados (sem dedupe)
+        let showDuplicates = false;
         let currentMonthDate = new Date(); // data base do mês atual
         let selectedDate = startOfDay(new Date());      // dia selecionado no calendário
         let currentTaskFilter = { type: 'visita', id: null };
@@ -544,7 +546,7 @@
 
         // ==== Util: pegar data do evento ====
         function getEventDate(ev){
-            const raw = ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data || ev.date;
+            const raw = ev.data_e_hora_agendamento || ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data || ev.date;
             if (!raw) return null;
             const d = new Date(raw);
             if (Number.isNaN(d.getTime())) return null;
@@ -1267,7 +1269,7 @@
             if (ev.id_agendamento != null) score += 4;
             if (ev.id != null) score += 3;
             if (ev.uuid) score += 2;
-            if (ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data) score += 2;
+            if (ev.data_e_hora_agendamento || ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data) score += 2;
             if (ev.nome_da_escola || ev.nome_escola || ev.escola || ev.nome_lead) score += 2;
             if (ev.cidade || ev.cidade_destino) score += 1;
             if (ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao) score += 1;
@@ -1318,9 +1320,77 @@
             return result;
         }
 
+        function eventGroupKey(ev){
+            if (!ev || typeof ev !== 'object') return '';
+            const escola = (ev.nome_da_escola || ev.nome_escola || ev.escola || '').toString().trim().toLowerCase();
+            const cidade = normalizeCityUF(ev.cidade || ev.cidade_destino || '').toString().trim().toLowerCase();
+            const conteudo = (ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao || '').toString().trim().toLowerCase();
+            const tipo = (ev._taskType || ev.tipo_da_tarefa || ev.tipo_evento || ev.tipo || '').toString().trim().toLowerCase();
+            const idTipo = ev.id_tipo_tarefa ?? ev.id_tipo ?? ev.id_tipo_evento ?? ev.id_tipo_da_tarefa ?? ev.tipo_tarefa_id ?? '';
+            const astroId = ev.id_astronomo ?? ev.astronomo_id ?? ev.astronomoId ?? '';
+            return JSON.stringify({ escola, cidade, conteudo, tipo, idTipo: String(idTipo), astroId: String(astroId) });
+        }
+
+        function collapseConsecutiveEventSpans(list){
+            if (!Array.isArray(list)) return [];
+            const grouped = new Map();
+            const passthrough = [];
+            list.forEach(ev => {
+                const key = eventGroupKey(ev);
+                if (!key) {
+                    passthrough.push(ev);
+                    return;
+                }
+                const start = ev._spanStart || ev._date || getEventDate(ev);
+                const end = ev._spanEnd || start;
+                if (!(start instanceof Date) || Number.isNaN(start.getTime())) return;
+                const endDate = (end instanceof Date && !Number.isNaN(end.getTime())) ? end : start;
+                const item = {
+                    ev,
+                    start: startOfDay(start),
+                    end: startOfDay(endDate)
+                };
+                if (!grouped.has(key)) grouped.set(key, []);
+                grouped.get(key).push(item);
+            });
+
+            const result = [];
+            grouped.forEach(items => {
+                items.sort((a, b) => a.start - b.start);
+                let current = null;
+                items.forEach(item => {
+                    if (!current) {
+                        current = { ...item };
+                        return;
+                    }
+                    const nextStart = item.start;
+                    const currEnd = current.end;
+                    const mergeLimit = new Date(currEnd.getFullYear(), currEnd.getMonth(), currEnd.getDate() + 1);
+                    if (nextStart <= mergeLimit) {
+                        current.end = item.end > current.end ? item.end : current.end;
+                        current.ev = mergeDuplicateEvents(current.ev, item.ev);
+                    } else {
+                        result.push(current);
+                        current = { ...item };
+                    }
+                });
+                if (current) result.push(current);
+            });
+
+            const collapsed = result.map(item => {
+                const merged = { ...item.ev };
+                merged._spanStart = item.start;
+                merged._spanEnd = item.end;
+                merged._date = item.start;
+                return merged;
+            });
+            return collapsed.concat(passthrough);
+        }
+
         function dedupeEventsById(list){
             const base = uniqueEventsById(Array.isArray(list) ? list : []);
-            return dedupeEventsBySignature(base);
+            const bySignature = dedupeEventsBySignature(base);
+            return collapseConsecutiveEventSpans(bySignature);
         }
 
         function isVisitaEvent(ev){
@@ -1341,7 +1411,8 @@
         function removeEventById(id){
             if (!id) return;
             const idStr = String(id);
-            eventsData = eventsData.filter(ev => String(getEventId(ev)) !== idStr);
+            eventsDataRaw = eventsDataRaw.filter(ev => String(getEventId(ev)) !== idStr);
+            eventsData = dedupeEventsById(eventsDataRaw);
         }
 
         async function finalizarEvento(ev, btn){
@@ -1416,7 +1487,7 @@
             if (!ev || typeof ev !== 'object') return '';
             const baseDate = ev._date || getEventDate(ev);
             const dateStr = baseDate ? dateKey(baseDate) : '';
-            const horarioRaw = ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data;
+            const horarioRaw = ev.data_e_hora_agendamento || ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data;
             const horario = horarioRaw ? new Date(horarioRaw) : null;
             const horaStr = horario instanceof Date && !Number.isNaN(horario.getTime()) ? horario.toISOString() : '';
             const escola = (ev.nome_da_escola || ev.nome_escola || ev.escola || '').toString().trim().toLowerCase();
@@ -1436,12 +1507,44 @@
             return Math.max(1, diff);
         }
 
+        function getEffectiveEvents(){
+            return showDuplicates ? eventsDataRaw : eventsData;
+        }
+
+        function toggleDuplicateView(force){
+            if (typeof force === 'boolean') showDuplicates = force;
+            else showDuplicates = !showDuplicates;
+            renderCalendar();
+            renderEventsList();
+            renderDayEventsDetails();
+        }
+
+        function showDuplicatePopup(ignoredCount){
+            if (!ignoredCount) return;
+            if (!window.AstroPopup || typeof window.AstroPopup.show !== 'function') return;
+            const actionLabel = showDuplicates ? 'Ocultar eventos duplicados' : 'Ver eventos duplicados';
+            window.AstroPopup.show(
+                'Eventos duplicados idênticos foram ignorados. Se quiser ver mais, clique em Ver eventos duplicados.',
+                'info',
+                0,
+                {
+                    actionLabel,
+                    closeOnAction: false,
+                    onAction: (btn) => {
+                        toggleDuplicateView();
+                        if (btn) btn.textContent = showDuplicates ? 'Ocultar eventos duplicados' : 'Ver eventos duplicados';
+                    }
+                }
+            );
+        }
+
         // ==== Filtro por tipo de tarefa ====
         function getFilteredEvents(){
-            if (!Array.isArray(eventsData) || eventsData.length === 0) return [];
-            if (!currentTaskFilter || currentTaskFilter.type === 'all') return eventsData;
+            const base = getEffectiveEvents();
+            if (!Array.isArray(base) || base.length === 0) return [];
+            if (!currentTaskFilter || currentTaskFilter.type === 'all') return base;
             const sameType = ev => ev._taskType === currentTaskFilter.type;
-            const byType = eventsData.filter(sameType);
+            const byType = base.filter(sameType);
             if (!currentTaskFilter.id) return byType;
 
             const byId = byType.filter(ev => String(ev._taskTypeId || '') === String(currentTaskFilter.id));
@@ -2162,6 +2265,7 @@
         async function carregarAgenda(){
             const sess = getLoggedSession();
             currentSession = sess;
+            showDuplicates = false;
             const hasSession = !!(sess && sess.id_astronomo != null);
             statusTextEl.textContent = hasSession
                 ? 'Conectando ao servidor...'
@@ -2220,7 +2324,9 @@
                     showNoDataPopup('Sem dados retornados do n8n.');
                 }
 
-                eventsData = dedupeEventsById(rawEventos.map(ev => normalizeEvent(ev, sess)));
+                eventsDataRaw = rawEventos.map(ev => normalizeEvent(ev, sess));
+                eventsData = dedupeEventsById(eventsDataRaw);
+                const ignoredCount = Math.max(0, eventsDataRaw.length - eventsData.length);
                 applyRotaContinuaBlocks(eventsData);
                 applyRouteOverrides(eventsData, sess);
                 saveAgendaCache(eventsData, sess);
@@ -2232,6 +2338,7 @@
                 }
 
                 statusTextEl.textContent = `Agenda carregada: ${eventsData.length} evento(s).`;
+                showDuplicatePopup(ignoredCount);
                 if (!selectedDate || !(selectedDate instanceof Date) || Number.isNaN(selectedDate.getTime())) {
                     const firstEvent = eventsData
                         .map(ev => ev && ev._date)
@@ -2303,11 +2410,14 @@
                         const rawCache = cacheKey ? localStorage.getItem(cacheKey) : null;
                         const parsed = rawCache ? JSON.parse(rawCache) : null;
                         if (parsed && Array.isArray(parsed.events) && parsed.events.length) {
-                            eventsData = dedupeEventsById(parsed.events.map(ev => normalizeEvent(ev, sess)));
+                            eventsDataRaw = parsed.events.map(ev => normalizeEvent(ev, sess));
+                            eventsData = dedupeEventsById(eventsDataRaw);
+                            const ignoredCount = Math.max(0, eventsDataRaw.length - eventsData.length);
                             applyRotaContinuaBlocks(eventsData);
                             applyRouteOverrides(eventsData, sess);
                             syncRotasCache(eventsData, sess);
                             btnOpenRotas.disabled = false;
+                            showDuplicatePopup(ignoredCount);
                             computeContinuousRoutes(eventsData)
                                 .then(metrics => {
                                     applyContinuousRouteMetrics(eventsData, metrics);
@@ -2441,14 +2551,14 @@
 
             for (let i=0;i<events.length;i++){
                 const ev = events[i];
-                const day = parseDay(ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data || ev._date);
+                const day = parseDay(ev.data_e_hora_agendamento || ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data || ev._date);
                 if (!day || !isLongTrip(ev)) {
                     if (current.length > 0) { groups.push(current.slice()); current = []; }
                     continue;
                 }
                 const next = events[i+1];
                 if (next) {
-                    const nextDay = parseDay(next.data_e_hora_do_agendamento || next.data_agendamento || next.data || next._date);
+                    const nextDay = parseDay(next.data_e_hora_agendamento || next.data_e_hora_do_agendamento || next.data_agendamento || next.data || next._date);
                     const consecutive = nextDay && day && daysBetween(day, nextDay) === 1;
                     const nextLong = isLongTrip(next);
                     if (consecutive && nextLong) {
@@ -2585,7 +2695,7 @@
         }
 
         function getEventDate(event) {
-            const raw = event.data_e_hora_do_agendamento || event.data_agendamento || event.data || event._date;
+            const raw = event.data_e_hora_agendamento || event.data_e_hora_do_agendamento || event.data_agendamento || event.data || event._date;
             if (!raw) return null;
             const d = new Date(raw);
             return Number.isNaN(d.getTime()) ? null : d;
@@ -2657,7 +2767,7 @@
 
             // filtra futuros
             const future = events
-                .map(ev => ({ ev, day: normalizeDate(ev.data_e_hora_do_agendamento || ev.data || ev.data_agendamento || ev._date) }))
+                .map(ev => ({ ev, day: normalizeDate(ev.data_e_hora_agendamento || ev.data_e_hora_do_agendamento || ev.data || ev.data_agendamento || ev._date) }))
                 .filter(v => v.day && isFutureOrToday(v.day))
                 .sort((a,b)=> a.day - b.day);
 

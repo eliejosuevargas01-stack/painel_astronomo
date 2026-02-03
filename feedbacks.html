@@ -335,7 +335,7 @@
             if (ev.id != null) score += 1;
             if (extractFeedbackText(ev)) score += 3;
             if (extractNotaNpm(ev) != null) score += 2;
-            if (ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data) score += 1;
+            if (ev.data_e_hora_agendamento || ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data) score += 1;
             return score;
         }
         function mergeDuplicateEvents(base, incoming){
@@ -356,7 +356,7 @@
         }
         function canonicalEventSignature(ev){
             if (!ev || typeof ev !== 'object') return '';
-            const rawDate = ev._date || ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data || ev.date;
+            const rawDate = ev._date || ev.data_e_hora_agendamento || ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data || ev.date;
             const dateObj = rawDate instanceof Date ? rawDate : (rawDate ? new Date(rawDate) : null);
             const dateStr = dateObj instanceof Date && !Number.isNaN(dateObj.getTime()) ? dateObj.toISOString() : '';
             const escola = norm(ev.nome_da_escola || ev.nome_escola || ev.escola || ev.nome_lead || '');
@@ -466,7 +466,7 @@
                     const textoRaw = (typeof event?.texto_tarefa === 'object' && event?.texto_tarefa !== null) ? (event.texto_tarefa.texto ?? '') : (event?.texto_tarefa ?? '');
                     const escolaNome = (event?.nome_da_escola || event?.nome_escola || event?.escola || event?.nome_lead || '').toString().trim();
                     const eventoNome = escolaNome || (event?.conteudo_da_apresentacao ?? textoRaw ?? '').toString() || 'Evento Astronômico';
-                    const dataBruta = event?._date || event?.data_agendamento || event?.data_e_hora_do_agendamento || event?.data || event?.date || new Date().toISOString();
+                    const dataBruta = event?._date || event?.data_e_hora_agendamento || event?.data_e_hora_do_agendamento || event?.data_agendamento || event?.data || event?.date || new Date().toISOString();
                     const dataObj = dataBruta instanceof Date ? dataBruta : new Date(dataBruta);
                     const data = !Number.isNaN(dataObj.getTime()) ? dataObj.toISOString() : new Date().toISOString();
                     const cidade = (event?.cidade && event.cidade.toString().trim()) ? event.cidade : (event?.cidade_destino || 'Cidade não informada');

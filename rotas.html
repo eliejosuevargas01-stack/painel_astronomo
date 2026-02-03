@@ -212,7 +212,7 @@
                     {
                         "id": 8103925,
                         "cidade": "Jardim - MS",
-                        "data_e_hora_do_agendamento": "2025-11-26T18:03:00.000Z",
+                        "data_e_hora_agendamento": "2025-11-26T18:03:00.000Z",
                         "distancia_km": "571.46",
                         "destino_lat": "-21.4799410",
                         "destino_lon": "-56.1489020"
@@ -220,7 +220,7 @@
                     {
                         "id": 7572341,
                         "cidade": "Itaporã-MS",
-                        "data_e_hora_do_agendamento": "2025-11-27T19:25:00.000Z",
+                        "data_e_hora_agendamento": "2025-11-27T19:25:00.000Z",
                         "distancia_km": "382.52",
                         "destino_lat": "-22.0799142",
                         "destino_lon": "-54.7874239"
@@ -228,7 +228,7 @@
                     {
                         "id": 8174175,
                         "cidade": "Chapecó - SC",
-                        "data_e_hora_do_agendamento": "2025-11-28T17:47:00.000Z",
+                        "data_e_hora_agendamento": "2025-11-28T17:47:00.000Z",
                         "distancia_km": "412.41",
                         "destino_lat": "-27.0922364",
                         "destino_lon": "-52.6166878"
@@ -246,7 +246,7 @@
                     {
                         "id": 8070185,
                         "cidade": "Santa Cruz do Sul - RS",
-                        "data_e_hora_do_agendamento": "2025-11-27T18:59:00.000Z",
+                        "data_e_hora_agendamento": "2025-11-27T18:59:00.000Z",
                         "distancia_km": "380.63",
                         "destino_lat": "-29.7142090",
                         "destino_lon": "-52.4285807"
@@ -254,7 +254,7 @@
                     {
                         "id": 7898385,
                         "cidade": "Canoas - RS",
-                        "data_e_hora_do_agendamento": "2025-11-28T13:18:00.000Z",
+                        "data_e_hora_agendamento": "2025-11-28T13:18:00.000Z",
                         "distancia_km": "240.47",
                         "destino_lat": "-29.9216045",
                         "destino_lon": "-51.1799525"
@@ -478,7 +478,9 @@
         }
 
         function getEventoDate(ev){
-            const raw = ev?.data_e_hora_do_agendamento || ev?.data_agendamento || ev?.data || ev?.date;
+            if (ev && ev._spanStart instanceof Date && !Number.isNaN(ev._spanStart.getTime())) return ev._spanStart;
+            if (ev && ev._date instanceof Date && !Number.isNaN(ev._date.getTime())) return ev._date;
+            const raw = ev?.data_e_hora_agendamento || ev?.data_e_hora_do_agendamento || ev?.data_agendamento || ev?.data || ev?.date;
             if (!raw) return null;
             const d = new Date(raw);
             if (Number.isNaN(d.getTime())) return null;
@@ -502,6 +504,7 @@
         }
 
         function getEventoEndDate(ev){
+            if (ev && ev._spanEnd instanceof Date && !Number.isNaN(ev._spanEnd.getTime())) return ev._spanEnd;
             const start = getEventoDate(ev);
             if (!start) return null;
             const rawEnd = ev?.data_fim || ev?.data_final || ev?.data_fim_agendamento || ev?.data_finalizacao;
@@ -537,7 +540,7 @@
             if (ev.id_agendamento != null) score += 4;
             if (ev.id != null) score += 3;
             if (ev.uuid) score += 2;
-            if (ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data) score += 2;
+            if (ev.data_e_hora_agendamento || ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data) score += 2;
             if (ev.nome_da_escola || ev.nome_escola || ev.escola || ev.nome_lead) score += 2;
             if (ev.cidade || ev.cidade_destino) score += 1;
             if (ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao) score += 1;
@@ -595,6 +598,58 @@
                     result.push(ev);
                 }
             });
+            return result;
+        }
+
+        function eventoGroupKey(ev){
+            if (!ev || typeof ev !== 'object') return '';
+            const escola = (ev.nome_da_escola || ev.nome_escola || ev.escola || ev.nome_lead || '').toString().trim().toLowerCase();
+            const cidade = (ev.cidade || ev.cidade_destino || ev.cidade_origem || '').toString().trim().toLowerCase();
+            const conteudo = (ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao || '').toString().trim().toLowerCase();
+            const tipo = (ev.tipo_da_tarefa || ev.tipo_evento || ev.tipo || '').toString().trim().toLowerCase();
+            const idTipo = ev.id_tipo_tarefa ?? ev.id_tipo ?? ev.tipo_tarefa_id ?? ev.tipo_id ?? '';
+            const astroId = ev.id_astronomo ?? ev.astronomo_id ?? ev.astronomoId ?? '';
+            return JSON.stringify({ escola, cidade, conteudo, tipo, idTipo: String(idTipo), astroId: String(astroId) });
+        }
+
+        function collapseConsecutiveDuplicatedEventos(list){
+            if (!Array.isArray(list) || !list.length) return [];
+            const sorted = list.slice().sort((a, b) => {
+                const da = getEventoDate(a);
+                const db = getEventoDate(b);
+                if (!da && !db) return 0;
+                if (!da) return 1;
+                if (!db) return -1;
+                return da - db;
+            });
+            const result = [];
+            let current = null;
+            for (const ev of sorted) {
+                if (!current) {
+                    current = { ...ev };
+                    const start = getEventoDate(current);
+                    const end = getEventoEndDate(current) || start;
+                    if (start) current._spanStart = start;
+                    if (end) current._spanEnd = end;
+                    continue;
+                }
+                const sameKey = eventoGroupKey(current) === eventoGroupKey(ev);
+                const consecutive = isConsecutiveEventDay(current, ev);
+                if (sameKey && consecutive) {
+                    current = mergeDuplicateEventos(current, ev);
+                    const end = getEventoEndDate(ev) || getEventoDate(ev);
+                    if (end) current._spanEnd = end;
+                    if (!current._spanStart) current._spanStart = getEventoDate(current);
+                    continue;
+                }
+                result.push(current);
+                current = { ...ev };
+                const start = getEventoDate(current);
+                const end = getEventoEndDate(current) || start;
+                if (start) current._spanStart = start;
+                if (end) current._spanEnd = end;
+            }
+            if (current) result.push(current);
             return result;
         }
 
@@ -660,7 +715,8 @@
 
         function construirRotaDaAgenda(eventos, sess){
             const lista = Array.isArray(eventos) ? eventos.slice() : [];
-            lista.sort((a,b) => {
+            const listaSemDuplicados = collapseConsecutiveDuplicatedEventos(lista);
+            listaSemDuplicados.sort((a,b) => {
                 const da = getEventoDate(a);
                 const db = getEventoDate(b);
                 if (!da && !db) return 0;
@@ -668,13 +724,13 @@
                 if (!db) return -1;
                 return da - db;
             });
-            const nomeEvento = lista.find(ev => ev?.astronomo || ev?.astronomo_validacao)?.astronomo
-                || lista.find(ev => ev?.astronomo || ev?.astronomo_validacao)?.astronomo_validacao;
+            const nomeEvento = listaSemDuplicados.find(ev => ev?.astronomo || ev?.astronomo_validacao)?.astronomo
+                || listaSemDuplicados.find(ev => ev?.astronomo || ev?.astronomo_validacao)?.astronomo_validacao;
             const nome = sess?.nome_completo || sess?.astronomo || sess?.usuario || sess?.username || nomeEvento || 'Astrônomo';
             const rotas = [];
             let grupoAtual = [];
-            for (let i = 0; i < lista.length; i++){
-                const ev = lista[i];
+            for (let i = 0; i < listaSemDuplicados.length; i++){
+                const ev = listaSemDuplicados[i];
                 if (grupoAtual.length === 0) {
                     grupoAtual.push(ev);
                     continue;
@@ -1166,13 +1222,24 @@
                     <div class="eventos-list">
                         ${rota.eventos.map((evento, index) => {
                             const id = evento.id_evento || evento.id || evento.id_agendamento || evento.uuid || `idx-${index}`;
+                            const start = evento._spanStart instanceof Date ? evento._spanStart : null;
+                            const end = evento._spanEnd instanceof Date ? evento._spanEnd : null;
+                            const dataEvento = evento.data_e_hora_agendamento || evento.data_e_hora_do_agendamento || evento.data_agendamento || evento.data;
+                            const baseDate = dataEvento ? new Date(dataEvento) : null;
+                            const dateStart = start || (baseDate instanceof Date && !Number.isNaN(baseDate.getTime()) ? baseDate : null);
+                            const dateEnd = end || dateStart;
+                            const dataLabel = dateStart
+                                ? (dateEnd && dateEnd.getTime() !== dateStart.getTime()
+                                    ? `${dateStart.toLocaleDateString('pt-BR')} → ${dateEnd.toLocaleDateString('pt-BR')}`
+                                    : dateStart.toLocaleDateString('pt-BR'))
+                                : 'Data não informada';
                             return `
                                 <div class="evento-item">
                                     <div class="evento-icon">${index + 1}</div>
                                     <div class="evento-info">
                                         <p class="evento-cidade">${evento.cidade || 'Cidade não informada'}</p>
                                         <div class="evento-detalhes">
-                                            <span>📅 ${new Date(evento.data_e_hora_do_agendamento).toLocaleDateString('pt-BR')}</span>
+                                            <span>📅 ${dataLabel}</span>
                                             <span data-distance-id="${id}">📍 Distância: clique para calcular</span>
                                         </div>
                                     </div>

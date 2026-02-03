@@ -164,6 +164,7 @@
       .astro-popup--error{border-color:rgba(239,68,68,0.55)}
       .astro-popup--success{border-color:rgba(16,185,129,0.55)}
       .astro-popup__text{flex:1;font-size:0.9rem;line-height:1.4}
+      .astro-popup__action{background:rgba(148,163,184,0.16);color:#e2e8f0;border:1px solid rgba(148,163,184,0.35);border-radius:999px;padding:6px 10px;font-size:0.78rem;font-weight:700;cursor:pointer}
       .astro-popup__close{background:transparent;border:0;color:inherit;cursor:pointer;font-size:1rem;line-height:1;padding:0}
     `;
     document.head.appendChild(style);
@@ -190,7 +191,12 @@
     }, 220);
   }
 
-  function showPopup(message, type = 'info', timeout = 3500) {
+  function showPopup(message, type = 'info', timeout = 3500, options) {
+    if (timeout && typeof timeout === 'object') {
+      options = timeout;
+      timeout = options && typeof options.timeout === 'number' ? options.timeout : 3500;
+    }
+    options = options || {};
     if (!message) return;
     try { ensurePopupStyles(); } catch (_) {}
     const container = ensurePopupContainer();
@@ -203,6 +209,22 @@
     const text = document.createElement('div');
     text.className = 'astro-popup__text';
     text.textContent = String(message);
+    const actionLabel = options.actionLabel;
+    const onAction = typeof options.onAction === 'function' ? options.onAction : null;
+    const closeOnAction = options.closeOnAction !== false;
+    let actionBtn = null;
+    if (actionLabel) {
+      actionBtn = document.createElement('button');
+      actionBtn.type = 'button';
+      actionBtn.className = 'astro-popup__action';
+      actionBtn.textContent = String(actionLabel);
+      if (onAction) {
+        actionBtn.addEventListener('click', () => {
+          try { onAction(actionBtn, item); } catch (_) {}
+          if (closeOnAction) cleanup();
+        });
+      }
+    }
     const closeBtn = document.createElement('button');
     closeBtn.type = 'button';
     closeBtn.className = 'astro-popup__close';
@@ -215,10 +237,13 @@
     };
     closeBtn.addEventListener('click', cleanup);
     item.appendChild(text);
+    if (actionBtn) item.appendChild(actionBtn);
     item.appendChild(closeBtn);
     container.appendChild(item);
     requestAnimationFrame(() => item.classList.add('show'));
-    timer = setTimeout(cleanup, timeout);
+    if (timeout != null && timeout !== 0) {
+      timer = setTimeout(cleanup, timeout);
+    }
   }
 
   function showNoDataPopup(message) {

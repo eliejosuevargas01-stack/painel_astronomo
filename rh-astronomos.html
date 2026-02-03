@@ -2970,7 +2970,7 @@ textarea:focus {
             if (ev.id_agendamento != null) score += 4;
             if (ev.id != null) score += 3;
             if (ev.uuid) score += 2;
-            if (ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data) score += 2;
+            if (ev.data_e_hora_agendamento || ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data) score += 2;
             if (ev.nome_da_escola || ev.nome_escola || ev.escola || ev.nome_lead) score += 2;
             if (ev.cidade || ev.cidade_destino) score += 1;
             if (ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao) score += 1;
@@ -2997,7 +2997,7 @@ textarea:focus {
 
         function canonicalEventSignature(ev){
             if (!ev || typeof ev !== 'object') return '';
-            const rawDate = ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data;
+            const rawDate = ev.data_e_hora_agendamento || ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data;
             const dateObj = rawDate ? new Date(rawDate) : null;
             const dateStr = dateObj instanceof Date && !Number.isNaN(dateObj.getTime())
                 ? dateObj.toISOString()
@@ -3251,7 +3251,7 @@ textarea:focus {
         // Extrai uma chave de data (YYYY-MM-DD) do evento, independente do formato original
         function getEventDateKey(ev) {
             if (!ev) return null;
-            const raw = ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data;
+            const raw = ev.data_e_hora_agendamento || ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data;
             if (!raw) return null;
 
             const str = String(raw).trim();
@@ -3368,7 +3368,7 @@ textarea:focus {
                 card.className = 'event-card';
                 card.addEventListener('click', () => showEventDetails(ev));
 
-                const dataEvento = formatarData(ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data);
+                const dataEvento = formatarData(ev.data_e_hora_agendamento || ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data);
                 
                 card.innerHTML = `
                     <div class="event-header">
@@ -3475,8 +3475,8 @@ textarea:focus {
                              texto_tarefa ||
                              'Evento Astronômico';
 
-            const dataBruta = event.data_e_hora_do_agendamento || event.data_agendamento || event.data;
-            const data_e_hora_do_agendamento = dataBruta || new Date().toISOString();
+            const dataBruta = event.data_e_hora_agendamento || event.data_e_hora_do_agendamento || event.data_agendamento || event.data;
+            const data_e_hora_agendamento = dataBruta || new Date().toISOString();
 
             const astronomo = cleanText(event.astronomo) ||
                               cleanText(event.astronomo_validacao) ||
@@ -3503,7 +3503,8 @@ textarea:focus {
                 id_tipo_tarefa,
                 texto_tarefa,
                 conteudo_da_apresentacao: conteudo,
-                data_e_hora_do_agendamento,
+                data_e_hora_agendamento,
+                data_e_hora_do_agendamento: data_e_hora_agendamento,
                 cidade,
                 responsavel_pelo_evento: responsavel,
                 telefone_responsavel_evento: telefoneResp,
@@ -3532,7 +3533,7 @@ textarea:focus {
 
             titleEl.textContent = textOrFallback(CURRENT_EVENT.nome_da_escola || CURRENT_EVENT.escola, 'Detalhes do Evento');
 
-            const dataAgendamento = CURRENT_EVENT.data_e_hora_do_agendamento || CURRENT_EVENT.data_agendamento || CURRENT_EVENT.data;
+            const dataAgendamento = CURRENT_EVENT.data_e_hora_agendamento || CURRENT_EVENT.data_e_hora_do_agendamento || CURRENT_EVENT.data_agendamento || CURRENT_EVENT.data;
 
             bodyEl.innerHTML = `
                 <div class="modal-grid">

@@ -607,7 +607,7 @@
         }
 
         function normalizeEvent(ev){
-            const dataRaw = ev?.data_agendamento || ev?.data_e_hora_do_agendamento || ev?.data || ev?.date;
+            const dataRaw = ev?.data_e_hora_agendamento || ev?.data_e_hora_do_agendamento || ev?.data_agendamento || ev?.data || ev?.date;
             const d = dataRaw ? new Date(dataRaw) : null;
             const id =
                 ev?.id ??
@@ -620,7 +620,7 @@
             return {
                 ...(ev||{}),
                 id,
-                data_agendamento: ev?.data_agendamento || ev?.data_e_hora_do_agendamento || ev?.data,
+                data_agendamento: ev?.data_e_hora_agendamento || ev?.data_e_hora_do_agendamento || ev?.data_agendamento || ev?.data,
                 _date: d instanceof Date && !Number.isNaN(d.getTime()) ? d : null
             };
         }
@@ -646,7 +646,7 @@
             if (ev.id_agendamento != null) score += 4;
             if (ev.id != null) score += 3;
             if (ev.uuid) score += 2;
-            if (ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data) score += 2;
+            if (ev.data_e_hora_agendamento || ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data) score += 2;
             if (ev.nome_da_escola || ev.nome_escola || ev.escola || ev.nome_lead) score += 2;
             if (ev.cidade || ev.cidade_destino) score += 1;
             if (ev.conteudo_da_apresentacao || ev.conteudo_apresentacao || ev.conteudo || ev.apresentacao) score += 1;
@@ -680,7 +680,7 @@
             const dateStr = baseDate instanceof Date && !Number.isNaN(baseDate.getTime())
                 ? baseDate.toISOString().slice(0,10)
                 : '';
-            const horarioRaw = ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data;
+            const horarioRaw = ev.data_e_hora_agendamento || ev.data_e_hora_do_agendamento || ev.data_agendamento || ev.data;
             const horario = horarioRaw ? new Date(horarioRaw) : null;
             const horaStr = horario instanceof Date && !Number.isNaN(horario.getTime()) ? horario.toISOString() : '';
             const escola = (ev.nome_da_escola || ev.nome_escola || ev.escola || ev.nome_lead || '').toString().trim().toLowerCase();
