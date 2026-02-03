@@ -29,6 +29,7 @@
         .compare-meta { font-size:0.82rem; color: var(--text-secondary); line-height:1.35; }
         .compare-status { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius: 999px; font-size:0.75rem; font-weight:700; }
         .compare-status.ok { color:#065f46; background: rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.35); }
+        .compare-status.warn { color:#92400e; background: rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.35); }
         .compare-status.miss { color:#991b1b; background: rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.35); }
         .compare-status .dot { font-size:0.9rem; }
         .compare-pair { display:flex; flex-direction:column; gap:6px; }
@@ -76,7 +77,7 @@
                 <div>
                     <h1>🧪 Debug RH</h1>
                     <div class="debug-status" id="debug-status">Pronto para comparar as tabelas.</div>
-                    <div class="debug-help">Compare os eventos originais e veja se falta algo na agenda enriquecida (seleção livre de astrônomos).</div>
+                    <div class="debug-help">Compare os eventos originais e veja se falta algo em alguma das tabelas (seleção livre de astrônomos).</div>
                 </div>
                 <span class="debug-badge">Comparação: Metabase vs Agenda Astrônomo</span>
             </header>
@@ -118,7 +119,7 @@
                         <div class="value" id="kpi-enriched">0</div>
                     </div>
                     <div class="debug-kpi">
-                        <h3>Faltando na enriquecida</h3>
+                        <h3>Faltando em alguma tabela</h3>
                         <div class="value" id="kpi-missing">0</div>
                     </div>
                 </div>
@@ -126,7 +127,7 @@
 
             <div class="panel-card">
                 <div class="panel-title">
-                    <span>Eventos ausentes na tabela enriquecida</span>
+                    <span>Eventos faltando em alguma tabela</span>
                 </div>
                 <div id="missing-container" class="debug-empty">Nenhum dado carregado.</div>
             </div>
@@ -273,72 +274,69 @@
             return String(val);
         }
 
-        function buildIdSet(events){
-            const set = new Set();
-            events.forEach(ev => {
-                const ids = pickIdCandidates(ev);
-                if (ids.length) {
-                    ids.forEach(id => set.add(id));
-                } else {
-                    const sig = signature(ev);
-                    if (sig) set.add(`sig:${sig}`);
-                }
+        function buildLookup(events){
+            const byId = new Map();
+            const bySig = new Map();
+            (events || []).forEach(ev => {
+                pickIdCandidates(ev).forEach(id => {
+                    if (!byId.has(id)) byId.set(id, ev);
+                });
+                const sig = signature(ev);
+                if (sig && !bySig.has(sig)) bySig.set(sig, ev);
             });
-            return set;
+            return { byId, bySig };
         }
 
-        function renderCompareList(originalEvents, enrichedEvents){
-            if (!Array.isArray(originalEvents) || originalEvents.length === 0) {
-                missingContainer.innerHTML = '<div class="debug-empty">Nenhum evento carregado na tabela original.</div>';
-                return;
+        function findMatch(ev, lookup){
+            if (!ev || !lookup) return { match: null, matchType: '' };
+            const ids = pickIdCandidates(ev);
+            for (const id of ids) {
+                if (lookup.byId.has(id)) return { match: lookup.byId.get(id), matchType: 'id' };
             }
-            const enrichedById = new Map();
-            enrichedEvents.forEach(ev => {
-                pickIdCandidates(ev).forEach(id => {
-                    if (!enrichedById.has(id)) enrichedById.set(id, ev);
-                });
-            });
-            const enrichedBySig = new Map();
-            enrichedEvents.forEach(ev => {
-                const sig = signature(ev);
-                if (sig && !enrichedBySig.has(sig)) enrichedBySig.set(sig, ev);
-            });
+            const sig = signature(ev);
+            if (sig && lookup.bySig.has(sig)) return { match: lookup.bySig.get(sig), matchType: 'sig' };
+            return { match: null, matchType: '' };
+        }
 
-            const rows = originalEvents.map((orig, idx) => {
-                const ids = pickIdCandidates(orig);
-                let match = null;
-                let matchType = '';
-                for (const id of ids) {
-                    if (enrichedById.has(id)) { match = enrichedById.get(id); matchType = 'id'; break; }
+        function buildCompareRow({ originalEvent, enrichedEvent, matchType, displayIndex, enrichedOnly }){
+            const origText = eventText(originalEvent);
+            const enrichedText = enrichedEvent ? eventText(enrichedEvent) : '';
+            const hasMatch = !!(originalEvent && enrichedEvent);
+            const sameText = hasMatch && normalizeCompareText(origText) === normalizeCompareText(enrichedText);
+            const origTaskId = taskTypeId(originalEvent);
+            const enrichedTaskId = enrichedEvent ? taskTypeId(enrichedEvent) : null;
+            const origTaskLabel = taskTypeLabel(originalEvent);
+            const enrichedTaskLabel = enrichedEvent ? taskTypeLabel(enrichedEvent) : null;
+            let sameTaskId = false;
+            if (hasMatch) {
+                if (origTaskId != null && enrichedTaskId != null) {
+                    sameTaskId = String(origTaskId) === String(enrichedTaskId);
+                } else if (origTaskId == null && enrichedTaskId == null) {
+                    sameTaskId = true;
                 }
-                if (!match) {
-                    const sig = signature(orig);
-                    if (sig && enrichedBySig.has(sig)) { match = enrichedBySig.get(sig); matchType = 'sig'; }
-                }
-                const origText = eventText(orig);
-                const matchText = match ? eventText(match) : '';
-                const sameText = match && normalizeCompareText(origText) === normalizeCompareText(matchText);
-                const origTaskId = taskTypeId(orig);
-                const matchTaskId = match ? taskTypeId(match) : null;
-                const origTaskLabel = taskTypeLabel(orig);
-                const matchTaskLabel = match ? taskTypeLabel(match) : null;
-                const sameTaskId = match && origTaskId != null && matchTaskId != null
-                    ? String(origTaskId) === String(matchTaskId)
-                    : match && origTaskId == null && matchTaskId == null;
-                const isPresent = !!(match && sameText && sameTaskId);
-                const taskChipClass = sameTaskId ? 'ok' : 'bad';
-                const taskChipLabel = sameTaskId ? 'Tipo OK' : 'Tipo diferente';
-                const statusClass = isPresent ? 'ok' : 'miss';
-                const statusLabel = isPresent ? 'Presente' : 'Ausente';
-                const statusIcon = isPresent ? '✔' : '✖';
-                const origIds = ids.length ? ids.join(', ') : '—';
-                const matchIds = match ? (pickIdCandidates(match).join(', ') || '—') : '—';
-                const origEntries = getComparableEntries(orig);
-                const matchEntries = getComparableEntries(match);
-                const keys = Array.from(new Set([...origEntries.map(([k])=>k), ...matchEntries.map(([k])=>k)]));
+            }
+            let statusClass = 'miss';
+            let statusLabel = 'Ausente';
+            let statusIcon = '✖';
+            if (hasMatch && sameText && sameTaskId) {
+                statusClass = 'ok';
+                statusLabel = 'Presente';
+                statusIcon = '✔';
+            } else if (hasMatch) {
+                statusClass = 'warn';
+                statusLabel = 'Divergente';
+                statusIcon = '⚠';
+            }
+            const taskChipClass = hasMatch ? (sameTaskId ? 'ok' : 'bad') : '';
+            const taskChipLabel = hasMatch ? (sameTaskId ? 'Tipo OK' : 'Tipo diferente') : 'Sem comparação';
+            const origIds = originalEvent ? (pickIdCandidates(originalEvent).join(', ') || '—') : '—';
+            const enrichedIds = enrichedEvent ? (pickIdCandidates(enrichedEvent).join(', ') || '—') : '—';
+            const origEntries = getComparableEntries(originalEvent);
+            const enrichedEntries = getComparableEntries(enrichedEvent);
+            const keys = Array.from(new Set([...origEntries.map(([k])=>k), ...enrichedEntries.map(([k])=>k)]));
             const detailRows = keys.map((key) => {
-                const aVal = stringifyVal(orig[key]);
-                const bVal = stringifyVal(match ? match[key] : '');
+                const aVal = stringifyVal(originalEvent ? originalEvent[key] : '');
+                const bVal = stringifyVal(enrichedEvent ? enrichedEvent[key] : '');
                 const bothMissing = (!aVal && !bVal);
                 const score = similarityScore(aVal, bVal);
                 let cls = 'bad';
@@ -369,47 +367,99 @@
                 `;
             }).join('');
 
-                return `
-                    <div class="compare-item" data-idx="${idx}">
-                        <div class="compare-row compare-summary">
-                            <div class="compare-card">
-                                <div class="compare-pair">
-                                    <h4>Original #${idx + 1} <span class="compare-status ${statusClass}"><span class="dot">${statusIcon}</span> ${statusLabel}</span></h4>
-                                    <div class="compare-meta"><strong>ID(s):</strong> ${origIds}</div>
-                                    <div class="compare-meta"><strong>ID tipo tarefa:</strong> ${origTaskId ?? '—'}</div>
-                                    <div class="compare-meta"><strong>Tipo tarefa:</strong> ${origTaskLabel ?? '—'}</div>
-                                    <div class="compare-meta"><strong>Texto:</strong> ${origText || '—'}</div>
-                                </div>
-                            </div>
-                            <div class="compare-link">
-                                <div class="compare-line"></div>
-                                ${matchType === 'id' ? '<span class="compare-chip id">ID</span>' : (matchType === 'sig' ? '<span class="compare-chip sig">Assinatura</span>' : '<span class="compare-chip">Sem match</span>')}
-                                <span class="compare-chip ${taskChipClass}">${taskChipLabel}</span>
-                                <div class="compare-line"></div>
-                            </div>
-                            <div class="compare-card">
-                                <div class="compare-pair">
-                                    <h4>Enriquecida</h4>
-                                    <div class="compare-meta"><strong>ID(s):</strong> ${matchIds}</div>
-                                    <div class="compare-meta"><strong>ID tipo tarefa:</strong> ${matchTaskId ?? '—'}</div>
-                                    <div class="compare-meta"><strong>Tipo tarefa:</strong> ${matchTaskLabel ?? '—'}</div>
-                                    <div class="compare-meta"><strong>Texto:</strong> ${matchText || '—'}</div>
-                                </div>
+            const origTitle = originalEvent ? `Original #${displayIndex}` : 'Original (ausente)';
+            const enrichedTitle = 'Enriquecida';
+
+            return `
+                <div class="compare-item" data-idx="${displayIndex}">
+                    <div class="compare-row compare-summary">
+                        <div class="compare-card">
+                            <div class="compare-pair">
+                                <h4>${origTitle} <span class="compare-status ${statusClass}"><span class="dot">${statusIcon}</span> ${statusLabel}</span></h4>
+                                <div class="compare-meta"><strong>ID(s):</strong> ${origIds}</div>
+                                <div class="compare-meta"><strong>ID tipo tarefa:</strong> ${origTaskId ?? '—'}</div>
+                                <div class="compare-meta"><strong>Tipo tarefa:</strong> ${origTaskLabel ?? '—'}</div>
+                                <div class="compare-meta"><strong>Texto:</strong> ${origText || '—'}</div>
                             </div>
                         </div>
-                        <div class="compare-details">
-                            <div class="compare-detail-head">
-                                <div>Campo</div>
-                                <div>Metabase</div>
-                                <div>Agenda Astrônomo</div>
-                                <div>Status</div>
+                        <div class="compare-link">
+                            <div class="compare-line"></div>
+                            ${matchType === 'id' ? '<span class="compare-chip id">ID</span>' : (matchType === 'sig' ? '<span class="compare-chip sig">Assinatura</span>' : '<span class="compare-chip">Sem match</span>')}
+                            <span class="compare-chip ${taskChipClass}">${taskChipLabel}</span>
+                            <div class="compare-line"></div>
+                        </div>
+                        <div class="compare-card">
+                            <div class="compare-pair">
+                                <h4>${enrichedTitle}${enrichedOnly ? ` #${displayIndex}` : ''}</h4>
+                                <div class="compare-meta"><strong>ID(s):</strong> ${enrichedIds}</div>
+                                <div class="compare-meta"><strong>ID tipo tarefa:</strong> ${enrichedTaskId ?? '—'}</div>
+                                <div class="compare-meta"><strong>Tipo tarefa:</strong> ${enrichedTaskLabel ?? '—'}</div>
+                                <div class="compare-meta"><strong>Texto:</strong> ${enrichedText || '—'}</div>
                             </div>
-                            ${detailRows}
                         </div>
                     </div>
-                `;
-            }).join('');
-            missingContainer.innerHTML = `<div class="compare-list">${rows}</div>`;
+                    <div class="compare-details">
+                        <div class="compare-detail-head">
+                            <div>Campo</div>
+                            <div>Metabase</div>
+                            <div>Agenda Astrônomo</div>
+                            <div>Status</div>
+                        </div>
+                        ${detailRows}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCompareList(originalEvents, enrichedEvents){
+            const originals = Array.isArray(originalEvents) ? originalEvents : [];
+            const enriched = Array.isArray(enrichedEvents) ? enrichedEvents : [];
+            if (!originals.length && !enriched.length) {
+                missingContainer.innerHTML = '<div class="debug-empty">Nenhum evento para comparar.</div>';
+                return;
+            }
+
+            const enrichedLookup = buildLookup(enriched);
+            const originalLookup = buildLookup(originals);
+            const rows = [];
+
+            originals.forEach((orig, idx) => {
+                const { match, matchType } = findMatch(orig, enrichedLookup);
+                rows.push({
+                    html: buildCompareRow({
+                        originalEvent: orig,
+                        enrichedEvent: match,
+                        matchType,
+                        displayIndex: idx + 1
+                    }),
+                    missingSide: orig && !match ? 'enriched' : null
+                });
+            });
+
+            let extraIndex = 0;
+            enriched.forEach((enr) => {
+                const { match } = findMatch(enr, originalLookup);
+                if (match) return;
+                extraIndex += 1;
+                rows.push({
+                    html: buildCompareRow({
+                        originalEvent: null,
+                        enrichedEvent: enr,
+                        matchType: '',
+                        displayIndex: extraIndex,
+                        enrichedOnly: true
+                    }),
+                    missingSide: 'original'
+                });
+            });
+
+            const missingRows = rows.filter(row => row.missingSide);
+            const otherRows = rows.filter(row => !row.missingSide);
+            const ordered = [...missingRows, ...otherRows].map(row => row.html).join('');
+
+            missingContainer.innerHTML = ordered
+                ? `<div class="compare-list">${ordered}</div>`
+                : '<div class="debug-empty">Nenhum evento para comparar.</div>';
         }
 
         function getSessionTaskIds(sess){
@@ -553,17 +603,15 @@
                 rawDebugEl.textContent = JSON.stringify(rawDebug, null, 2);
                 rawEnrichedEl.textContent = JSON.stringify(rawEnriched, null, 2);
 
-                const enrichedIdSet = buildIdSet(enrichedEvents);
-                const missing = debugEvents.filter(ev => {
-                    const ids = pickIdCandidates(ev);
-                    if (ids.length) return !ids.some(id => enrichedIdSet.has(id));
-                    const sig = signature(ev);
-                    return sig ? !enrichedIdSet.has(`sig:${sig}`) : true;
-                });
+                const enrichedLookup = buildLookup(enrichedEvents);
+                const originalLookup = buildLookup(debugEvents);
+                const missingFromEnriched = debugEvents.filter(ev => !findMatch(ev, enrichedLookup).match);
+                const missingFromOriginal = enrichedEvents.filter(ev => !findMatch(ev, originalLookup).match);
+                const missingTotal = missingFromEnriched.length + missingFromOriginal.length;
 
                 kpiOriginalEl.textContent = debugEvents.length.toLocaleString('pt-BR');
                 kpiEnrichedEl.textContent = enrichedEvents.length.toLocaleString('pt-BR');
-                kpiMissingEl.textContent = missing.length.toLocaleString('pt-BR');
+                kpiMissingEl.textContent = missingTotal.toLocaleString('pt-BR');
 
                 renderCompareList(debugEvents, enrichedEvents);
                 bindCompareToggles();
