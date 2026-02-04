@@ -264,18 +264,32 @@
             if (map.id == null && map.id_tarefa != null) {
                 map.id = map.id_tarefa;
             }
+            if (map.id_tarefa == null && map.id != null) {
+                map.id_tarefa = map.id;
+            }
             if (map.id_tipo_tarefa == null) {
                 map.id_tipo_tarefa = taskTypeId(ev);
             }
             if (map.data_agendamento == null) {
                 map.data_agendamento = ev?.data_e_hora_agendamento || ev?.data_e_hora_do_agendamento || ev?.data_agendamento || ev?.data || ev?._date || null;
             }
+            if (map.data_e_hora_agendamento == null && map.data_agendamento != null) {
+                map.data_e_hora_agendamento = map.data_agendamento;
+            }
+            if (map.data_agendamento == null && map.data_e_hora_agendamento != null) {
+                map.data_agendamento = map.data_e_hora_agendamento;
+            }
             return map;
         }
 
         function getComparableEntries(ev){
             if (!ev || typeof ev !== 'object') return [];
-            return Object.entries(buildComparableMap(ev));
+            const map = buildComparableMap(ev);
+            const exclude = new Set();
+            if (map.id_tarefa != null) exclude.add('id');
+            if (map.data_agendamento != null) exclude.add('data_e_hora_agendamento');
+            const entries = Object.entries(map).filter(([key]) => !exclude.has(key));
+            return entries;
         }
 
         function stringifyVal(val){
@@ -345,18 +359,18 @@
             const enrichedIds = enrichedEvent ? (pickIdCandidates(enrichedEvent).join(', ') || '—') : '—';
             const origEntries = getComparableEntries(originalEvent);
             const enrichedEntries = getComparableEntries(enrichedEvent);
+            const originalMap = originalEvent ? buildComparableMap(originalEvent) : {};
+            const enrichedMap = enrichedEvent ? buildComparableMap(enrichedEvent) : {};
             const keys = Array.from(new Set([...origEntries.map(([k])=>k), ...enrichedEntries.map(([k])=>k)]));
             const detailRows = keys.map((key) => {
-                const aVal = stringifyVal(originalEvent ? originalEvent[key] : '');
-                const bVal = stringifyVal(enrichedEvent ? enrichedEvent[key] : '');
+                const aVal = stringifyVal(originalEvent ? (key in originalMap ? originalMap[key] : originalEvent[key]) : '');
+                const bVal = stringifyVal(enrichedEvent ? (key in enrichedMap ? enrichedMap[key] : enrichedEvent[key]) : '');
                 const bothMissing = (!aVal && !bVal);
+                if (bothMissing) return '';
                 const score = similarityScore(aVal, bVal);
                 let cls = 'bad';
                 let label = 'Diferente';
-                if (bothMissing) {
-                    cls = 'bad';
-                    label = 'Ausente';
-                } else if (!aVal && bVal) {
+                if (!aVal && bVal) {
                     cls = 'bad';
                     label = 'Falta no Metabase';
                 } else if (aVal && !bVal) {
@@ -377,7 +391,7 @@
                         <div class="compare-detail-status ${cls}">${label}</div>
                     </div>
                 `;
-            }).join('');
+            }).filter(Boolean).join('');
 
             const origTitle = originalEvent ? `Original #${displayIndex}` : 'Original (ausente)';
             const enrichedTitle = 'Enriquecida';
