@@ -438,7 +438,7 @@
                 const s = getLoggedSession();
                 let rawData = null;
                 try{
-                    rawData = await callAgendaWebhook('atualizar_agenda', s?.id_astronomo != null ? { id_astronomo: s.id_astronomo } : {});
+                    rawData = await callAgendaWebhook('get_feedback', s?.id_astronomo != null ? { id_astronomo: s.id_astronomo } : {});
                 }catch(err){
                     console.warn('Falha ao buscar feedbacks via webhook, tentando cache local:', err);
                     const cached = loadCachedAgenda(s);

@@ -158,13 +158,22 @@
     style.id = POPUP_STYLE_ID;
     style.textContent = `
       .astro-popup-container{position:fixed;top:16px;right:16px;display:flex;flex-direction:column;gap:10px;z-index:100000;pointer-events:none}
+      .astro-popup-container.astro-popup-container--center{top:0;left:0;right:0;bottom:0;justify-content:center;align-items:center;background:rgba(3,7,18,0.62);backdrop-filter: blur(8px);padding:32px}
       .astro-popup{min-width:220px;max-width:360px;background:rgba(15,23,42,0.95);color:#e2e8f0;border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:12px 14px;box-shadow:0 14px 36px rgba(0,0,0,0.35);display:flex;gap:10px;align-items:flex-start;opacity:0;transform:translateY(-6px);transition:opacity .2s ease,transform .2s ease;pointer-events:auto}
+      .astro-popup.astro-popup--center{min-width:420px;max-width:640px;padding:24px 26px;border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,0.55);border:1px solid rgba(148,163,184,0.3)}
+      .astro-popup.astro-popup--center .astro-popup__text{font-size:1rem;line-height:1.6}
       .astro-popup.show{opacity:1;transform:translateY(0)}
       .astro-popup--warning{border-color:rgba(245,158,11,0.55)}
       .astro-popup--error{border-color:rgba(239,68,68,0.55)}
       .astro-popup--success{border-color:rgba(16,185,129,0.55)}
       .astro-popup__text{flex:1;font-size:0.9rem;line-height:1.4}
+      .astro-popup__actions{display:flex;gap:8px;align-items:center}
       .astro-popup__action{background:rgba(148,163,184,0.16);color:#e2e8f0;border:1px solid rgba(148,163,184,0.35);border-radius:999px;padding:6px 10px;font-size:0.78rem;font-weight:700;cursor:pointer}
+      .astro-popup__action.primary{background:rgba(56,189,248,0.22);border-color:rgba(56,189,248,0.45)}
+      .astro-popup__action.secondary{background:rgba(148,163,184,0.12)}
+      .astro-popup--finalize{background:linear-gradient(160deg, rgba(10,16,36,0.98), rgba(6,10,26,0.98));border:1px solid rgba(56,189,248,0.4);box-shadow:0 26px 90px rgba(4,10,30,0.6)}
+      .astro-popup--finalize .astro-popup__text{font-size:1.05rem;line-height:1.7;color:#eaf4ff}
+      .astro-popup--finalize .astro-popup__action.primary{background:linear-gradient(135deg, rgba(56,189,248,0.35), rgba(123,92,255,0.28));border-color:rgba(123,92,255,0.55)}
       .astro-popup__close{background:transparent;border:0;color:inherit;cursor:pointer;font-size:1rem;line-height:1;padding:0}
     `;
     document.head.appendChild(style);
@@ -188,6 +197,12 @@
     node.classList.remove('show');
     setTimeout(() => {
       try { node.remove(); } catch (_) {}
+      try{
+        const container = document.getElementById(POPUP_CONTAINER_ID);
+        if (container && !container.querySelector('.astro-popup--center')) {
+          container.classList.remove('astro-popup-container--center');
+        }
+      }catch(_){}
     }, 220);
   }
 
@@ -204,25 +219,52 @@
       try { window.alert(message); } catch (_) {}
       return;
     }
+    if (options.center) {
+      container.classList.add('astro-popup-container--center');
+    } else {
+      container.classList.remove('astro-popup-container--center');
+    }
     const item = document.createElement('div');
     item.className = `astro-popup astro-popup--${type}`;
+    if (options.center) item.classList.add('astro-popup--center');
+    if (options.className) item.classList.add(String(options.className));
     const text = document.createElement('div');
     text.className = 'astro-popup__text';
     text.textContent = String(message);
     const actionLabel = options.actionLabel;
     const onAction = typeof options.onAction === 'function' ? options.onAction : null;
+    const secondaryLabel = options.secondaryLabel;
+    const onSecondary = typeof options.onSecondary === 'function' ? options.onSecondary : null;
     const closeOnAction = options.closeOnAction !== false;
-    let actionBtn = null;
-    if (actionLabel) {
-      actionBtn = document.createElement('button');
-      actionBtn.type = 'button';
-      actionBtn.className = 'astro-popup__action';
-      actionBtn.textContent = String(actionLabel);
-      if (onAction) {
-        actionBtn.addEventListener('click', () => {
-          try { onAction(actionBtn, item); } catch (_) {}
-          if (closeOnAction) cleanup();
-        });
+    let actionWrap = null;
+    if (actionLabel || secondaryLabel) {
+      actionWrap = document.createElement('div');
+      actionWrap.className = 'astro-popup__actions';
+      if (secondaryLabel) {
+        const secondaryBtn = document.createElement('button');
+        secondaryBtn.type = 'button';
+        secondaryBtn.className = 'astro-popup__action secondary';
+        secondaryBtn.textContent = String(secondaryLabel);
+        if (onSecondary) {
+          secondaryBtn.addEventListener('click', () => {
+            try { onSecondary(secondaryBtn, item); } catch (_) {}
+            if (closeOnAction) cleanup();
+          });
+        }
+        actionWrap.appendChild(secondaryBtn);
+      }
+      if (actionLabel) {
+        const actionBtn = document.createElement('button');
+        actionBtn.type = 'button';
+        actionBtn.className = 'astro-popup__action primary';
+        actionBtn.textContent = String(actionLabel);
+        if (onAction) {
+          actionBtn.addEventListener('click', () => {
+            try { onAction(actionBtn, item); } catch (_) {}
+            if (closeOnAction) cleanup();
+          });
+        }
+        actionWrap.appendChild(actionBtn);
       }
     }
     const closeBtn = document.createElement('button');
@@ -237,7 +279,7 @@
     };
     closeBtn.addEventListener('click', cleanup);
     item.appendChild(text);
-    if (actionBtn) item.appendChild(actionBtn);
+    if (actionWrap) item.appendChild(actionWrap);
     item.appendChild(closeBtn);
     container.appendChild(item);
     requestAnimationFrame(() => item.classList.add('show'));

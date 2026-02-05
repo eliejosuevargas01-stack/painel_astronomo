@@ -489,6 +489,13 @@
 
         function isVisitaEvent(ev){
             if (!ev || typeof ev !== 'object') return false;
+            const sess = sessaoAtual || getLoggedSession();
+            const ids = getSessionTaskIds(buildSessionPayload(sess || {}));
+            const idVisita = ids?.visita ? String(ids.visita) : null;
+            if (idVisita) {
+                const tipoId = ev.id_tipo_tarefa ?? ev.id_tipo ?? ev.tipo_tarefa_id ?? ev.tipo_id ?? ev.id_tipo_evento ?? '';
+                if (tipoId != null && String(tipoId) === idVisita) return true;
+            }
             const raw = [
                 ev.tipo_da_tarefa,
                 ev.tipo_evento,

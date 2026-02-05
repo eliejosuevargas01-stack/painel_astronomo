@@ -2188,6 +2188,12 @@ header p{
 .modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:1500; background:rgba(2,6,20,0.72) }
 .modal.open{ display:flex }
 .modal-content{ width:min(900px,95%); max-height:90vh; overflow:auto; border-radius:16px; padding:26px; background: linear-gradient(180deg, rgba(6,8,20,0.96), rgba(10,12,25,0.98)); border:1px solid var(--glass-border); box-shadow:0 30px 80px rgba(2,6,20,0.8) }
+.finalize-modal .modal-content{ width:min(640px,92%); padding:28px; border-radius:20px; border:1px solid rgba(56,189,248,0.35); background: linear-gradient(160deg, rgba(8,14,32,0.98), rgba(6,10,24,0.98)); box-shadow:0 40px 120px rgba(4,10,30,0.7) }
+.finalize-modal .modal-title{ font-size:1.25rem; font-weight:800; color:#eaf4ff; margin:0 0 6px }
+.finalize-modal .modal-text{ color:rgba(226,232,240,0.92); line-height:1.6; margin-bottom:18px }
+.finalize-modal .modal-actions{ display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap }
+.finalize-modal .modal-actions .btn{ min-width:120px }
+.finalize-modal .modal-actions .btn-primary{ background: linear-gradient(135deg, rgba(56,189,248,0.45), rgba(123,92,255,0.35)); border-color: rgba(123,92,255,0.6) }
 .close-btn{ position:absolute; right:22px; top:18px; background:transparent; border:none; color:var(--muted); font-size:1.6rem; cursor:pointer }
 
 .toast{ position:fixed; top:20px; right:20px; z-index:1600; background: linear-gradient(180deg, rgba(10,12,20,0.95), rgba(6,8,20,0.95)); padding:12px 16px; border-radius:10px; display:flex; gap:12px; align-items:center; box-shadow:0 12px 40px rgba(2,6,20,0.7); border-left:4px solid var(--accent-cyan) }
@@ -2849,11 +2855,26 @@ header.page-header{
 .historico-page .history-card{ border-left: 6px solid var(--accent-cyan) }
 .historico-page .history-header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom: 10px; padding-bottom: 10px; border-bottom:1px solid rgba(255,255,255,0.08) }
 .historico-page .completion-badge{ display:inline-block; padding:4px 10px; border-radius:999px; font-size:.8rem; font-weight:700; background: rgba(72,187,120,0.15); color:#48bb78 }
+.historico-page .completion-badge.pending{ background: rgba(237,137,54,0.18); color:#ed8936 }
 .historico-page .feedback-badge{ display:inline-block; padding:4px 8px; border-radius:8px; font-size:.75rem; background: rgba(255, 216, 107, 0.12); color: var(--accent-gold) }
 .historico-page .period-filter{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 14px }
 .historico-page .period-button{ background: rgba(255,255,255,0.03); border:1px solid var(--glass-border); color: var(--muted); padding: 8px 14px; border-radius: 10px; cursor:pointer }
 .historico-page .period-button:hover{ transform: translateY(-2px) }
 .historico-page .period-button.active{ background: linear-gradient(90deg, rgba(123,92,255,0.12), rgba(52,209,243,0.10)); color:#fff; border-color: rgba(123,92,255,0.28) }
+.historico-page .history-modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(6,8,20,0.7); backdrop-filter: blur(4px); z-index:999; padding:16px; }
+.historico-page .history-modal.show{ display:flex; }
+.historico-page .history-modal__content{ position:relative; background:#0e1224; color:#e5e7eb; border:1px solid rgba(255,255,255,0.08); border-radius:16px; width:min(920px, 100%); max-height:90vh; overflow:auto; padding:22px; box-shadow:0 18px 60px rgba(0,0,0,0.35); }
+.historico-page .history-modal__close{ position:absolute; top:12px; right:12px; background:transparent; border:none; color:#fff; font-size:1.4rem; cursor:pointer; }
+.historico-page .history-modal__header{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.historico-page .history-modal__title{ margin:0; font-size:1.2rem; }
+.historico-page .history-modal__subtitle{ margin:2px 0 0; color:#cbd5e0; }
+.historico-page .history-modal__meta{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+.historico-page .history-chip{ display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); font-size:0.9rem; }
+.historico-page .history-details-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; margin-top:14px; }
+.historico-page .history-detail{ background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:10px; }
+.historico-page .history-detail .label{ color:#a5b4fc; font-size:0.85rem; }
+.historico-page .history-detail .value{ color:#e2e8f0; font-weight:600; }
+@media (max-width:640px){ .historico-page .history-modal__content{ padding:16px; } }
 
 .loading{ display:inline-block; width:20px; height:20px; border:3px solid rgba(255,255,255,0.25); border-radius:50%; border-top-color:#fff; animation: spin 1s ease-in-out infinite; margin-right:8px }
 @keyframes spin{ to{ transform: rotate(360deg) } }

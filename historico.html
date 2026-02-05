@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Histórico - Eventos Finalizados</title>
+    <title>Histórico - Eventos</title>
     <!-- <link rel="stylesheet" href="css/main-responsive.css"> -->
     <link rel="stylesheet" href="css/styles.css">
     <script src="auth.js"></script>
@@ -62,12 +62,12 @@
                 <section class="section" id="indicadores">
                     <div class="section-header">
                         <h2>Indicadores do histórico</h2>
-                        <p>Resumo dos eventos finalizados, valores consolidados e abrangência de operações.</p>
+                        <p>Resumo dos eventos do histórico, valores consolidados e abrangência de operações.</p>
                     </div>
                     <div class="stats">
                         <div class="stat-card">
                             <div class="stat-value" id="total-events">0</div>
-                            <div class="stat-label">Eventos Finalizados</div>
+                            <div class="stat-label">Eventos</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value" id="total-value">R$ 0</div>
@@ -124,14 +124,14 @@
                 
                 <section class="section" id="historico">
                     <div class="section-header">
-                        <h2>Eventos finalizados</h2>
-                        <p>Veja detalhes completos e acesse o histórico de cada operação.</p>
+                        <h2>Histórico de eventos</h2>
+                        <p>Veja detalhes completos de eventos finalizados e não finalizados.</p>
                     </div>
                     <div class="history-grid" id="history-grid">
                         <div class="empty-state">
                             <i class="fas fa-history"></i>
-                            <h3>Nenhum evento finalizado para exibir</h3>
-                            <p>Não há eventos marcados como finalizados no histórico.</p>
+                            <h3>Nenhum evento para exibir</h3>
+                            <p>Não há eventos disponíveis no histórico.</p>
                         </div>
                     </div>
                     
@@ -367,11 +367,7 @@
         }
         function isFinalizadoEvent(ev){
             const v = ev?.finalizado;
-            if (v === true || v === 'true' || v === 1 || v === '1') return true;
-            const status = String(ev?.status || ev?.status_evento || ev?.resultado || ev?.result || '').toLowerCase();
-            if (status.includes('finalizado') || status === 'done') return true;
-            if (ev?.data_finalizacao || ev?.finalizado_em || ev?.data_finalizado) return true;
-            return false;
+            return v === true || v === 'true' || v === 1 || v === '1';
         }
         async function callAgendaWebhook(action, params){
             const payload = { action, ...(params||{}) };
@@ -447,7 +443,7 @@
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
-            // Primeiro: tentar herdar eventos finalizados do cache do index (e só buscar se não houver)
+            // Primeiro: tentar herdar eventos do cache do index (e só buscar se não houver)
             fetchDataFromN8N(true);
 
             // Event Listeners
@@ -512,10 +508,8 @@
             // Normaliza fonte
             eventsData = dedupeEventsBySignature(normalizeAgendaPayload(data));
 
-            // Filtrar apenas eventos finalizados
-            completedEvents = eventsData.filter(isFinalizadoEvent);
-
-            completedEvents = completedEvents.map(event => {
+            // Incluir eventos finalizados e não finalizados
+            completedEvents = eventsData.map(event => {
                 const textoRaw = (typeof event?.texto_tarefa === 'object' && event?.texto_tarefa !== null) ? (event.texto_tarefa.texto ?? '') : (event?.texto_tarefa ?? '');
                 const eventoNome = (event?.conteudo_da_apresentacao ?? textoRaw ?? '').toString() || 'Evento Astronômico';
                 const dataEv = event?.data_e_hora_agendamento ?? event?.data_e_hora_do_agendamento ?? event?.data_agendamento ?? new Date().toISOString();
@@ -524,6 +518,7 @@
                 const alunos = event?.numero_alunos_empresa ?? event?.numero_de_alunos ?? '0';
                 const id = event?.id ?? event?.id_evento ?? event?.id_evento_unico ?? 'N/A';
                 const feedback = (event?.avaliacao_astronomo ?? '').toString();
+                const isFinalizado = isFinalizadoEvent(event);
                 return {
                     ...event,
                     id,
@@ -535,7 +530,8 @@
                     numero_alunos: alunos,
                     valor_total: event?.valor_total ?? '0',
                     feedback,
-                    finalizado_em: event?.data_finalizacao ?? dataEv
+                    finalizado_em: isFinalizado ? (event?.data_finalizacao ?? dataEv) : null,
+                    _finalizado: isFinalizado
                 };
             });
 
@@ -565,9 +561,9 @@
                 webhookStatus.classList.add('status-connected');
             }
             if (connectionStatus) {
-                connectionStatus.textContent = `${sourceLabel} - ${completedEvents.length} eventos finalizados carregados`;
+                connectionStatus.textContent = `${sourceLabel} - ${completedEvents.length} eventos carregados`;
             }
-            showNotification(`${completedEvents.length} eventos finalizados carregados com sucesso!`, 'success');
+            showNotification(`${completedEvents.length} eventos carregados com sucesso!`, 'success');
         }
 
         function hydrateFromCache(){
@@ -597,7 +593,7 @@
                 if (webhookStatus) webhookStatus.classList.remove('status-connected', 'status-error', 'status-warning');
 
                 const s = getLoggedSession();
-                const data = await callAgendaWebhook('atualizar_agenda', s?.id_astronomo != null ? { id_astronomo: s.id_astronomo } : {});
+                const data = await callAgendaWebhook('historico', s?.id_astronomo != null ? { id_astronomo: s.id_astronomo } : {});
                 const normalized = normalizeAgendaPayload(data);
                 if ((!normalized || !normalized.length) && typeof showNoDataPopup === 'function') {
                     showNoDataPopup('Sem dados retornados do n8n.');
@@ -649,7 +645,7 @@
         }
 
         function filterByPeriod(event) {
-            const eventDate = new Date(event.finalizado_em || event.data);
+                const eventDate = new Date(event.data);
             const now = new Date();
             
             switch(filteredPeriod) {
@@ -693,8 +689,10 @@
             const eventDate = new Date(event.data || event.finalizado_em || Date.now());
             const formattedDate = eventDate.toLocaleDateString('pt-BR');
             const formattedTime = eventDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            const finalizadoDate = new Date(event.finalizado_em || event.data || Date.now());
-            const finalizadoFormatted = finalizadoDate.toLocaleDateString('pt-BR');
+            const finalizadoDate = event.finalizado_em ? new Date(event.finalizado_em) : null;
+            const finalizadoFormatted = finalizadoDate && !Number.isNaN(finalizadoDate.getTime())
+                ? finalizadoDate.toLocaleDateString('pt-BR')
+                : 'Não finalizado';
             const cidadeNome = event.cidade || 'Cidade não informada';
             const valorNumber = parseFloat(event.valor_total);
             const valorLabel = Number.isFinite(valorNumber) ? `R$ ${valorNumber.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'Não informado';
@@ -715,7 +713,7 @@
                         <p class="history-modal__subtitle">${schoolName !== 'Não informado' ? 'Escola: ' + schoolName : ''}</p>
                         <div class="history-modal__meta">
                             <span class="history-chip"><i class="fas fa-calendar-check"></i>${formattedDate} • ${formattedTime}</span>
-                            <span class="history-chip"><i class="fas fa-flag-checkered"></i>Finalizado em ${finalizadoFormatted}</span>
+                            <span class="history-chip"><i class="fas fa-flag-checkered"></i>${event._finalizado ? `Finalizado em ${finalizadoFormatted}` : 'Não finalizado'}</span>
                             <span class="history-chip"><i class="fas fa-city"></i>${cidadeNome}</span>
                             <span class="history-chip"><i class="fas fa-user-astronaut"></i>${event.astronomo || 'Astrônomo não informado'}</span>
                             <span class="history-chip"><i class="fas fa-coins"></i>${valorLabel}</span>
@@ -749,8 +747,8 @@
                         <span class="value">${valorLabel}</span>
                     </div>
                     <div class="history-detail">
-                        <span class="label">Finalizado em</span>
-                        <span class="value">${finalizadoFormatted}</span>
+                        <span class="label">Status</span>
+                        <span class="value">${event._finalizado ? `Finalizado em ${finalizadoFormatted}` : 'Não finalizado'}</span>
                     </div>
                 </div>
 
@@ -863,8 +861,8 @@
                 if (completedEvents.length === 0) {
                     emptyState.innerHTML = `
                         <i class="fas fa-history"></i>
-                        <h3>Nenhum evento finalizado para exibir</h3>
-                        <p>Nenhum evento marcado como finalizado foi encontrado nos dados.</p>
+                        <h3>Nenhum evento para exibir</h3>
+                        <p>Nenhum evento foi encontrado nos dados.</p>
                     `;
                 } else {
                     emptyState.innerHTML = `
@@ -888,8 +886,10 @@
                     minute: '2-digit' 
                 });
                 
-                const finalizadoDate = new Date(event.finalizado_em || event.data);
-                const finalizadoFormatted = finalizadoDate.toLocaleDateString('pt-BR');
+                const finalizadoDate = event.finalizado_em ? new Date(event.finalizado_em) : null;
+                const finalizadoFormatted = finalizadoDate && !Number.isNaN(finalizadoDate.getTime())
+                    ? finalizadoDate.toLocaleDateString('pt-BR')
+                    : 'Não finalizado';
                 const cidadeNome = event.cidade || 'Cidade não informada';
                 const schoolName = getSchoolName(event) || 'Escola não informada';
                 
@@ -910,8 +910,8 @@
                             <span class="detail-value">${cidadeNome}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">Finalizado em</span>
-                            <span class="detail-value">${finalizadoFormatted}</span>
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value">${event._finalizado ? 'Finalizado' : 'Não finalizado'}</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Local</span>
@@ -934,9 +934,9 @@
                         <div>
                             <div class="astronomer-name">${event.astronomo}</div>
                             <div>
-                                <span class="completion-badge">
-                                    <i class="fas fa-check-circle"></i>
-                                    Finalizado
+                                <span class="completion-badge ${event._finalizado ? '' : 'pending'}">
+                                    <i class="fas ${event._finalizado ? 'fa-check-circle' : 'fa-clock'}"></i>
+                                    ${event._finalizado ? 'Finalizado' : 'Não finalizado'}
                                 </span>
                                 ${event.feedback ? `<span class="feedback-badge">Com Feedback</span>` : ''}
                             </div>
@@ -951,10 +951,11 @@
 
         function updateStats() {
             const totalEvents = completedEvents.length;
+            const completedCount = completedEvents.filter(event => event && event._finalizado).length;
             const totalAstronomers = new Set(completedEvents.map(event => event.astronomo).filter(Boolean)).size;
             const totalCities = new Set(completedEvents.map(event => cityBaseName(event.cidade)).filter(Boolean)).size;
             const totalValue = completedEvents.reduce((sum, event) => sum + (parseFloat(event.valor_total) || 0), 0);
-            const completionRate = eventsData.length > 0 ? ((totalEvents / eventsData.length) * 100).toFixed(1) : 0;
+            const completionRate = totalEvents > 0 ? ((completedCount / totalEvents) * 100).toFixed(1) : 0;
             
             totalEventsElement.textContent = totalEvents.toLocaleString('pt-BR');
             totalAstronomersElement.textContent = totalAstronomers.toLocaleString('pt-BR');
@@ -971,7 +972,7 @@
                 return;
             }
 
-            const headers = ['Evento', 'Data', 'Astrônomo', 'Cidade', 'Local', 'Alunos', 'Valor', 'Finalizado em'];
+            const headers = ['Evento', 'Data', 'Astrônomo', 'Cidade', 'Local', 'Alunos', 'Valor', 'Status'];
             const csvData = filteredEvents.map(event => [
                 `"${event.evento}"`,
                 new Date(event.data).toLocaleDateString('pt-BR'),
@@ -980,7 +981,7 @@
                 `"${event.local}"`,
                 event.numero_alunos,
                 event.valor_total ? parseFloat(event.valor_total).toLocaleString('pt-BR') : '0',
-                new Date(event.finalizado_em || event.data).toLocaleDateString('pt-BR')
+                event._finalizado && event.finalizado_em ? `Finalizado em ${new Date(event.finalizado_em).toLocaleDateString('pt-BR')}` : 'Não finalizado'
             ]);
 
             const csvContent = [headers, ...csvData]

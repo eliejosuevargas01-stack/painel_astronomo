@@ -146,6 +146,21 @@
         </div>
     </div>
 
+    <div class="modal finalize-modal" id="finalize-modal" aria-hidden="true" role="dialog">
+        <div class="modal-content">
+            <h3 class="modal-title">Finalizar evento</h3>
+            <p class="modal-text">Para finalizar é necessário lançar as despesas reais. Deseja lançar as despesas deste evento agora?</p>
+            <label class="modal-text" style="display:flex; gap:8px; align-items:center; margin:6px 0 14px;">
+                <input type="checkbox" id="finalize-dont-show" />
+                Não mostrar novamente
+            </label>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="finalize-cancel">Não</button>
+                <button class="btn btn-primary" id="finalize-confirm">Sim, lançar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Lightbox de imagens em tela cheia -->
     <div class="image-lightbox" id="image-lightbox" aria-hidden="true">
         <div class="image-lightbox__backdrop" id="image-lightbox-backdrop"></div>
@@ -293,6 +308,10 @@
         const eventModalBody     = document.getElementById('event-modal-body');
         const eventModalClose    = document.getElementById('event-modal-close');
         const eventModalBackdrop = document.getElementById('event-modal-backdrop');
+        const finalizeModal      = document.getElementById('finalize-modal');
+        const finalizeConfirmBtn = document.getElementById('finalize-confirm');
+        const finalizeCancelBtn  = document.getElementById('finalize-cancel');
+        const finalizeDontShowEl = document.getElementById('finalize-dont-show');
         if (btnOpenRotas) btnOpenRotas.disabled = true;
         // Lightbox refs
         const lightboxEl         = document.getElementById('image-lightbox');
@@ -311,6 +330,8 @@
         let selectedDate = startOfDay(new Date());      // dia selecionado no calendário
         let currentTaskFilter = { type: 'visita', id: null };
         let currentSession = null;
+        let pendingFinalizeEvent = null;
+        const FINALIZE_PREF_KEY = 'finalize_modal_skip_v1';
         const WEATHER_CACHE_TTL = 30 * 60 * 1000; // 30 min
         const GEO_CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 dias
         const weatherCache = new Map();
@@ -1418,33 +1439,18 @@
         async function finalizarEvento(ev, btn){
             const id = getEventId(ev);
             if (!id) return;
-            if (btn){
-                btn.disabled = true;
-                btn.dataset.prevLabel = btn.innerHTML;
-                btn.innerHTML = 'Finalizando...';
-            }
-            try{
-                const payload = { action:'finalizar_evento', id_evento:id, finalizado:true };
-                const resp = await fetch(API_AGENDA, {
-                    method:'POST',
-                    headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify(payload)
-                });
-                const txt = await resp.text().catch(()=> '');
-                if (!resp.ok) throw new Error(txt || `HTTP ${resp.status}`);
-                removeEventById(id);
-                renderCalendar();
-                renderEventsList();
-                renderDayEventsDetails();
-                alert('Evento finalizado e removido da lista.');
-            }catch(err){
-                console.error('Erro ao finalizar evento:', err);
-                alert('Erro ao finalizar evento: ' + (err && err.message));
-            }finally{
-                if (btn){
-                    btn.disabled = false;
-                    btn.innerHTML = btn.dataset.prevLabel || '✅ Finalizar';
-                }
+            pendingFinalizeEvent = { ev, id };
+            const skipFinalizeModal = (() => {
+                try{ return localStorage.getItem(FINALIZE_PREF_KEY) === '1'; }catch(_){ return false; }
+            })();
+            if (!skipFinalizeModal && finalizeModal) {
+                finalizeModal.classList.add('open');
+                finalizeModal.setAttribute('aria-hidden', 'false');
+            } else if (window.confirm('Para finalizar é necessário lançar as despesas reais. Deseja lançar as despesas deste evento agora?')) {
+                try{
+                    localStorage.setItem('despesas_evento_selecionado', JSON.stringify({ ...(ev || {}), id, _open_expenses: true }));
+                }catch(_){}
+                window.location.href = 'despesas.html';
             }
         }
 
@@ -1526,7 +1532,7 @@
             window.AstroPopup.show(
                 'Eventos duplicados idênticos foram ignorados. Se quiser ver mais, clique em Ver eventos duplicados.',
                 'info',
-                0,
+                60000,
                 {
                     actionLabel,
                     closeOnAction: false,
@@ -2441,8 +2447,39 @@
 
             if (eventModalClose) eventModalClose.addEventListener('click', closeEventModal);
             if (eventModalBackdrop) eventModalBackdrop.addEventListener('click', closeEventModal);
+            if (finalizeCancelBtn && finalizeModal) {
+                finalizeCancelBtn.addEventListener('click', () => {
+                    finalizeModal.classList.remove('open');
+                    finalizeModal.setAttribute('aria-hidden', 'true');
+                    pendingFinalizeEvent = null;
+                });
+            }
+            if (finalizeConfirmBtn && finalizeModal) {
+                finalizeConfirmBtn.addEventListener('click', () => {
+                    if (!pendingFinalizeEvent) return;
+                    const { ev, id } = pendingFinalizeEvent;
+                    if (finalizeDontShowEl && finalizeDontShowEl.checked) {
+                        try{ localStorage.setItem(FINALIZE_PREF_KEY, '1'); }catch(_){}
+                    }
+                    try{
+                        localStorage.setItem('despesas_evento_selecionado', JSON.stringify({ ...(ev || {}), id, _open_expenses: true }));
+                    }catch(_){}
+                    finalizeModal.classList.remove('open');
+                    finalizeModal.setAttribute('aria-hidden', 'true');
+                    pendingFinalizeEvent = null;
+                    window.location.href = 'despesas.html';
+                });
+            }
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') closeEventModal();
+                if (e.key === 'Escape') {
+                    if (finalizeModal && finalizeModal.classList.contains('open')) {
+                        finalizeModal.classList.remove('open');
+                        finalizeModal.setAttribute('aria-hidden', 'true');
+                        pendingFinalizeEvent = null;
+                    } else {
+                        closeEventModal();
+                    }
+                }
             });
             if (lightboxClose) lightboxClose.addEventListener('click', closeImageLightbox);
             if (lightboxBackdrop) lightboxBackdrop.addEventListener('click', closeImageLightbox);
